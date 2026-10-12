@@ -57,17 +57,6 @@ SepsisWatch-X monitors intensive care unit (ICU) patients continuously hour-by-h
 
 ---
 
-## 2. 40-Mark Binding Rubric Compliance
-
-| Rubric Component | Marks | Key Implementations in SepsisWatch-X | Status |
-|---|---|---|---|
-| **1. Data Engineering & Visualization** | **8** | PhysioNet 2019 Set A/B loader, high-fidelity synthetic generator, zero patient leakage verification, forward-fill + decay masks, PCA/t-SNE/UMAP projections, 11 mandatory figures with scientific insights. | ✅ **Satisfied** |
-| **2. Advanced Modeling & Optimization** | **10** | LightGBM tabular branch, GRU-D temporal decay branch, DANN domain adaptation with GRL, Stacking ensemble, Split Conformal prediction, Optuna Bayesian tuning, MLflow model registry. | ✅ **Satisfied** |
-| **3. Benchmarking & Comparative Analysis**| **10** | Comparison with Reyna et al. 2020 & top winners, official PhysioNet Utility Score, bootstrap 95% CIs, A→A/A→B/B→B/B→A transfer matrix, subgroup fairness error audit. | ✅ **Satisfied** |
-| **4. Deployment & Containerization** | **8** | FastAPI async backend, Pydantic v2 schemas, PostgreSQL/SQLite fallback, SQLAlchemy 2.0 with 16 tables, multi-stage Docker container (port 7860 HF Spaces SDK), mounted `/gradio` inference page. | ✅ **Satisfied** |
-| **5. Documentation & Report Quality** | **4** | IEEE 10-page LaTeX report template in `docs/report/`, comprehensive README, 3-minute demo script, complete rubric compliance checklist matrix. | ✅ **Satisfied** |
-
----
 
 ## 3. Dashboard Architecture: 14 Multi-Page Views & 5 3D Scenes
 
