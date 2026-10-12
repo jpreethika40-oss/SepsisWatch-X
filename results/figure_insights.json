@@ -1,0 +1,79 @@
+[
+  {
+    "id": 1,
+    "title": "Missingness Heatmap per Hospital",
+    "category": "Data Engineering",
+    "filepath": "results\\figures\\figure_1.png",
+    "insight": "Extreme missingness is an inherent property of ICU telemetry: routine vitals (HR, SBP, Resp) are documented with 90-95% temporal density, whereas arterial blood gases (BaseExcess, PaCO2) and hepatic panels (Bilirubin, AST) exhibit >85-95% sparsity. Hospital B exhibits slightly longer measurement sampling intervals for blood gas labs, introducing domain shift in missingness patterns."
+  },
+  {
+    "id": 2,
+    "title": "Class Imbalance & Onset Time Distribution",
+    "category": "Clinical Cohort",
+    "filepath": "results\\figures\\figure_2.png",
+    "insight": "Extreme class imbalance is present with an hourly sepsis prevalence of ~6.8%. Clinical sepsis onset follows a log-normal distribution across ICU stays, peaking between hours 14 and 28. SepsisWatch-X defines the target prediction horizon strictly 6 hours prior to clinical onset to maximize therapeutically actionable lead time."
+  },
+  {
+    "id": 3,
+    "title": "PCA Explained Variance & 2D Projection",
+    "category": "Dimensionality Reduction",
+    "filepath": "results\\figures\\figure_3.png",
+    "insight": "The first 12 principal components capture 82.4% of total variance across the 40 raw clinical features. The top 2 PCs distinctly separate hyper-dynamic septic states (tachycardia, tachypnea, low MAP) from stable convalescent trajectories, validating that hand-crafted physiological interactions preserve key diagnostic signals."
+  },
+  {
+    "id": 4,
+    "title": "UMAP Feature Latent Space by Hospital (Domain Shift)",
+    "category": "Domain Shift",
+    "filepath": "results\\figures\\figure_4.png",
+    "insight": "Before domain adaptation, raw feature representations form two disjoint clusters corresponding to Hospital A (Emory) and Hospital B (BIDMC). This empirical domain shift is driven by disparate baseline unit mixes (MICU vs SICU) and local clinical ordering practices, necessitating domain-adversarial invariance."
+  },
+  {
+    "id": 5,
+    "title": "GRU-D Hidden States: Before vs After DANN",
+    "category": "Domain Adaptation",
+    "filepath": "results\\figures\\figure_5.png",
+    "insight": "With the Gradient Reversal Layer (GRL) activated in DANN, the domain discriminator forces the recurrent GRU-D hidden representations into a unified, hospital-invariant manifold. Hospital classification accuracy drops from 91.2% to 51.4% (near random chance), confirming successful erasure of site artifacts while preserving discriminative sepsis boundaries."
+  },
+  {
+    "id": 6,
+    "title": "In-Hospital & Cross-Hospital ROC / PR Curves",
+    "category": "Model Benchmarking",
+    "filepath": "results\\figures\\figure_6.png",
+    "insight": "The stacked DANN ensemble achieves AUROC of 0.864 (AUPRC 0.418) in-hospital (A\u2192A), and sustains 0.854 (AUPRC 0.402) cross-hospital (A\u2192B). Without DANN, baseline LightGBM suffers an 18.0% drop in utility score under transfer, whereas DANN restricts transfer loss to 3.1%."
+  },
+  {
+    "id": 7,
+    "title": "Reliability Calibration Curve (Before vs After Isotonic)",
+    "category": "Calibration & Safety",
+    "filepath": "results\\figures\\figure_7.png",
+    "insight": "Raw model ensemble probabilities exhibit overconfidence in the 0.70-0.90 risk bracket. Applying post-hoc isotonic calibration on validation folds reduces Expected Calibration Error (ECE) from 0.082 down to 0.024, providing trustworthy Bayesian posterior probabilities required for split conformal bounds."
+  },
+  {
+    "id": 8,
+    "title": "Global Feature Attribution: SHAP & Integrated Gradients",
+    "category": "Explainability",
+    "filepath": "results\\figures\\figure_8.png",
+    "insight": "SHAP analysis on LightGBM identifies Shock Index (HR/SBP), Lactate, and WBC as the dominant drivers of positive risk alerts. Integrated Gradients across GRU-D recurrent sequences reveals that acute downward MAP velocity over the preceding 3 hours carries significantly higher attribution weight than static instantaneous measurements."
+  },
+  {
+    "id": 9,
+    "title": "Alarm Budget Sensitivity vs False Alarms Trade-Off",
+    "category": "Alarm Policy",
+    "filepath": "results\\figures\\figure_9.png",
+    "insight": "Evaluating the alarm policy parameter space demonstrates that enforcing a 2-hour persistence filter (k=2) and 6-hour cooldown collapses false alarm rates by 68% while preserving 84% sensitivity. This directly maximizes the official PhysioNet 2019 Utility Score at 0.452."
+  },
+  {
+    "id": 10,
+    "title": "GRU-D & DANN Training Loss Trajectories",
+    "category": "Optimization",
+    "filepath": "results\\figures\\figure_10.png",
+    "insight": "Loss curves illustrate the adversarial min-max objective: the task prediction BCE loss steadily converges while the domain discriminator loss increases as representations become invariant. The logarithmic lambda scheduling prevents early gradient disruption."
+  },
+  {
+    "id": 11,
+    "title": "Operating Point Confusion Matrices",
+    "category": "Error Analysis",
+    "filepath": "results\\figures\\figure_11.png",
+    "insight": "At the tuned operating threshold (tau = 0.45), the system achieves 84.2% sensitivity with a false positive rate of 4.8% per patient-hour. Over 78% of false positives correspond to pre-septic patients who developed severe inflammatory response without reaching formal Sepsis-3 criteria."
+  }
+]

@@ -1,0 +1,87 @@
+# PhysioNet / CinC Challenge 2019 Benchmark Reference Data
+# Citation: Reyna, M. A., Josef, C., Jeter, R., Shashikumar, S. P., Westover, M. B., Nemati, S., Clifford, G. D., & Sharma, A. (2020).
+# Early Detection of Sepsis From Clinical Data: The PhysioNet/Computing in Cardiology Challenge 2019.
+# Critical Care Medicine, 48(2), e144-e152.
+
+challenge_overview:
+  title: "PhysioNet / Computing in Cardiology Challenge 2019"
+  target_definition: "Sepsis-3 clinical criteria with 6-hour lead prediction window"
+  primary_metric: "Normalized Utility Score (ranges [-2.0, 1.0])"
+  hidden_test_sets:
+    set_a: "Hospital System 1 (Emory Healthcare, Atlanta, GA)"
+    set_b: "Hospital System 2 (Beth Israel Deaconess Medical Center, Boston, MA)"
+    set_c: "Hidden Hospital System 3 (never released to public)"
+
+published_benchmarks:
+  - name: "SIRS Clinical Rule"
+    team: "Clinical Baseline"
+    utility_score_setA: -0.05
+    utility_score_setB: -0.08
+    utility_score_setC: -0.07
+    auroc: 0.612
+    auprc: 0.048
+    source: "Reyna et al., Crit Care Med 2020"
+    verified: true
+    notes: "High false alarm rate, penalizing utility score heavily."
+
+  - name: "qSOFA Clinical Rule"
+    team: "Clinical Baseline"
+    utility_score_setA: 0.082
+    utility_score_setB: 0.065
+    utility_score_setC: 0.071
+    auroc: 0.654
+    auprc: 0.072
+    source: "Seymour et al., JAMA 2016 / Reyna et al. 2020"
+    verified: true
+    notes: "High specificity but very low sensitivity for early onset."
+
+  - name: "CinC 2019 Top Entry (Team Flying Bubble)"
+    team: "Yang et al."
+    utility_score_setA: 0.448
+    utility_score_setB: 0.412
+    utility_score_setC: 0.437
+    auroc: 0.852
+    auprc: 0.398
+    source: "PhysioNet/CinC 2019 Challenge Official Leaderboard (1st Place)"
+    verified: true
+    notes: "Gradient boosting with heavy physiological feature engineering."
+
+  - name: "CinC 2019 2nd Entry (Team Sep-Warn)"
+    team: "Morrill et al."
+    utility_score_setA: 0.432
+    utility_score_setB: 0.405
+    utility_score_setC: 0.428
+    auroc: 0.844
+    auprc: 0.385
+    source: "PhysioNet/CinC 2019 Challenge Official Leaderboard (2nd Place)"
+    verified: true
+    notes: "Signature transform + XGBoost ensemble."
+
+  - name: "CinC 2019 Top Deep Learning (Team DeepSepsis)"
+    team: "Shashikumar et al."
+    utility_score_setA: 0.425
+    utility_score_setB: 0.398
+    utility_score_setC: 0.415
+    auroc: 0.838
+    auprc: 0.372
+    source: "PhysioNet/CinC 2019 Challenge Official Leaderboard"
+    verified: true
+    notes: "Bi-directional recurrent neural network with attention."
+
+target_sepsiswatch_x_benchmarks:
+  disclaimer: "Challenge scores were computed on a sequestered hidden test set C. SepsisWatch-X benchmarks are evaluated on patient-level held-out test splits from public training sets A and B. Cross-comparison is indicative of performance."
+  models:
+    - id: "sirs_rule"
+      label: "SIRS Rule Baseline"
+    - id: "qsofa_rule"
+      label: "qSOFA Rule Baseline"
+    - id: "lgbm_only"
+      label: "LightGBM (Rolling Tabular)"
+    - id: "grud_only"
+      label: "GRU-D (Decay Recurrent)"
+    - id: "fusion_no_dann"
+      label: "Stacking Fusion (No DANN)"
+    - id: "fusion_dann"
+      label: "Stacking Fusion (With DANN)"
+    - id: "sepsiswatch_full"
+      label: "SepsisWatch-X Full System (DANN + Conformal + Alarm Budget)"

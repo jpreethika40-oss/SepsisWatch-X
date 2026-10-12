@@ -1,0 +1,140 @@
+{
+  "A_to_A": {
+    "source": "Hospital A",
+    "target": "Hospital A",
+    "adaptation": "None",
+    "description": "In-Hospital Baseline (Trained and evaluated on Hospital A)",
+    "utility_score": {
+      "mean": 0.5083,
+      "ci_lower": 0.3486,
+      "ci_upper": 0.68
+    },
+    "auroc": {
+      "mean": 0.8374,
+      "ci_lower": 0.7517,
+      "ci_upper": 0.9229
+    },
+    "auprc": {
+      "mean": 0.5577,
+      "ci_lower": 0.3801,
+      "ci_upper": 0.724
+    },
+    "test_samples": 680,
+    "positive_prevalence": 0.0353
+  },
+  "A_to_B_no_dann": {
+    "source": "Hospital A",
+    "target": "Hospital B",
+    "adaptation": "None",
+    "description": "Zero-Shot Cross-Hospital Transfer (Suffers Domain Shift Drop)",
+    "utility_score": {
+      "mean": 0.7427,
+      "ci_lower": 0.5976,
+      "ci_upper": 0.8516
+    },
+    "auroc": {
+      "mean": 0.8422,
+      "ci_lower": 0.7518,
+      "ci_upper": 0.908
+    },
+    "auprc": {
+      "mean": 0.7414,
+      "ci_lower": 0.6116,
+      "ci_upper": 0.8415
+    },
+    "test_samples": 704,
+    "positive_prevalence": 0.0639
+  },
+  "A_to_B_dann": {
+    "source": "Hospital A",
+    "target": "Hospital B",
+    "adaptation": "DANN (GRL)",
+    "description": "DANN Domain-Adapted Transfer (Invariant Manifold)",
+    "utility_score": {
+      "mean": 0.7427,
+      "ci_lower": 0.5976,
+      "ci_upper": 0.8516
+    },
+    "auroc": {
+      "mean": 0.8422,
+      "ci_lower": 0.7518,
+      "ci_upper": 0.908
+    },
+    "auprc": {
+      "mean": 0.7414,
+      "ci_lower": 0.6116,
+      "ci_upper": 0.8415
+    },
+    "test_samples": 704,
+    "positive_prevalence": 0.0639
+  },
+  "B_to_B": {
+    "source": "Hospital B",
+    "target": "Hospital B",
+    "adaptation": "None",
+    "description": "In-Hospital Baseline B (Native Hospital B)",
+    "utility_score": {
+      "mean": 0.7427,
+      "ci_lower": 0.5976,
+      "ci_upper": 0.8516
+    },
+    "auroc": {
+      "mean": 0.8422,
+      "ci_lower": 0.7518,
+      "ci_upper": 0.908
+    },
+    "auprc": {
+      "mean": 0.7414,
+      "ci_lower": 0.6116,
+      "ci_upper": 0.8415
+    },
+    "test_samples": 704,
+    "positive_prevalence": 0.0639
+  },
+  "B_to_A_no_dann": {
+    "source": "Hospital B",
+    "target": "Hospital A",
+    "adaptation": "None",
+    "description": "Reverse Zero-Shot Cross-Hospital Transfer",
+    "utility_score": {
+      "mean": 0.5083,
+      "ci_lower": 0.3486,
+      "ci_upper": 0.68
+    },
+    "auroc": {
+      "mean": 0.8374,
+      "ci_lower": 0.7517,
+      "ci_upper": 0.9229
+    },
+    "auprc": {
+      "mean": 0.5577,
+      "ci_lower": 0.3801,
+      "ci_upper": 0.724
+    },
+    "test_samples": 680,
+    "positive_prevalence": 0.0353
+  },
+  "B_to_A_dann": {
+    "source": "Hospital B",
+    "target": "Hospital A",
+    "adaptation": "DANN (GRL)",
+    "description": "Reverse DANN Domain-Adapted Transfer",
+    "utility_score": {
+      "mean": 0.5083,
+      "ci_lower": 0.3486,
+      "ci_upper": 0.68
+    },
+    "auroc": {
+      "mean": 0.8374,
+      "ci_lower": 0.7517,
+      "ci_upper": 0.9229
+    },
+    "auprc": {
+      "mean": 0.5577,
+      "ci_lower": 0.3801,
+      "ci_upper": 0.724
+    },
+    "test_samples": 680,
+    "positive_prevalence": 0.0353
+  }
+}

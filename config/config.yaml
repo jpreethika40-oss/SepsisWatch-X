@@ -1,0 +1,111 @@
+# SepsisWatch-X Master Configuration
+app:
+  name: "SepsisWatch-X"
+  version: "1.0.0"
+  description: "Cross-Hospital Uncertainty-Aware ICU Sepsis Early-Warning System"
+  host: "0.0.0.0"
+  port: 8000
+  secret_key: "sepsiswatch-secret-key-change-in-production-env"
+  algorithm: "HS256"
+  access_token_expire_minutes: 1440
+  database_url: "sqlite+aiosqlite:///./data/sepsiswatch.db"
+  redis_url: "redis://localhost:6379/0"
+  use_redis: false # fallback to in-memory broker when false
+  is_synthetic: true # toggled automatically when synthetic dataset is detected
+
+data:
+  raw_set_a_dir: "data/raw/setA"
+  raw_set_b_dir: "data/raw/setB"
+  processed_dir: "data/processed"
+  splits_dir: "data/splits"
+  vitals:
+    - HR
+    - O2Sat
+    - Temp
+    - SBP
+    - MAP
+    - DBP
+    - Resp
+    - EtCO2
+  labs:
+    - BaseExcess
+    - HCO3
+    - FiO2
+    - pH
+    - PaCO2
+    - SaO2
+    - AST
+    - BUN
+    - Alkalinephos
+    - Calcium
+    - Chloride
+    - Creatinine
+    - Bilirubin_direct
+    - Glucose
+    - Lactate
+    - Magnesium
+    - Phosphate
+    - Potassium
+    - Bilirubin_total
+    - TroponinI
+    - Hct
+    - Hgb
+    - PTT
+    - WBC
+    - Fibrinogen
+    - Platelets
+  demographics:
+    - Age
+    - Gender
+    - Unit1
+    - Unit2
+    - HospAdmTime
+    - ICULOS
+  target: SepsisLabel
+  window_hours: 12
+  predict_ahead_hours: 6
+
+models:
+  lgbm:
+    num_leaves: 31
+    learning_rate: 0.05
+    n_estimators: 150
+    min_child_samples: 20
+    subsample: 0.8
+    colsample_bytree: 0.8
+    class_weight: "balanced"
+    random_state: 42
+  grud:
+    hidden_size: 64
+    num_layers: 2
+    dropout: 0.2
+    learning_rate: 0.001
+    weight_decay: 0.0001
+    batch_size: 32
+    epochs: 20
+  dann:
+    domain_weight: 0.5
+    lambda_schedule: "logarithmic"
+  fusion:
+    method: "stacking"
+    meta_learner: "logistic_regression"
+    calibration: "isotonic"
+  conformal:
+    coverage_level: 0.90
+    method: "split_conformal"
+  policy:
+    risk_threshold: 0.45
+    persistence_hours: 2
+    cooldown_hours: 6
+    max_alarms_per_patient: 4
+
+drift:
+  psi_threshold_amber: 0.10
+  psi_threshold_red: 0.25
+  ks_pvalue_threshold: 0.05
+  window_size: 200
+
+simulator:
+  ward_patients: 12
+  tick_interval_ms: 2000
+  stream_speed_multiplier: 1.0

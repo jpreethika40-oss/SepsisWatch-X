@@ -1,0 +1,14 @@
+{
+  "status": "ready",
+  "is_synthetic": true,
+  "generated_timestamp": "2026-10-12T19:30:00Z",
+  "total_patients": 240,
+  "total_setA": 120,
+  "total_setB": 120,
+  "total_septic_A": 10,
+  "total_septic_B": 9,
+  "train_patients_count": 167,
+  "val_patients_count": 35,
+  "test_patients_count": 38,
+  "note": "Synthetic data created for complete offline execution. Benchmark rubric numbers must use real data run."
+}

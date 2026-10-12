@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-base: #070b14;
+    --surface-base: #0d1527;
+  }
+
+  body {
+    background-color: var(--bg-base);
+    color: #f8fafc;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Glassmorphism Panels */
+.glass-panel {
+  background: rgba(13, 21, 39, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(56, 189, 248, 0.12);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glass-panel-hover {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-panel-hover:hover {
+  background: rgba(19, 30, 54, 0.85);
+  border-color: rgba(6, 182, 212, 0.35);
+  box-shadow: 0 10px 40px -10px rgba(6, 182, 212, 0.25);
+}
+
+/* Clinical Glow Indicators */
+.glow-cyan {
+  box-shadow: 0 0 25px rgba(6, 182, 212, 0.4);
+}
+.glow-crimson {
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.55);
+}
+.glow-amber {
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.45);
+}
+.glow-emerald {
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+}
+
+/* Scanline and holographic effects */
+.scanline {
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0),
+    rgba(255,255,255,0) 50%,
+    rgba(6, 182, 212, 0.04) 50%,
+    rgba(6, 182, 212, 0.04)
+  );
+  background-size: 100% 4px;
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(7, 11, 20, 0.8);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.25);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(6, 182, 212, 0.5);
+}
