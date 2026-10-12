@@ -105,15 +105,20 @@ python scripts/make_synthetic.py --patients 120
 # 3. Initialize and seed SQLite/PostgreSQL database
 python scripts/seed_db.py
 
-# 4. Run database & repository unit tests
-python -m pytest tests/test_db.py
+# 4. Run the full unit & regression test suite (28 tests across DB, ML models, & APIs)
+python -m pytest tests/
 
-# 5. Start frontend development server
+# 5. Start the FastAPI backend & embedded Gradio dashboard
+uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
+# API Docs: http://localhost:8000/docs
+# Interactive Gradio: http://localhost:8000/gradio
+
+# 6. Start frontend development server
 cd frontend
 npm run dev
 ```
 
-Visit the dashboard at `http://localhost:5173`.
+Visit the dashboard at `http://localhost:5173`, or the embedded Gradio interface at `http://localhost:8000/gradio`.
 
 ---
 
