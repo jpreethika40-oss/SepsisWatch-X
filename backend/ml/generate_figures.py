@@ -1,7 +1,7 @@
 """
 Scientific Visualizations Generator (11 Figures with Comprehensive Insights).
 Generates high-resolution PNG artifacts in results/figures/ and writes results/figure_insights.json.
-Satisfies Rubric Item 1: At least 5 (we provide 11) advanced visualizations plus explanatory insight.
+Provides 11 advanced clinical visualizations plus explanatory scientific insights.
 """
 
 import os

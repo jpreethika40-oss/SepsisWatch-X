@@ -8,7 +8,7 @@ help:
 	@echo "SepsisWatch-X - Development & Deployment Commands:"
 	@echo "  make install        - Install Python and Node.js dependencies"
 	@echo "  make seed-db        - Seed database with 12 ICU beds"
-	@echo "  make test           - Run full 28-test pytest regression suite"
+	@echo "  make test           - Run full 33-test pytest regression suite"
 	@echo "  make build          - Build production 3D React frontend"
 	@echo "  make run            - Launch FastAPI backend & Gradio on port 8000"
 	@echo "  make run-frontend   - Launch Vite development server on port 5173"

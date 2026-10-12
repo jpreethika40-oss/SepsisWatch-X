@@ -1,8 +1,8 @@
 # SepsisWatch-X: 3-Minute Clinical Evaluation Demo Script
 
-> **Course Context:** Advanced Machine Learning Lab Project (40 Marks)  
-> **Presenter:** Student / Lead Machine Learning & Full-Stack Engineer  
-> **Target Audience:** Course Evaluators, Clinical Faculty & Senior Machine Learning Reviewers  
+> **Clinical Context:** ICU Early-Warning Decision Support Demonstration  
+> **Presenter:** Lead Machine Learning & Clinical Platform Engineer  
+> **Target Audience:** Clinical Intensivists, Medical Informatics Teams & ML Engineers  
 > **Target Duration:** Exactly 3 Minutes (180 Seconds)
 
 ---
@@ -25,7 +25,7 @@
 ### Minute 0:00 – 0:30 | Introduction & 3D Command Center
 - **Action:** Open browser at `http://localhost:5173/` or `http://localhost:7860/`. Orbit the 3D ICU Ward using the mouse.
 - **Script:**
-  > *"Good morning, evaluators. Sepsis is the leading cause of in-hospital mortality worldwide, where every single hour of delayed antibiotic intervention increases mortality by 7.6%.*
+  > *"Good morning. Sepsis is the leading cause of in-hospital mortality worldwide, where every single hour of delayed antibiotic intervention increases mortality by 7.6%.*
   > *This is SepsisWatch-X: an end-to-end, cross-hospital early-warning platform designed for intensive care units.*
   > *On screen is our dynamic 3D Command Center rendering a 12-bed ward in real time. Notice Bed 3 pulsing with an elevated crimson risk pillar at 0.88 probability, while Bed 7 is tagged with a holographic amber indicator. At the top, you can observe our persistent synthetic data indicator and clinical disclaimer."*
 
@@ -52,7 +52,7 @@
 ### Minute 1:30 – 2:00 | Alarm-Budget Optimization & What-If Simulation
 - **Action:** Navigate to `/policy`, adjust the persistence slider to 2 hours, and then visit `/what-if`.
 - **Script:**
-  > *"Alert fatigue kills ICU patients when nurses become desensitized to nuisance alarms. Under Rubric Item 2, we engineered an Alarm-Budget Policy Controller with threshold persistence, a 6-hour refractory cooldown, and a maximum patient alarm cap.*
+  > *"Alert fatigue kills ICU patients when nurses become desensitized to nuisance alarms. To solve this, we engineered an Alarm-Budget Policy Controller with threshold persistence, a 6-hour refractory cooldown, and a maximum patient alarm cap.*
   > *Here on the policy curve, clinicians can visualize sensitivity versus alarms per patient-day.*
   > *Next, in the What-If Laboratory, physicians can simulate interventions. If we counterfactually restore the patient's mean arterial pressure from 62 to 78 mmHg and administer IV fluids to bring lactate down to 1.6 mmol/L, our meta-learner drops the sepsis risk delta by 34%, confirming therapeutic reversibility."*
 

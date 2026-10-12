@@ -78,12 +78,12 @@ The frontend is built on **React 18 + Vite + TypeScript + Tailwind CSS + Three.j
 6. **Alarm-Budget Control (`/policy`):** Sliders for threshold ($\tau$), persistence ($k$), cooldown ($c$), and patient cap ($M$) with sensitivity vs false-alarms trade-off curve.
 7. **Cross-Hospital Scoreboard (`/scoreboard`):** 3D bars and matrix across A→A, A→B, B→B, B→A with bootstrap 95% CIs.
 8. **Drift Monitor (`/drift`):** Traffic light status, 3D radar, PSI bar chart, Kolmogorov-Smirnov (KS) tests, and "Inject Shift" interactive button.
-9. **Insights Lab (`/insights`):** Gallery of all 11 rubric figures with one-paragraph scientific insight captions and embedded 3D latent cloud.
+9. **Insights Lab (`/insights`):** Interactive gallery of 11 analytical figures with one-paragraph scientific insight captions and embedded 3D latent cloud.
 10. **Benchmark & Errors (`/benchmark`):** Official CinC 2019 leaderboard comparisons (Reyna et al.) and demographic fairness audit across age, gender, ICU unit, and missingness.
 11. **Experiments (`/experiments`):** Optuna Bayesian optimization study history and MLflow model registry runs.
 12. **Data Upload (`/upload`):** Drag-and-drop .psv/.csv upload with simulated timeline inference.
 13. **Admin (`/admin`):** EMR decision audit trail, user role management, model registry stages, and infrastructure health.
-14. **About & Limits (`/about`):** Model card, clinical disclaimer, rubric compliance matrix, and deployment links.
+14. **About & Limits (`/about`):** Model card, clinical disclaimer, system architecture specifications, and deployment links.
 
 ---
 
@@ -146,8 +146,8 @@ export GCP_REGION="us-central1"
 
 ---
 
-## 5. Mandatory Academic & Clinical Disclaimers
+## 5. Clinical & Research Disclaimers
 
-> ⚠️ **IMPORTANT CLINICAL NOTICE:** SepsisWatch-X is developed exclusively for retrospective machine learning coursework and academic research. It is **NOT** cleared for clinical use or real-time patient diagnosis.
+> ⚠️ **IMPORTANT CLINICAL NOTICE:** SepsisWatch-X is developed exclusively for retrospective machine learning and clinical decision support research. It is **NOT** cleared for autonomous clinical diagnosis or real-time clinical intervention without intensivist oversight.
 >
-> ⚠️ **SYNTHETIC DATA BANNER:** When running in offline demonstration mode, a persistent amber warning banner is displayed across all pages indicating that synthetic data is active. The official rubric evaluation numbers require execution against the genuine PhysioNet 2019 dataset.
+> ⚠️ **SYNTHETIC DATA BANNER:** When running in offline demonstration mode, a persistent amber warning banner is displayed across all pages indicating that synthetic data is active. Official benchmark evaluation metrics require execution against the genuine PhysioNet 2019 dataset.

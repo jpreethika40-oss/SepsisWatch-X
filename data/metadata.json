@@ -10,5 +10,5 @@
   "train_patients_count": 167,
   "val_patients_count": 35,
   "test_patients_count": 38,
-  "note": "Synthetic data created for complete offline execution. Benchmark rubric numbers must use real data run."
+  "note": "Synthetic data created for complete offline execution. Benchmark evaluation numbers require real data run."
 }

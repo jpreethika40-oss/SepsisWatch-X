@@ -2,31 +2,31 @@ import React from 'react';
 import { Info, ShieldAlert, CheckCircle2, Github, ExternalLink, Award, FileText } from 'lucide-react';
 
 export const About: React.FC = () => {
-  const rubricChecklist = [
+  const platformCapabilities = [
     {
-      category: '1. Data Engineering & Visualization (8 Marks)',
-      status: 'Satisfied',
-      details: 'PhysioNet 2019 Set A & B raw loader + synthetic generator. Forward-fill, missingness indicators, GRU-D time-decay, rolling 6h/12h features, PCA/UMAP/t-SNE projections, 11 mandatory figures with scientific insights.'
+      category: '1. Data Engineering & Clinical Visualizations',
+      status: 'Operational',
+      details: 'PhysioNet 2019 Set A & B raw loader + synthetic generator. Forward-fill, missingness indicators, GRU-D time-decay, rolling 6h/12h features, PCA/UMAP/t-SNE projections, 11 key analytical figures with scientific insights.'
     },
     {
-      category: '2. Advanced Modeling & Pipeline (10 Marks)',
-      status: 'Satisfied',
+      category: '2. Advanced Modeling & Pipeline Optimization',
+      status: 'Operational',
       details: 'LightGBM, GRU-D, Domain-Adversarial Neural Network (DANN) GRL head, stacking meta-learner, split conformal 90% coverage, Optuna Bayesian tuning, MLflow model registry.'
     },
     {
-      category: '3. Benchmarking & Error Analysis (10 Marks)',
-      status: 'Satisfied',
+      category: '3. Benchmarking & Error Analysis',
+      status: 'Operational',
       details: 'Reyna et al. 2020 CinC challenge comparison, bootstrap 95% confidence intervals, subgroup error breakdown across age/gender/unit/missingness, fairness audit.'
     },
     {
-      category: '4. Deployment & Containerization (8 Marks)',
-      status: 'Satisfied',
+      category: '4. Deployment & Containerization',
+      status: 'Operational',
       details: 'FastAPI async backend with Pydantic v2 schemas, PostgreSQL/SQLite fallback, Dockerfile multi-stage build, docker-compose, Hugging Face Space & Cloud Run deployment scripts.'
     },
     {
-      category: '5. Documentation & Report Quality (4 Marks)',
-      status: 'Satisfied',
-      details: 'IEEE 10-page LaTeX report template in docs/report/, automated figure population, comprehensive README, full rubric checklist matrix.'
+      category: '5. Documentation & Reproducibility',
+      status: 'Operational',
+      details: 'Comprehensive architectural documentation, automated telemetry seeding, 33-test regression suite, and deployment guides.'
     }
   ];
 
@@ -38,11 +38,11 @@ export const About: React.FC = () => {
           <div className="flex items-center space-x-2">
             <Info className="w-5 h-5 text-cyan-400" />
             <h2 className="text-base font-bold font-display text-slate-100">
-              About SepsisWatch-X: Model Card, Disclaimer & Rubric Mapping
+              About SepsisWatch-X: Model Card & System Architecture
             </h2>
           </div>
           <p className="text-xs text-slate-400 font-mono mt-0.5">
-            System architectural specifications, clinical boundaries, and binding 40-mark evaluation compliance checklist.
+            System architectural specifications, clinical boundaries, and platform capabilities matrix.
           </p>
         </div>
 
@@ -108,15 +108,15 @@ export const About: React.FC = () => {
         </div>
       </div>
 
-      {/* Rubric Checklist Mapping Table */}
+      {/* System Capabilities Mapping Table */}
       <div className="glass-panel rounded-xl overflow-hidden">
         <div className="p-3 border-b border-slate-800 bg-slate-950/40 flex justify-between items-center text-xs font-mono text-slate-400">
-          <span>Binding Course Rubric Evaluation Checklist (40 Marks Total)</span>
+          <span>System Architecture & Capabilities Verification</span>
           <span>Verification Matrix</span>
         </div>
 
         <div className="divide-y divide-slate-800/80">
-          {rubricChecklist.map((r, i) => (
+          {platformCapabilities.map((r, i) => (
             <div key={i} className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-2 text-xs">
               <div className="space-y-1">
                 <span className="font-bold text-slate-100 font-sans">{r.category}</span>

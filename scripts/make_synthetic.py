@@ -346,7 +346,7 @@ def generate_dataset(
         "train_patients_count": len(combined_train),
         "val_patients_count": len(combined_val),
         "test_patients_count": len(combined_test),
-        "note": "Synthetic data created for complete offline execution. Benchmark rubric numbers must use real data run."
+        "note": "Synthetic data created for complete offline execution. Benchmark evaluation numbers require real data run."
     }
     
     with open(base_path / "metadata.json", "w") as f:

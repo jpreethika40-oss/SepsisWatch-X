@@ -110,11 +110,11 @@ export const InsightsLab: React.FC = () => {
           <div className="flex items-center space-x-2">
             <FlaskConical className="w-5 h-5 text-cyan-400" />
             <h2 className="text-base font-bold font-display text-slate-100">
-              Scientific Insights Lab & Mandatory Rubric Visualizations
+              Scientific Insights Lab & Clinical Visualizations
             </h2>
           </div>
           <p className="text-xs text-slate-400 font-mono mt-0.5">
-            Complete suite of 11 mandatory analytical visualizations with quantitative empirical insights.
+            Complete suite of 11 analytical visualizations with quantitative empirical insights.
           </p>
         </div>
 
@@ -128,7 +128,7 @@ export const InsightsLab: React.FC = () => {
         {/* Left Col: Figure Navigation List */}
         <div className="glass-panel p-3 rounded-xl space-y-1.5 max-h-[620px] overflow-y-auto">
           <p className="px-2 text-[10px] font-mono uppercase text-slate-500 font-semibold mb-1">
-            Rubric Evaluation Figures (1-11)
+            Analytical Figures (1-11)
           </p>
           {figures.map((fig) => (
             <button

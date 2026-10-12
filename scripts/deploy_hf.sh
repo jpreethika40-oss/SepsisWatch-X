@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
 # SepsisWatch-X: Hugging Face Spaces Deployment Script
-# Rubric Item 4: Cloud Deployment via Docker SDK (Port 7860)
+# Cloud Deployment via Docker SDK (Port 7860)
 # =============================================================================
 
 set -e

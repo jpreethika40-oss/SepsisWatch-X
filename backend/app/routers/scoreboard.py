@@ -34,7 +34,7 @@ async def get_scoreboard():
 
 @router.get("/figures")
 async def get_figures():
-    """Returns metadata and scientific insights for all 11 rubric figures."""
+    """Returns metadata and scientific insights for all 11 analytical figures."""
     insights_path = Path("results/figure_insights.json")
     if insights_path.exists():
         with open(insights_path, "r") as f:

@@ -27,7 +27,7 @@ export const Navbar: React.FC = () => {
             </span>
           </div>
           <span className="hidden md:inline bg-amber-900/60 text-amber-300 px-2 py-0.5 rounded text-[10px] font-mono border border-amber-500/20">
-            Rubric Benchmark Binding: Real Data Required For Final Grade
+            Benchmark Evaluation: Synthetic Telemetry Active
           </span>
         </div>
       )}
@@ -149,7 +149,7 @@ export const Navbar: React.FC = () => {
             <span className="text-[11px]">Command (Ctrl+K)</span>
           </button>
 
-          {/* 2D / 3D Mode Toggle (Rubric low-power fallback) */}
+          {/* 2D / 3D Mode Toggle (Low-power fallback) */}
           <button
             onClick={() => setIs2DMode(!is2DMode)}
             title={is2DMode ? "Switch to High-Fidelity 3D View" : "Switch to Low-Power 2D Mode"}

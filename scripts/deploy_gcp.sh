@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
 # SepsisWatch-X: Google Cloud Run Deployment Script
-# Rubric Item 4: Cloud Deployment via Serverless Container (Port 7860)
+# Cloud Deployment via Serverless Container (Port 7860)
 # =============================================================================
 
 set -e
