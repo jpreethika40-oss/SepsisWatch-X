@@ -1,0 +1,17 @@
+.git
+.gitignore
+.venv
+venv
+frontend/node_modules
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+mlruns
+.env
+*.log
+scratch/
+docs/report/*.aux
+docs/report/*.log
+docs/report/*.out

@@ -9,8 +9,9 @@ from pathlib import Path
 from contextlib import asynccontextmanager
 from typing import Dict, Any
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 import gradio as gr
 
@@ -89,15 +90,34 @@ async def health_check() -> Dict[str, Any]:
     }
 
 
+frontend_dist = Path("frontend/dist")
+if frontend_dist.exists():
+    app.mount("/assets", StaticFiles(directory=str(frontend_dist / "assets")), name="frontend_assets")
+
+
 @app.get("/")
 async def root():
-    """Root redirect and info summary."""
+    """Root endpoint serving React 3D dashboard if built, or API metadata."""
+    if frontend_dist.exists() and (frontend_dist / "index.html").exists():
+        return FileResponse(str(frontend_dist / "index.html"))
     return {
         "title": "SepsisWatch-X API",
         "docs_url": "/docs",
         "gradio_url": "/gradio",
         "health_url": "/api/health"
     }
+
+
+if frontend_dist.exists():
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        """Catches all non-API routes and serves SPA index.html for client-side routing."""
+        if full_path.startswith(("api", "ws", "gradio", "figures", "docs", "openapi.json")):
+            raise HTTPException(status_code=404, detail="Endpoint not found")
+        target = frontend_dist / full_path
+        if full_path and target.is_file():
+            return FileResponse(str(target))
+        return FileResponse(str(frontend_dist / "index.html"))
 
 
 if __name__ == "__main__":

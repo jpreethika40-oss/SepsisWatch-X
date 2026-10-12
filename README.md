@@ -105,20 +105,44 @@ python scripts/make_synthetic.py --patients 120
 # 3. Initialize and seed SQLite/PostgreSQL database
 python scripts/seed_db.py
 
-# 4. Run the full unit & regression test suite (28 tests across DB, ML models, & APIs)
+# 4. Run the full unit & regression test suite (33 tests across DB, ML models, APIs & deployment)
 python -m pytest tests/
 
-# 5. Start the FastAPI backend & embedded Gradio dashboard
+# 5. Build and launch the full-stack system locally:
+# Option A: Local Python & Node
 uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
-# API Docs: http://localhost:8000/docs
-# Interactive Gradio: http://localhost:8000/gradio
+# (In a separate terminal):
+cd frontend && npm run dev
+# Visit dashboard: http://localhost:5173
+# API Docs: http://localhost:8000/docs | Interactive Gradio: http://localhost:8000/gradio
 
-# 6. Start frontend development server
-cd frontend
-npm run dev
+# Option B: Multi-Stage Docker Container (Port 7860, Hugging Face Spaces Compatible)
+docker build -t sepsiswatch-x:latest .
+docker run -p 7860:7860 sepsiswatch-x:latest
+# Visit unified platform: http://localhost:7860
+
+# Option C: Docker Compose
+docker compose up --build
 ```
 
-Visit the dashboard at `http://localhost:5173`, or the embedded Gradio interface at `http://localhost:8000/gradio`.
+---
+
+## 5. Cloud Deployment
+
+### A. Hugging Face Spaces (Docker SDK - Port 7860)
+Deploy directly using the automated script:
+```bash
+# Usage: ./scripts/deploy_hf.sh <username>/<space-name>
+./scripts/deploy_hf.sh preethika/sepsiswatch-x
+```
+
+### B. Google Cloud Run (Serverless Container - Port 7860)
+Deploy directly to Google Cloud Run:
+```bash
+export GCP_PROJECT_ID="your-project-id"
+export GCP_REGION="us-central1"
+./scripts/deploy_gcp.sh
+```
 
 ---
 
