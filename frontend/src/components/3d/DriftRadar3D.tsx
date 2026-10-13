@@ -24,7 +24,7 @@ export const DriftRadar3D: React.FC = () => {
   });
 
   return (
-    <div className="w-full h-full relative rounded-xl overflow-hidden border border-cyan-500/20 bg-slate-950">
+    <div className="w-full h-full relative rounded-xl overflow-hidden border border-amber-500/20 bg-[#0C0B0A]">
       <Canvas camera={{ position: [0, 5, 7], fov: 42 }}>
         <ambientLight intensity={0.6} />
         <directionalLight position={[5, 10, 5]} intensity={1.2} />
@@ -34,8 +34,8 @@ export const DriftRadar3D: React.FC = () => {
           <mesh rotation={[-Math.PI / 2, 0, 0]}>
             <torusGeometry args={[2.5, 0.06, 16, 64]} />
             <meshStandardMaterial
-              color={isShift ? '#ef4444' : '#06b6d4'}
-              emissive={isShift ? '#ef4444' : '#06b6d4'}
+              color={isShift ? '#EF4444' : '#F97316'}
+              emissive={isShift ? '#EF4444' : '#F97316'}
               emissiveIntensity={isShift ? 0.8 : 0.4}
             />
           </mesh>
@@ -51,7 +51,7 @@ export const DriftRadar3D: React.FC = () => {
             const z = Math.sin(angle) * (2.5 + spikeLength / 2);
 
             const color =
-              psi >= 0.25 ? '#ef4444' : psi >= 0.1 ? '#f59e0b' : '#10b981';
+              psi >= 0.25 ? '#EF4444' : psi >= 0.1 ? '#FACC15' : '#10B981';
 
             return (
               <group key={feat} position={[x, 0, z]}>
@@ -62,7 +62,7 @@ export const DriftRadar3D: React.FC = () => {
                 <Text
                   position={[0, 0.4, 0]}
                   fontSize={0.22}
-                  color="#f8fafc"
+                  color="#F3EEE8"
                   anchorX="center"
                   anchorY="middle"
                 >
@@ -73,11 +73,11 @@ export const DriftRadar3D: React.FC = () => {
           })}
         </group>
 
-        <gridHelper args={[12, 12, '#38bdf8', '#1e293b']} position={[0, -1, 0]} />
+        <gridHelper args={[12, 12, '#FBBF24', '#332E29']} position={[0, -1, 0]} />
         <OrbitControls maxPolarAngle={Math.PI / 2.2} minDistance={4} maxDistance={15} />
       </Canvas>
 
-      <div className="absolute top-3 left-3 bg-slate-900/80 px-2.5 py-1 rounded border border-slate-800 text-[10px] font-mono text-cyan-300">
+      <div className="absolute top-3 left-3 bg-[#151311]/80 px-2.5 py-1 rounded border border-[#332E29] text-[10px] font-mono text-amber-300">
         3D Population Stability Index (PSI) Sensor Radar
       </div>
     </div>

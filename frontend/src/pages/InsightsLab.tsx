@@ -108,7 +108,7 @@ export const InsightsLab: React.FC = () => {
       <div className="glass-panel p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
-            <FlaskConical className="w-5 h-5 text-cyan-400" />
+            <FlaskConical className="w-5 h-5 text-orange-400" />
             <h2 className="text-base font-bold font-display text-slate-100">
               Scientific Insights Lab & Clinical Visualizations
             </h2>
@@ -118,7 +118,7 @@ export const InsightsLab: React.FC = () => {
           </p>
         </div>
 
-        <span className="text-xs font-mono text-cyan-400 bg-cyan-950/60 px-3 py-1.5 rounded-lg border border-cyan-500/30">
+        <span className="text-xs font-mono text-orange-400 bg-amber-950/60 px-3 py-1.5 rounded-lg border border-amber-500/30">
           All 11 Visualizations Validated
         </span>
       </div>
@@ -136,12 +136,12 @@ export const InsightsLab: React.FC = () => {
               onClick={() => setActiveFig(fig.id)}
               className={`w-full text-left p-2.5 rounded-lg transition text-xs flex flex-col space-y-0.5 border ${
                 activeFig === fig.id
-                  ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-300 font-semibold glow-cyan'
+                  ? 'bg-orange-500/15 border-amber-500/40 text-amber-300 font-semibold glow-ember'
                   : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
               }`}
             >
               <div className="flex justify-between items-center">
-                <span className="text-[10px] font-mono text-cyan-400 uppercase">{fig.category}</span>
+                <span className="text-[10px] font-mono text-orange-400 uppercase">{fig.category}</span>
                 <span className="text-[10px] text-slate-500">Fig {fig.id}</span>
               </div>
               <p className="truncate font-sans font-medium text-slate-200">{fig.title}</p>
@@ -154,7 +154,7 @@ export const InsightsLab: React.FC = () => {
           <div>
             <div className="flex justify-between items-start border-b border-slate-800 pb-3">
               <div>
-                <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-wider">
+                <span className="text-[10px] font-mono text-orange-400 uppercase tracking-wider">
                   {currentFigure.category} • Figure {currentFigure.id} of 11
                 </span>
                 <h3 className="text-base font-bold font-display text-slate-100 mt-0.5">
@@ -168,7 +168,7 @@ export const InsightsLab: React.FC = () => {
                   <button
                     onClick={() => setDannToggle(!dannToggle)}
                     className={`px-2 py-0.5 rounded transition ${
-                      dannToggle ? 'bg-cyan-500 text-slate-950 font-bold' : 'text-slate-400'
+                      dannToggle ? 'bg-orange-500 text-slate-950 font-bold' : 'text-slate-400'
                     }`}
                   >
                     {dannToggle ? 'After DANN' : 'Before DANN'}
@@ -194,8 +194,8 @@ export const InsightsLab: React.FC = () => {
                     <XAxis dataKey="fpr" stroke="#64748b" label={{ value: 'False Positive Rate (1 - Specificity)', fill: '#64748b', fontSize: 10, dy: 10 }} />
                     <YAxis stroke="#64748b" label={{ value: 'True Positive Rate (Sensitivity)', angle: -90, fill: '#64748b', fontSize: 10, dx: -10 }} />
                     <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#38bdf8', fontSize: '11px' }} />
-                    <Line type="monotone" dataKey="tprDANN" name="DANN Stacking (AUROC=0.864)" stroke="#06b6d4" strokeWidth={2.5} dot={false} />
-                    <Line type="monotone" dataKey="tprLGBM" name="LightGBM Only (AUROC=0.842)" stroke="#a855f7" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="tprDANN" name="DANN Stacking (AUROC=0.864)" stroke="#F97316" strokeWidth={2.5} dot={false} />
+                    <Line type="monotone" dataKey="tprLGBM" name="LightGBM Only (AUROC=0.842)" stroke="#B8B0A4" strokeWidth={2} dot={false} />
                     <Line type="monotone" dataKey="tprRule" name="SIRS Rule (AUROC=0.612)" stroke="#ef4444" strokeWidth={1.5} strokeDasharray="3 3" dot={false} />
                   </RCLineChart>
                 </ResponsiveContainer>
@@ -213,7 +213,7 @@ export const InsightsLab: React.FC = () => {
                 </ResponsiveContainer>
               ) : (
                 <div className="w-full h-full flex flex-col justify-center items-center text-center p-4">
-                  <BarChart2 className="w-12 h-12 text-cyan-400 mb-2 opacity-60" />
+                  <BarChart2 className="w-12 h-12 text-orange-400 mb-2 opacity-60" />
                   <p className="text-xs font-mono text-slate-300">
                     High-Resolution Figure {currentFigure.id}: {currentFigure.title}
                   </p>
@@ -226,9 +226,9 @@ export const InsightsLab: React.FC = () => {
           </div>
 
           {/* Scientific Insight Paragraph */}
-          <div className="bg-slate-900/90 p-4 rounded-xl border border-cyan-500/20 space-y-1.5">
-            <div className="flex items-center space-x-1.5 text-xs font-mono text-cyan-300 font-bold uppercase">
-              <Info className="w-4 h-4 text-cyan-400" />
+          <div className="bg-slate-900/90 p-4 rounded-xl border border-amber-500/20 space-y-1.5">
+            <div className="flex items-center space-x-1.5 text-xs font-mono text-amber-300 font-bold uppercase">
+              <Info className="w-4 h-4 text-orange-400" />
               <span>Scientific Insight & Physiological Mechanism</span>
             </div>
             <p className="text-xs text-slate-300 leading-relaxed font-sans">

@@ -33,7 +33,7 @@ export const DriftMonitor: React.FC = () => {
       <div className="glass-panel p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
-            <Radar className="w-5 h-5 text-cyan-400" />
+            <Radar className="w-5 h-5 text-orange-400" />
             <h2 className="text-base font-bold font-display text-slate-100">
               Data & Domain Shift Continuous Monitor
             </h2>
@@ -59,7 +59,7 @@ export const DriftMonitor: React.FC = () => {
             className={`px-3 py-1.5 rounded-lg border text-xs font-mono flex items-center space-x-1.5 transition ${
               driftInjected
                 ? 'bg-red-500 text-slate-950 font-bold border-red-400'
-                : 'bg-slate-800 text-slate-200 border-slate-700 hover:border-cyan-500/40'
+                : 'bg-slate-800 text-slate-200 border-slate-700 hover:border-amber-500/40'
             }`}
           >
             <Zap className="w-3.5 h-3.5 text-amber-400" />
@@ -95,7 +95,7 @@ export const DriftMonitor: React.FC = () => {
                   <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#38bdf8', fontSize: '11px' }} />
                   <Bar
                     dataKey="psi"
-                    fill={isShift ? '#ef4444' : '#06b6d4'}
+                    fill={isShift ? '#ef4444' : '#F97316'}
                     radius={[0, 4, 4, 0]}
                   />
                 </BarChart>
@@ -130,7 +130,7 @@ export const DriftMonitor: React.FC = () => {
             {ksFeatures.map((kf, i) => (
               <tr key={i} className="hover:bg-slate-800/30">
                 <td className="p-3 text-slate-200">{kf.feature}</td>
-                <td className="p-3 text-cyan-300 font-bold">{kf.stat.toFixed(3)}</td>
+                <td className="p-3 text-amber-300 font-bold">{kf.stat.toFixed(3)}</td>
                 <td className={`p-3 font-bold ${kf.p_value < 0.05 ? 'text-red-400' : 'text-slate-300'}`}>
                   {kf.p_value.toFixed(3)}
                 </td>

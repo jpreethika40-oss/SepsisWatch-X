@@ -38,13 +38,13 @@ export const RiskLandscape3D: React.FC = () => {
       // Height Y corresponds to risk
       positions.setY(i, risk * 3.5);
 
-      // Color encoding
+      // Ember Color encoding: Critical = #EF4444, Watch = #FBBF24, Stable = #10B981
       if (risk >= 0.7) {
-        colorArr.push(0.93, 0.27, 0.27); // Red
+        colorArr.push(0.93, 0.27, 0.27); // Crimson #EF4444
       } else if (risk >= 0.4) {
-        colorArr.push(0.96, 0.62, 0.07); // Amber
+        colorArr.push(0.98, 0.75, 0.14); // Gold #FBBF24
       } else {
-        colorArr.push(0.06, 0.72, 0.50); // Emerald
+        colorArr.push(0.06, 0.72, 0.50); // Emerald #10B981
       }
     }
 
@@ -55,9 +55,9 @@ export const RiskLandscape3D: React.FC = () => {
 
   if (is2DMode) {
     return (
-      <div className="w-full h-full bg-slate-950/70 p-4 rounded-xl border border-cyan-500/20 flex flex-col justify-center items-center text-center">
-        <span className="text-cyan-400 font-mono text-sm">2D Risk Heatmap Elevation Available</span>
-        <p className="text-xs text-slate-400 mt-1 max-w-sm">
+      <div className="w-full h-full bg-[#151311]/70 p-4 rounded-xl border border-amber-500/20 flex flex-col justify-center items-center text-center">
+        <span className="text-amber-400 font-mono text-sm">2D Risk Heatmap Elevation Available</span>
+        <p className="text-xs text-[#A09689] mt-1 max-w-sm">
           Risk surface maps ICU stay hours (1-24) against active ward patients. Switch to 3D mode in the top navigation to interact with the full topological elevation.
         </p>
       </div>
@@ -65,7 +65,7 @@ export const RiskLandscape3D: React.FC = () => {
   }
 
   return (
-    <div className="w-full h-full relative rounded-xl overflow-hidden border border-cyan-500/20 bg-slate-950">
+    <div className="w-full h-full relative rounded-xl overflow-hidden border border-amber-500/20 bg-[#0C0B0A]">
       <Canvas camera={{ position: [9, 8, 12], fov: 40 }}>
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 15, 10]} intensity={1.0} />
@@ -74,23 +74,23 @@ export const RiskLandscape3D: React.FC = () => {
           <meshStandardMaterial vertexColors wireframe={false} roughness={0.3} metalness={0.2} />
         </mesh>
 
-        {/* Wireframe overlay */}
+        {/* Ember wireframe overlay */}
         <mesh geometry={geometry}>
-          <meshBasicMaterial color="#38bdf8" wireframe={true} transparent opacity={0.25} />
+          <meshBasicMaterial color="#F97316" wireframe={true} transparent opacity={0.25} />
         </mesh>
 
-        <gridHelper args={[20, 20, '#06b6d4', '#1e293b']} position={[0, -0.05, 0]} />
+        <gridHelper args={[20, 20, '#FBBF24', '#332E29']} position={[0, -0.05, 0]} />
 
-        <Text position={[-6.5, 0.2, 0]} rotation={[-Math.PI / 2, 0, Math.PI / 2]} fontSize={0.4} color="#94a3b8">
+        <Text position={[-6.5, 0.2, 0]} rotation={[-Math.PI / 2, 0, Math.PI / 2]} fontSize={0.4} color="#A09689">
           Patients (Beds 1-12)
         </Text>
-        <Text position={[0, 0.2, 9]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.4} color="#94a3b8">
+        <Text position={[0, 0.2, 9]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.4} color="#A09689">
           ICU Stay Hours (1-24)
         </Text>
 
         <OrbitControls maxPolarAngle={Math.PI / 2.1} minDistance={6} maxDistance={25} />
       </Canvas>
-      <div className="absolute top-3 left-3 bg-slate-900/80 px-2.5 py-1 rounded border border-slate-800 text-[10px] font-mono text-cyan-300">
+      <div className="absolute top-3 left-3 bg-[#151311]/80 px-2.5 py-1 rounded border border-[#332E29] text-[10px] font-mono text-amber-300">
         3D Temporal Risk Surface (Topology of Deterioration)
       </div>
     </div>

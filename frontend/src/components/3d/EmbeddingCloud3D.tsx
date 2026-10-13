@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Text } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 
 interface EmbeddingCloudProps {
@@ -51,24 +51,24 @@ const PointsMorph: React.FC<EmbeddingCloudProps> = ({ useDANN, colorBy }) => {
       afterPos[i * 3 + 1] = sepCenter[1] + (r * 0.9) * Math.sin(phi) * Math.sin(theta);
       afterPos[i * 3 + 2] = sepCenter[2] + (r * 0.9) * Math.cos(phi);
 
-      // Hospital color: Hospital A = Cyan, Hospital B = Magenta/Orange
+      // Hospital color: Hospital A = Gold #FBBF24, Hospital B = Ember Orange #F97316
       if (isHospitalA) {
-        colHosp[i * 3] = 0.02; // Cyan
-        colHosp[i * 3 + 1] = 0.71;
-        colHosp[i * 3 + 2] = 0.83;
+        colHosp[i * 3] = 0.98; // Gold #FBBF24
+        colHosp[i * 3 + 1] = 0.75;
+        colHosp[i * 3 + 2] = 0.14;
       } else {
-        colHosp[i * 3] = 0.96; // Orange/Amber
-        colHosp[i * 3 + 1] = 0.62;
-        colHosp[i * 3 + 2] = 0.07;
+        colHosp[i * 3] = 0.98; // Ember Orange #F97316
+        colHosp[i * 3 + 1] = 0.45;
+        colHosp[i * 3 + 2] = 0.09;
       }
 
-      // Sepsis color: Sepsis = Red, Non-Sepsis = Emerald
+      // Sepsis color: Sepsis = Crimson #EF4444, Non-Sepsis = Emerald #10B981
       if (isSeptic) {
-        colSep[i * 3] = 0.93; // Red
+        colSep[i * 3] = 0.93; // Crimson #EF4444
         colSep[i * 3 + 1] = 0.27;
         colSep[i * 3 + 2] = 0.27;
       } else {
-        colSep[i * 3] = 0.06; // Emerald
+        colSep[i * 3] = 0.06; // Emerald #10B981
         colSep[i * 3 + 1] = 0.72;
         colSep[i * 3 + 2] = 0.50;
       }
@@ -123,21 +123,21 @@ const PointsMorph: React.FC<EmbeddingCloudProps> = ({ useDANN, colorBy }) => {
 
 export const EmbeddingCloud3D: React.FC<EmbeddingCloudProps> = ({ useDANN, colorBy }) => {
   return (
-    <div className="w-full h-full relative rounded-xl overflow-hidden border border-cyan-500/20 bg-slate-950">
+    <div className="w-full h-full relative rounded-xl overflow-hidden border border-amber-500/20 bg-[#0C0B0A]">
       <Canvas camera={{ position: [0, 0, 9], fov: 45 }}>
         <ambientLight intensity={0.6} />
         <PointsMorph useDANN={useDANN} colorBy={colorBy} />
         <OrbitControls enableZoom={true} enableRotate={true} />
       </Canvas>
 
-      <div className="absolute top-3 left-3 bg-slate-900/85 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800 text-xs font-mono">
-        <span className="text-cyan-400 font-bold">
-          {useDANN ? 'Domain Invariant Space (After DANN)' : 'Raw Latent Space (Before DANN - Domain Gap)'}
+      <div className="absolute top-3 left-3 bg-[#151311]/85 backdrop-blur-md px-3 py-1.5 rounded-lg border border-[#332E29] text-xs font-mono">
+        <span className="text-amber-400 font-bold">
+          {useDANN ? 'Domain Invariant Manifold (After DANN)' : 'Raw Latent Space (Before DANN - Domain Gap)'}
         </span>
-        <div className="text-[10px] text-slate-400 mt-0.5">
+        <div className="text-[10px] text-[#A09689] mt-0.5">
           {colorBy === 'hospital'
-            ? 'Colored by Hospital: Blue = Hospital A, Orange = Hospital B'
-            : 'Colored by Sepsis: Red = Sepsis, Green = Non-Sepsis'}
+            ? 'Colored by Hospital: Gold = Hospital A, Ember Orange = Hospital B'
+            : 'Colored by Sepsis: Crimson = Sepsis, Emerald = Non-Sepsis'}
         </div>
       </div>
     </div>

@@ -50,7 +50,7 @@ export const WhatIfLab: React.FC = () => {
       <div className="glass-panel p-4 rounded-xl flex flex-wrap items-center justify-between gap-3">
         <div>
           <div className="flex items-center space-x-2">
-            <Sliders className="w-5 h-5 text-cyan-400" />
+            <Sliders className="w-5 h-5 text-orange-400" />
             <h2 className="text-base font-bold font-display text-slate-100">
               What-If Counterfactual Physiological Simulator
             </h2>
@@ -90,7 +90,7 @@ export const WhatIfLab: React.FC = () => {
                 max={160}
                 value={hr}
                 onChange={(e) => setHr(Number(e.target.value))}
-                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-orange-500"
               />
               <div className="flex justify-between text-[10px] text-slate-500 font-mono">
                 <span>50 bpm</span>
@@ -111,7 +111,7 @@ export const WhatIfLab: React.FC = () => {
                 max={180}
                 value={sbp}
                 onChange={(e) => setSbp(Number(e.target.value))}
-                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-orange-500"
               />
               <div className="flex justify-between text-[10px] text-slate-500 font-mono">
                 <span>60 mmHg (Shock)</span>
@@ -133,7 +133,7 @@ export const WhatIfLab: React.FC = () => {
                 step={0.1}
                 value={lactate}
                 onChange={(e) => setLactate(Number(e.target.value))}
-                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-orange-500"
               />
               <div className="flex justify-between text-[10px] text-slate-500 font-mono">
                 <span>0.5 mmol/L</span>
@@ -155,7 +155,7 @@ export const WhatIfLab: React.FC = () => {
                 step={0.1}
                 value={temp}
                 onChange={(e) => setTemp(Number(e.target.value))}
-                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-orange-500"
               />
               <div className="flex justify-between text-[10px] text-slate-500 font-mono">
                 <span>35.0 °C</span>
@@ -177,7 +177,7 @@ export const WhatIfLab: React.FC = () => {
                 step={0.5}
                 value={wbc}
                 onChange={(e) => setWbc(Number(e.target.value))}
-                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-orange-500"
               />
               <div className="flex justify-between text-[10px] text-slate-500 font-mono">
                 <span>2.0 k/uL</span>
@@ -198,7 +198,7 @@ export const WhatIfLab: React.FC = () => {
                 max={40}
                 value={resp}
                 onChange={(e) => setResp(Number(e.target.value))}
-                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-orange-500"
               />
               <div className="flex justify-between text-[10px] text-slate-500 font-mono">
                 <span>10 /min</span>
@@ -211,9 +211,9 @@ export const WhatIfLab: React.FC = () => {
 
         {/* Right Col: Counterfactual Risk Gauge & Explanation Diff */}
         <div className="space-y-4">
-          <div className="glass-panel p-5 rounded-xl border-cyan-500/30 space-y-4">
+          <div className="glass-panel p-5 rounded-xl border-amber-500/30 space-y-4">
             <h3 className="text-xs font-mono uppercase tracking-wider text-slate-300 font-semibold flex items-center space-x-1.5">
-              <Sparkles className="w-4 h-4 text-cyan-400" />
+              <Sparkles className="w-4 h-4 text-orange-400" />
               <span>Simulated Risk Shift</span>
             </h3>
 
@@ -225,7 +225,7 @@ export const WhatIfLab: React.FC = () => {
                   {(originalRisk * 100).toFixed(0)}%
                 </p>
               </div>
-              <ArrowRight className="w-5 h-5 text-cyan-400" />
+              <ArrowRight className="w-5 h-5 text-orange-400" />
               <div>
                 <span className="text-[10px] font-mono text-slate-400 uppercase">What-If Risk</span>
                 <p className={`text-2xl font-bold font-display ${finalRisk >= 0.7 ? 'text-red-400' : finalRisk >= 0.4 ? 'text-amber-400' : 'text-emerald-400'}`}>
@@ -249,7 +249,7 @@ export const WhatIfLab: React.FC = () => {
               <div className="flex justify-between items-center text-xs font-mono">
                 <span className="text-slate-400">Conformal Prediction:</span>
                 <span className={`px-2 py-0.5 rounded font-bold uppercase ${
-                  conformalStatus === 'sepsis' ? 'bg-red-950 text-red-300' : conformalStatus === 'uncertain' ? 'bg-purple-950 text-purple-300' : 'bg-emerald-950 text-emerald-300'
+                  conformalStatus === 'sepsis' ? 'bg-red-950 text-red-300' : conformalStatus === 'uncertain' ? 'bg-amber-950 text-amber-300' : 'bg-emerald-950 text-emerald-300'
                 }`}>
                   {conformalStatus.replace('_', ' ')}
                 </span>

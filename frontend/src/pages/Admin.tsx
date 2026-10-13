@@ -22,7 +22,7 @@ export const Admin: React.FC = () => {
       <div className="glass-panel p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
-            <FileText className="w-5 h-5 text-cyan-400" />
+            <FileText className="w-5 h-5 text-orange-400" />
             <h2 className="text-base font-bold font-display text-slate-100">
               System Administration, Security & Clinical Audit Trails
             </h2>
@@ -43,7 +43,7 @@ export const Admin: React.FC = () => {
         {/* User Roles */}
         <div className="lg:col-span-2 glass-panel p-5 rounded-xl space-y-3">
           <h3 className="text-xs font-mono uppercase tracking-wider text-slate-300 font-semibold border-b border-slate-800 pb-2 flex items-center space-x-2">
-            <Users className="w-4 h-4 text-cyan-400" />
+            <Users className="w-4 h-4 text-orange-400" />
             <span>Authorized Clinical Accounts & Role-Based Permissions</span>
           </h3>
 
@@ -56,7 +56,7 @@ export const Admin: React.FC = () => {
                 </div>
                 <div className="flex items-center space-x-3">
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                    u.role === 'admin' ? 'bg-cyan-950 text-cyan-300 border border-cyan-500/30' : 'bg-slate-800 text-slate-300'
+                    u.role === 'admin' ? 'bg-amber-950 text-amber-300 border border-amber-500/30' : 'bg-slate-800 text-slate-300'
                   }`}>
                     {u.role}
                   </span>
@@ -70,7 +70,7 @@ export const Admin: React.FC = () => {
         {/* Server & Database Health */}
         <div className="glass-panel p-5 rounded-xl space-y-3">
           <h3 className="text-xs font-mono uppercase tracking-wider text-slate-300 font-semibold border-b border-slate-800 pb-2 flex items-center space-x-2">
-            <Server className="w-4 h-4 text-purple-400" />
+            <Server className="w-4 h-4 text-[#B8B0A4]" />
             <span>Platform Health Telemetry</span>
           </h3>
 
@@ -85,7 +85,7 @@ export const Admin: React.FC = () => {
             </div>
             <div className="flex justify-between p-2 rounded bg-slate-900/60 border border-slate-800">
               <span className="text-slate-400">Broker:</span>
-              <span className="text-cyan-400 font-bold">In-Memory / Redis Fallback</span>
+              <span className="text-orange-400 font-bold">In-Memory / Redis Fallback</span>
             </div>
             <div className="flex justify-between p-2 rounded bg-slate-900/60 border border-slate-800">
               <span className="text-slate-400">WebSocket Connections:</span>
@@ -115,7 +115,7 @@ export const Admin: React.FC = () => {
           <tbody className="divide-y divide-slate-800/60">
             {auditLogs.map((log) => (
               <tr key={log.id} className="hover:bg-slate-800/30">
-                <td className="p-3 text-cyan-300 font-bold">{log.action}</td>
+                <td className="p-3 text-amber-300 font-bold">{log.action}</td>
                 <td className="p-3 text-slate-200">{log.user}</td>
                 <td className="p-3 text-slate-300">{log.entity}</td>
                 <td className="p-3 text-slate-400">{log.ip}</td>

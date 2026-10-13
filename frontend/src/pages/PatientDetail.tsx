@@ -75,7 +75,7 @@ export const PatientDetail: React.FC = () => {
       {/* Patient Header & Cohort Selector */}
       <div className="glass-panel p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-300 font-bold font-display text-lg glow-cyan">
+          <div className="w-12 h-12 rounded-xl bg-orange-500/10 border border-amber-500/30 flex items-center justify-center text-amber-300 font-bold font-display text-lg glow-ember">
             {currentPatient.bed_number}
           </div>
           <div>
@@ -83,7 +83,7 @@ export const PatientDetail: React.FC = () => {
               <h2 className="text-lg font-bold font-display text-slate-100">
                 Patient {currentPatient.patient_code}
               </h2>
-              <span className="text-xs font-mono px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/30 text-cyan-300">
+              <span className="text-xs font-mono px-2 py-0.5 rounded bg-amber-950/80 border border-amber-500/30 text-amber-300">
                 Bed {currentPatient.bed_number}
               </span>
               <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">
@@ -101,7 +101,7 @@ export const PatientDetail: React.FC = () => {
           <select
             value={currentPatient.id}
             onChange={(e) => setSelectedPatientId(Number(e.target.value))}
-            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 outline-none font-mono hover:border-cyan-500/40"
+            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 outline-none font-mono hover:border-amber-500/40"
           >
             {patients.map((p) => (
               <option key={p.id} value={p.id}>
@@ -112,7 +112,7 @@ export const PatientDetail: React.FC = () => {
 
           <button
             onClick={handleExportPdf}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-mono hover:bg-cyan-500/25 transition glow-cyan"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-orange-500/15 border border-amber-500/30 text-amber-300 text-xs font-mono hover:bg-orange-500/25 transition glow-ember"
           >
             <FileDown className="w-4 h-4" />
             <span>Export Risk PDF</span>
@@ -125,7 +125,7 @@ export const PatientDetail: React.FC = () => {
         <div className="flex justify-between items-center">
           <div>
             <h3 className="text-xs font-mono uppercase tracking-wider text-slate-300 font-semibold flex items-center space-x-2">
-              <Activity className="w-4 h-4 text-cyan-400" />
+              <Activity className="w-4 h-4 text-orange-400" />
               <span>Calibrated Sepsis Risk with 90% Split Conformal Uncertainty Band</span>
             </h3>
             <p className="text-[11px] text-slate-400 font-mono mt-0.5">
@@ -139,7 +139,7 @@ export const PatientDetail: React.FC = () => {
               <span className="text-slate-300">Calibrated Risk</span>
             </div>
             <div className="flex items-center space-x-1.5">
-              <span className="w-3 h-3 bg-cyan-500/20 border border-cyan-400/40 rounded-sm" />
+              <span className="w-3 h-3 bg-orange-500/20 border border-orange-500/40 rounded-sm" />
               <span className="text-slate-300">Conformal Band (90%)</span>
             </div>
             <div className="flex items-center space-x-1.5">
@@ -159,8 +159,8 @@ export const PatientDetail: React.FC = () => {
                   <stop offset="95%" stopColor="#ef4444" stopOpacity={0.0}/>
                 </linearGradient>
                 <linearGradient id="bandGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.35}/>
-                  <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.05}/>
+                  <stop offset="5%" stopColor="#F97316" stopOpacity={0.35}/>
+                  <stop offset="95%" stopColor="#F97316" stopOpacity={0.05}/>
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
@@ -171,8 +171,8 @@ export const PatientDetail: React.FC = () => {
                 labelFormatter={(l) => `ICU Hour ${l}`}
               />
               <ReferenceLine y={0.45} stroke="#f59e0b" strokeDasharray="3 3" label={{ value: 'Alarm Budget Threshold', fill: '#f59e0b', fontSize: 10 }} />
-              <ReferenceLine x={12} stroke="#a855f7" label={{ value: 'Clinical Onset', fill: '#a855f7', fontSize: 10 }} />
-              <ReferenceLine x={selectedHour} stroke="#22d3ee" strokeWidth={2} />
+              <ReferenceLine x={12} stroke="#B8B0A4" label={{ value: 'Clinical Onset', fill: '#B8B0A4', fontSize: 10 }} />
+              <ReferenceLine x={selectedHour} stroke="#FBBF24" strokeWidth={2} />
               
               <Area type="monotone" dataKey="upper" stroke="none" fill="url(#bandGrad)" />
               <Area type="monotone" dataKey="risk" stroke="#ef4444" strokeWidth={2.5} fill="url(#riskGrad)" />
@@ -184,7 +184,7 @@ export const PatientDetail: React.FC = () => {
         <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800 space-y-2">
           <div className="flex justify-between items-center text-xs font-mono">
             <span className="text-slate-300 flex items-center space-x-1.5">
-              <Clock className="w-3.5 h-3.5 text-cyan-400" />
+              <Clock className="w-3.5 h-3.5 text-orange-400" />
               <span>Inspection Hour Scrubber: <strong>Hour {selectedHour}</strong> of 24</span>
             </span>
             <span className="text-slate-400">
@@ -197,7 +197,7 @@ export const PatientDetail: React.FC = () => {
             max={24}
             value={selectedHour}
             onChange={(e) => setSelectedHour(Number(e.target.value))}
-            className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+            className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-orange-500"
           />
         </div>
       </div>
@@ -232,7 +232,7 @@ export const PatientDetail: React.FC = () => {
             </div>
             <div className="bg-slate-900/80 p-2 rounded border border-slate-800">
               <span className="text-slate-400 text-[10px]">MAP Pressure:</span>
-              <p className="text-sm font-bold text-cyan-400">{activePoint.map} mmHg</p>
+              <p className="text-sm font-bold text-orange-400">{activePoint.map} mmHg</p>
             </div>
             <div className="bg-slate-900/80 p-2 rounded border border-slate-800">
               <span className="text-slate-400 text-[10px]">Lactate:</span>
@@ -245,7 +245,7 @@ export const PatientDetail: React.FC = () => {
         <div className="glass-panel p-4 rounded-xl space-y-3">
           <div className="flex justify-between items-center">
             <h3 className="text-xs font-mono uppercase tracking-wider text-slate-300 font-semibold flex items-center space-x-2">
-              <Brain className="w-4 h-4 text-purple-400" />
+              <Brain className="w-4 h-4 text-[#B8B0A4]" />
               <span>Explainable AI Attribution (Hour {selectedHour})</span>
             </h3>
 
@@ -253,13 +253,13 @@ export const PatientDetail: React.FC = () => {
             <div className="flex items-center space-x-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-[11px] font-mono">
               <button
                 onClick={() => setExplainMethod('shap')}
-                className={`px-2 py-0.5 rounded transition ${explainMethod === 'shap' ? 'bg-cyan-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}
+                className={`px-2 py-0.5 rounded transition ${explainMethod === 'shap' ? 'bg-orange-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}
               >
                 SHAP (Tabular)
               </button>
               <button
                 onClick={() => setExplainMethod('ig')}
-                className={`px-2 py-0.5 rounded transition ${explainMethod === 'ig' ? 'bg-purple-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}
+                className={`px-2 py-0.5 rounded transition ${explainMethod === 'ig' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'}`}
               >
                 Int. Gradients (Temporal)
               </button>
@@ -280,8 +280,8 @@ export const PatientDetail: React.FC = () => {
             ))}
           </div>
 
-          <div className="p-2.5 bg-purple-950/20 border border-purple-500/20 rounded-lg text-[11px] text-purple-200 flex items-start space-x-2">
-            <HelpCircle className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
+          <div className="p-2.5 bg-amber-950/20 border border-amber-500/20 rounded-lg text-[11px] text-[#F3EEE8] flex items-start space-x-2">
+            <HelpCircle className="w-4 h-4 text-[#B8B0A4] flex-shrink-0 mt-0.5" />
             <span>
               <strong>Clinical Interpretation:</strong> Attributions combine LightGBM non-linear interactions with GRU-D time-decay gradients. Features are weighted strictly within clinical safety guidelines.
             </span>

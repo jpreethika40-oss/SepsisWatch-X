@@ -81,7 +81,7 @@ export const Scoreboard: React.FC = () => {
       <div className="glass-panel p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
-            <GitCompare className="w-5 h-5 text-cyan-400" />
+            <GitCompare className="w-5 h-5 text-orange-400" />
             <h2 className="text-base font-bold font-display text-slate-100">
               Cross-Hospital Transfer Scoreboard & Generalization Benchmarks
             </h2>
@@ -91,7 +91,7 @@ export const Scoreboard: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center space-x-2 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800 text-xs font-mono text-cyan-300">
+        <div className="flex items-center space-x-2 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800 text-xs font-mono text-amber-300">
           <Award className="w-4 h-4 text-amber-400" />
           <span>DANN Minimizes Transfer Drop to -3.1%</span>
         </div>
@@ -115,7 +115,7 @@ export const Scoreboard: React.FC = () => {
               <tr>
                 <th className="p-3">Model Architecture</th>
                 <th className="p-3">Paradigm</th>
-                <th className="p-3 text-cyan-300">A &rarr; A (In-Hosp)</th>
+                <th className="p-3 text-amber-300">A &rarr; A (In-Hosp)</th>
                 <th className="p-3 text-amber-300">A &rarr; B (Transfer)</th>
                 <th className="p-3">B &rarr; B</th>
                 <th className="p-3">B &rarr; A</th>
@@ -127,15 +127,15 @@ export const Scoreboard: React.FC = () => {
                 <tr
                   key={idx}
                   className={`hover:bg-slate-800/30 transition ${
-                    m.status === 'champion' ? 'bg-cyan-950/20 font-semibold' : ''
+                    m.status === 'champion' ? 'bg-amber-950/20 font-semibold' : ''
                   }`}
                 >
                   <td className="p-3 text-slate-100 flex items-center space-x-2">
-                    {m.status === 'champion' && <Award className="w-3.5 h-3.5 text-cyan-400" />}
+                    {m.status === 'champion' && <Award className="w-3.5 h-3.5 text-orange-400" />}
                     <span>{m.setup}</span>
                   </td>
                   <td className="p-3 text-slate-400">{m.type}</td>
-                  <td className="p-3 text-cyan-300 font-bold">
+                  <td className="p-3 text-amber-300 font-bold">
                     {m.A_to_A.utility.toFixed(3)}{' '}
                     <span className="text-[10px] text-slate-500 font-normal">{m.A_to_A.ci}</span>
                   </td>

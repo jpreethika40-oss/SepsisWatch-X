@@ -88,7 +88,7 @@ export const BenchmarkErrorAnalysis: React.FC = () => {
       <div className="glass-panel p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
-            <LineChart className="w-5 h-5 text-cyan-400" />
+            <LineChart className="w-5 h-5 text-orange-400" />
             <h2 className="text-base font-bold font-display text-slate-100">
               PhysioNet/CinC 2019 Literature Benchmark & Error Analysis
             </h2>
@@ -116,7 +116,7 @@ export const BenchmarkErrorAnalysis: React.FC = () => {
               <tr>
                 <th className="p-3">Model / Entry</th>
                 <th className="p-3">Core Architecture</th>
-                <th className="p-3 text-cyan-300">Set A Utility</th>
+                <th className="p-3 text-amber-300">Set A Utility</th>
                 <th className="p-3 text-amber-300">Set B Utility</th>
                 <th className="p-3">AUROC</th>
                 <th className="p-3">AUPRC</th>
@@ -128,15 +128,15 @@ export const BenchmarkErrorAnalysis: React.FC = () => {
                 <tr
                   key={idx}
                   className={`hover:bg-slate-800/30 transition ${
-                    b.entry.includes('SepsisWatch-X') ? 'bg-cyan-950/25 font-semibold' : ''
+                    b.entry.includes('SepsisWatch-X') ? 'bg-amber-950/25 font-semibold' : ''
                   }`}
                 >
                   <td className="p-3 text-slate-100 flex items-center space-x-1.5">
-                    {b.entry.includes('SepsisWatch-X') && <Award className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />}
+                    {b.entry.includes('SepsisWatch-X') && <Award className="w-3.5 h-3.5 text-orange-400 flex-shrink-0" />}
                     <span>{b.entry}</span>
                   </td>
                   <td className="p-3 text-slate-400">{b.architecture}</td>
-                  <td className="p-3 text-cyan-300 font-bold">{b.utilitySetA.toFixed(3)}</td>
+                  <td className="p-3 text-amber-300 font-bold">{b.utilitySetA.toFixed(3)}</td>
                   <td className="p-3 text-amber-300 font-bold">{b.utilitySetB.toFixed(3)}</td>
                   <td className="p-3 text-slate-300">{b.auroc.toFixed(3)}</td>
                   <td className="p-3 text-slate-300">{b.auprc.toFixed(3)}</td>
@@ -152,7 +152,7 @@ export const BenchmarkErrorAnalysis: React.FC = () => {
       <div className="glass-panel p-5 rounded-xl space-y-4">
         <div className="flex justify-between items-center border-b border-slate-800 pb-2">
           <div className="flex items-center space-x-2">
-            <Scale className="w-4 h-4 text-purple-400" />
+            <Scale className="w-4 h-4 text-[#B8B0A4]" />
             <h3 className="text-xs font-mono uppercase tracking-wider text-slate-300 font-semibold">
               Subgroup Error Analysis & Algorithmic Fairness Audit
             </h3>
@@ -179,7 +179,7 @@ export const BenchmarkErrorAnalysis: React.FC = () => {
               </div>
               <div className="flex justify-between text-xs font-mono text-slate-400 pt-1 border-t border-slate-800/80">
                 <span>Utility Score:</span>
-                <span className="text-cyan-300 font-bold">{sg.utility.toFixed(3)}</span>
+                <span className="text-amber-300 font-bold">{sg.utility.toFixed(3)}</span>
               </div>
             </div>
           ))}
@@ -188,7 +188,7 @@ export const BenchmarkErrorAnalysis: React.FC = () => {
         {/* Written Findings Summary */}
         <div className="bg-slate-900/80 p-3.5 rounded-lg border border-slate-800 space-y-1 text-xs">
           <span className="text-[10px] font-mono uppercase text-slate-400 font-bold flex items-center space-x-1.5">
-            <FileText className="w-3.5 h-3.5 text-cyan-400" />
+            <FileText className="w-3.5 h-3.5 text-orange-400" />
             <span>Key Error Findings (results/error_analysis.md)</span>
           </span>
           <p className="text-slate-300 leading-relaxed">

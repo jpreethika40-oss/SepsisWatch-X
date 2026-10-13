@@ -69,7 +69,7 @@ export const ModelArena: React.FC = () => {
       <div className="glass-panel p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
-            <Swords className="w-5 h-5 text-cyan-400" />
+            <Swords className="w-5 h-5 text-orange-400" />
             <h2 className="text-base font-bold font-display text-slate-100">
               Model Arena: Multi-Model Head-to-Head Comparison
             </h2>
@@ -82,13 +82,13 @@ export const ModelArena: React.FC = () => {
         {/* Hospital Domain Recalibration Switch */}
         <div className="flex items-center space-x-2 bg-slate-900/80 p-1 rounded-lg border border-slate-700/80 text-xs font-mono">
           <span className="text-slate-400 pl-2 flex items-center space-x-1">
-            <Building2 className="w-3.5 h-3.5 text-cyan-400" />
+            <Building2 className="w-3.5 h-3.5 text-orange-400" />
             <span>Site Recalibration:</span>
           </span>
           <button
             onClick={() => setSelectedHospitalDomain('setA')}
             className={`px-3 py-1 rounded transition ${
-              selectedHospitalDomain === 'setA' ? 'bg-cyan-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'
+              selectedHospitalDomain === 'setA' ? 'bg-orange-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             Hospital A (Emory)
@@ -109,7 +109,7 @@ export const ModelArena: React.FC = () => {
         <span className="text-slate-300">
           Evaluating: <strong>Bed {currentPatient.bed_number} ({currentPatient.patient_code})</strong> • Native Origin: {currentPatient.hospital === 'setA' ? 'Hospital A' : 'Hospital B'}
         </span>
-        <span className="text-cyan-400">
+        <span className="text-orange-400">
           Target Lead Prediction: 6 Hours Prior to Clinical Sepsis Onset
         </span>
       </div>
@@ -120,17 +120,17 @@ export const ModelArena: React.FC = () => {
           <div
             key={m.id}
             className={`glass-panel p-4 rounded-xl flex flex-col justify-between space-y-3 transition ${
-              m.status === 'recommended' ? 'border-cyan-500/40 glow-cyan bg-cyan-950/20' : 'hover:border-slate-700'
+              m.status === 'recommended' ? 'border-amber-500/40 glow-ember bg-amber-950/20' : 'hover:border-slate-700'
             }`}
           >
             <div>
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="font-bold text-sm text-slate-100">{m.name}</h3>
-                  <p className="text-[11px] font-mono text-cyan-400">{m.type}</p>
+                  <p className="text-[11px] font-mono text-orange-400">{m.type}</p>
                 </div>
                 {m.status === 'recommended' && (
-                  <span className="bg-cyan-500 text-slate-950 text-[10px] font-bold font-mono px-2 py-0.5 rounded uppercase">
+                  <span className="bg-orange-500 text-slate-950 text-[10px] font-bold font-mono px-2 py-0.5 rounded uppercase">
                     Primary SOTA
                   </span>
                 )}
@@ -160,7 +160,7 @@ export const ModelArena: React.FC = () => {
                 </div>
                 <div>
                   <span className="text-[10px] text-slate-500">Latency:</span>
-                  <p className="text-cyan-300">{m.latencyMs} ms</p>
+                  <p className="text-amber-300">{m.latencyMs} ms</p>
                 </div>
               </div>
             </div>

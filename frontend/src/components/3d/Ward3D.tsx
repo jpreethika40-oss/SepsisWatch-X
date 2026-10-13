@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Text, Float } from '@react-three/drei';
+import { OrbitControls, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '../../store/useStore';
 import { useNavigate } from 'react-router-dom';
@@ -32,10 +32,10 @@ const BedPod: React.FC<BedPodProps> = ({
   const height = 0.6 + risk * 2.2;
   const color =
     status === 'critical'
-      ? '#ef4444' // Crimson
+      ? '#EF4444' // Crimson
       : status === 'caution'
-      ? '#f59e0b' // Amber
-      : '#10b981'; // Emerald
+      ? '#FBBF24' // Gold
+      : '#10B981'; // Emerald
 
   useFrame((state, delta) => {
     if (ringRef.current && status === 'critical') {
@@ -55,7 +55,7 @@ const BedPod: React.FC<BedPodProps> = ({
       <mesh position={[0, 0.05, 0]}>
         <cylinderGeometry args={[0.9, 1.0, 0.1, 16]} />
         <meshStandardMaterial
-          color={isSelected ? '#06b6d4' : '#1e293b'}
+          color={isSelected ? '#F97316' : '#1E1B18'}
           roughness={0.4}
           metalness={0.7}
         />
@@ -79,11 +79,11 @@ const BedPod: React.FC<BedPodProps> = ({
         />
       </mesh>
 
-      {/* Pulsing Alert Ring for Critical/High alerts */}
+      {/* Pulsing Alert Ring for Critical alerts */}
       {status === 'critical' && (
         <mesh ref={ringRef} position={[0, height + 0.35, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <ringGeometry args={[0.7, 0.85, 32]} />
-          <meshBasicMaterial color="#ef4444" side={THREE.DoubleSide} />
+          <meshBasicMaterial color="#EF4444" side={THREE.DoubleSide} />
         </mesh>
       )}
 
@@ -91,7 +91,7 @@ const BedPod: React.FC<BedPodProps> = ({
       <Text
         position={[0, height + 0.5, 0]}
         fontSize={0.28}
-        color={isSelected ? '#22d3ee' : '#f8fafc'}
+        color={isSelected ? '#FBBF24' : '#F3EEE8'}
         anchorX="center"
         anchorY="middle"
       >
@@ -109,12 +109,12 @@ const BedPod: React.FC<BedPodProps> = ({
         {`${(risk * 100).toFixed(0)}%`}
       </Text>
 
-      {/* Uncertain Conformal Tag */}
+      {/* Uncertain Conformal Tag (Sandstone #B8B0A4) */}
       {conformalLabel === 'uncertain' && (
         <Text
           position={[0, height + 0.8, 0]}
           fontSize={0.16}
-          color="#a855f7"
+          color="#B8B0A4"
           anchorX="center"
           anchorY="middle"
         >
@@ -150,10 +150,10 @@ export const Ward3D: React.FC = () => {
   // If user selected 2D Low-Power Mode:
   if (is2DMode) {
     return (
-      <div className="w-full h-full bg-slate-950/80 rounded-xl p-4 border border-cyan-500/20 flex flex-col justify-between">
+      <div className="w-full h-full bg-[#151311]/80 rounded-xl p-4 border border-amber-500/20 flex flex-col justify-between">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-xs font-mono text-cyan-400">2D ICU FLOORPLAN BAY</span>
-          <span className="text-[11px] text-slate-400">Click to select, double-click to view patient</span>
+          <span className="text-xs font-mono text-amber-400">2D ICU FLOORPLAN BAY</span>
+          <span className="text-[11px] text-[#A09689]">Click to select, double-click to view patient</span>
         </div>
         <div className="grid grid-cols-4 gap-3 flex-1">
           {patients.map((p) => {
@@ -165,38 +165,58 @@ export const Ward3D: React.FC = () => {
                 onDoubleClick={() => handleBedDoubleClick(p.id)}
                 className={`p-3 rounded-lg border cursor-pointer transition flex flex-col justify-between ${
                   isSelected
-                    ? 'border-cyan-400 bg-cyan-950/40 glow-cyan'
+                    ? 'border-amber-400 bg-amber-950/40 glow-ember'
                     : p.status === 'critical'
-                    ? 'border-red-500/60 bg-red-950/20 glow-crimson'
+                    ? 'border-red-500/60 bg-red-950/20 glow-critical'
                     : p.status === 'caution'
                     ? 'border-amber-500/40 bg-amber-950/20'
-                    : 'border-slate-800 bg-slate-900/60 hover:border-slate-700'
+                    : 'border-[#332E29] bg-[#1E1B18]/60 hover:border-amber-500/30'
                 }`}
               >
                 <div className="flex justify-between items-start">
-                  <span className="font-bold text-xs text-slate-200">Bed {p.bed_number}</span>
-                  <span className="text-[10px] font-mono text-slate-400">{p.patient_code}</span>
+                  <span className="font-bold text-xs text-[#F3EEE8]">Bed {p.bed_number}</span>
+                  <span className="text-[10px] font-mono text-[#A09689]">{p.patient_code}</span>
                 </div>
                 <div className="my-2">
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="text-slate-400">Sepsis Risk:</span>
-                    <span className={`font-bold ${p.risk >= 0.7 ? 'text-red-400' : p.risk >= 0.4 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                  <div className="flex justify-between items-baseline mb-1">
+                    <span className="text-[11px] text-[#A09689]">Risk Score:</span>
+                    <span
+                      className={`text-xs font-mono font-bold ${
+                        p.status === 'critical'
+                          ? 'text-red-400'
+                          : p.status === 'caution'
+                          ? 'text-amber-400'
+                          : 'text-emerald-400'
+                      }`}
+                    >
                       {(p.risk * 100).toFixed(0)}%
                     </span>
                   </div>
-                  <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                  <div className="w-full bg-[#0C0B0A] h-1.5 rounded-full overflow-hidden">
                     <div
-                      className={`h-full ${p.risk >= 0.7 ? 'bg-red-500' : p.risk >= 0.4 ? 'bg-amber-500' : 'bg-emerald-500'}`}
-                      style={{ width: `${p.risk * 100}%` }}
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        p.status === 'critical'
+                          ? 'bg-red-500'
+                          : p.status === 'caution'
+                          ? 'bg-amber-400'
+                          : 'bg-emerald-500'
+                      }`}
+                      style={{ width: `${Math.max(5, p.risk * 100)}%` }}
                     />
                   </div>
                 </div>
-                <div className="flex justify-between items-center text-[10px]">
-                  <span className="font-mono text-slate-500">{p.hospital.toUpperCase()}</span>
-                  <span className={`px-1.5 py-0.5 rounded font-mono ${
-                    p.conformal_label === 'uncertain' ? 'bg-purple-950 text-purple-300' : 'text-slate-400'
-                  }`}>
-                    {p.conformal_label.replace('_', ' ')}
+                <div className="flex justify-between items-center text-[10px] font-mono">
+                  <span className="text-[#A09689]">Hour {p.current_hour}</span>
+                  <span
+                    className={`px-1.5 py-0.5 rounded ${
+                      p.conformal_label === 'uncertain'
+                        ? 'bg-[#B8B0A4]/20 text-[#B8B0A4] uncertain-dashed'
+                        : p.conformal_label === 'sepsis'
+                        ? 'bg-red-950 text-red-400 border border-red-500/30'
+                        : 'bg-emerald-950 text-emerald-400 border border-emerald-500/30'
+                    }`}
+                  >
+                    {p.conformal_label.toUpperCase()}
                   </span>
                 </div>
               </div>
@@ -207,18 +227,14 @@ export const Ward3D: React.FC = () => {
     );
   }
 
-  // High-Fidelity 3D Ward View
   return (
-    <div className="w-full h-full relative rounded-xl overflow-hidden border border-cyan-500/20 bg-gradient-to-b from-slate-950 to-clinical-surface">
-      <Canvas camera={{ position: [0, 9, 11], fov: 42 }}>
-        <ambientLight intensity={0.4} />
-        <directionalLight position={[10, 15, 10]} intensity={1.2} />
-        <pointLight position={[0, 5, 0]} intensity={0.8} color="#22d3ee" />
+    <div className="w-full h-full relative rounded-xl overflow-hidden border border-amber-500/20 bg-[#0C0B0A]">
+      <Canvas camera={{ position: [0, 9, 12], fov: 45 }}>
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[10, 20, 15]} intensity={1.2} />
+        <pointLight position={[0, 5, 0]} intensity={0.5} />
 
-        {/* Isometric ICU Floor Grid */}
-        <gridHelper args={[24, 24, '#06b6d4', '#1e293b']} position={[0, 0, 0]} />
-
-        {/* 12 Interactive ICU Beds */}
+        {/* 12 Bed Pods */}
         {patients.map((p, idx) => (
           <BedPod
             key={p.id}
@@ -232,29 +248,41 @@ export const Ward3D: React.FC = () => {
           />
         ))}
 
+        {/* Floor Grid (Warm Ember) */}
+        <gridHelper args={[20, 20, '#F97316', '#332E29']} position={[0, 0, 0]} />
+
+        {/* Orbit Controls */}
         <OrbitControls
-          enablePan={true}
-          enableZoom={true}
-          enableRotate={true}
-          maxPolarAngle={Math.PI / 2.1}
+          maxPolarAngle={Math.PI / 2.15}
           minDistance={5}
           maxDistance={22}
+          enablePan={true}
+          enableRotate={true}
         />
       </Canvas>
 
-      {/* Floating Ward Legend & Controls Info */}
-      <div className="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md px-3 py-2 rounded-lg border border-slate-800 text-[11px] font-mono space-y-1">
-        <div className="flex items-center space-x-2">
+      {/* Floating Clinical Status Bar */}
+      <div className="absolute top-3 left-3 bg-[#151311]/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-[#332E29] text-xs font-mono flex items-center space-x-3">
+        <div className="flex items-center space-x-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-          <span className="text-slate-300">Safe (&lt;40%)</span>
-          <span className="w-2.5 h-2.5 rounded-full bg-amber-500 ml-2" />
-          <span className="text-slate-300">Caution (40-70%)</span>
-          <span className="w-2.5 h-2.5 rounded-full bg-red-500 ml-2" />
-          <span className="text-slate-300">Critical (&gt;70%)</span>
+          <span className="text-[#A09689]">Stable</span>
         </div>
-        <div className="text-[10px] text-slate-400">
-          Rotate: Left-click • Pan: Right-click • Zoom: Scroll • Select: Click Bed
+        <div className="flex items-center space-x-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+          <span className="text-[#A09689]">Watch</span>
         </div>
+        <div className="flex items-center space-x-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
+          <span className="text-[#A09689]">Critical Alert</span>
+        </div>
+        <div className="flex items-center space-x-1.5 border-l border-[#332E29] pl-2">
+          <span className="w-2.5 h-2.5 rounded-sm bg-[#B8B0A4] uncertain-dashed" />
+          <span className="text-[#B8B0A4]">Conformal Uncertain</span>
+        </div>
+      </div>
+
+      <div className="absolute bottom-3 right-3 bg-[#151311]/80 px-2.5 py-1 rounded text-[11px] font-mono text-[#A09689] border border-[#332E29]">
+        Click to select • Double-click to open EHR
       </div>
     </div>
   );

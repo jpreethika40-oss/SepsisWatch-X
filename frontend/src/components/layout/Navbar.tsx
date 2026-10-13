@@ -2,7 +2,7 @@ import React from 'react';
 import { useStore } from '../../store/useStore';
 import { 
   Play, Pause, RotateCcw, FastForward, Volume2, VolumeX, 
-  Layers, Box, AlertTriangle, Activity, Search, ShieldCheck, Zap
+  Layers, Box, AlertTriangle, Activity, Search, Zap
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -16,7 +16,7 @@ export const Navbar: React.FC = () => {
   const toggleSimulation = () => setSimRunning(!isSimRunning);
 
   return (
-    <header className="sticky top-0 z-50 flex flex-col w-full border-b border-cyan-500/20 bg-clinical-surface/90 backdrop-blur-md">
+    <header className="sticky top-0 z-50 flex flex-col w-full border-b border-amber-500/20 bg-[#151311]/90 backdrop-blur-md">
       {/* 1. Mandatory Persistent Banner when Synthetic Data is in use */}
       {isSyntheticData && (
         <div className="bg-amber-950/80 border-b border-amber-500/30 px-4 py-1.5 flex items-center justify-between text-xs text-amber-200">
@@ -37,44 +37,44 @@ export const Navbar: React.FC = () => {
         {/* Left: Branding & Ward Telemetry Status */}
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2.5">
-            <div className="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center glow-cyan">
-              <Activity className="w-5 h-5 text-cyan-400 animate-pulse" />
+            <div className="w-9 h-9 rounded-lg bg-orange-500/10 border border-orange-500/30 flex items-center justify-center glow-ember">
+              <Activity className="w-5 h-5 text-orange-500 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h1 className="font-display font-bold text-base tracking-wider text-slate-100 uppercase">
-                  SepsisWatch<span className="text-cyan-400">-X</span>
+                <h1 className="font-display font-bold text-base tracking-wider text-[#F3EEE8] uppercase">
+                  SepsisWatch<span className="text-orange-500">-X</span>
                 </h1>
-                <span className="bg-cyan-950/80 text-cyan-300 text-[10px] font-mono px-1.5 py-0.5 rounded border border-cyan-500/30">
+                <span className="bg-amber-950/80 text-amber-300 text-[10px] font-mono px-1.5 py-0.5 rounded border border-amber-500/30">
                   v1.0.0
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 font-mono">
+              <p className="text-[11px] text-[#A09689] font-mono">
                 ICU Ward Early-Warning • 12 Beds Active
               </p>
             </div>
           </div>
 
           {/* WebSocket Live Stream Indicator */}
-          <div className="hidden lg:flex items-center space-x-2 pl-4 border-l border-slate-700/60">
+          <div className="hidden lg:flex items-center space-x-2 pl-4 border-l border-[#332E29]">
             <span className="relative flex h-2.5 w-2.5">
               <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${wsStatus === 'connected' ? 'bg-emerald-400' : 'bg-red-400'}`}></span>
               <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${wsStatus === 'connected' ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
             </span>
-            <span className="text-xs font-mono text-slate-300">
+            <span className="text-xs font-mono text-[#F3EEE8]">
               {wsStatus === 'connected' ? `STREAM ACTIVE (Hour ${currentSimHour})` : 'RECONNECTING...'}
             </span>
           </div>
         </div>
 
         {/* Center: Simulator Replay Controls */}
-        <div className="flex items-center space-x-2 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-700/60">
+        <div className="flex items-center space-x-2 bg-[#1E1B18]/80 px-3 py-1.5 rounded-lg border border-[#332E29]">
           <button
             onClick={toggleSimulation}
             className={`flex items-center space-x-1.5 px-3 py-1 rounded text-xs font-medium transition ${
               isSimRunning 
                 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30' 
-                : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30 glow-cyan'
+                : 'bg-orange-500/20 text-orange-400 border border-orange-500/40 hover:bg-orange-500/30 glow-ember'
             }`}
           >
             {isSimRunning ? (
@@ -93,7 +93,7 @@ export const Navbar: React.FC = () => {
           <button
             onClick={() => setCurrentSimHour(currentSimHour + 1)}
             title="Step 1 hour forward"
-            className="p-1.5 text-slate-300 hover:text-cyan-400 hover:bg-slate-800 rounded transition"
+            className="p-1.5 text-[#F3EEE8] hover:text-orange-400 hover:bg-[#332E29] rounded transition"
           >
             <FastForward className="w-3.5 h-3.5" />
           </button>
@@ -101,21 +101,21 @@ export const Navbar: React.FC = () => {
           <button
             onClick={() => setCurrentSimHour(1)}
             title="Reset simulation hour"
-            className="p-1.5 text-slate-300 hover:text-cyan-400 hover:bg-slate-800 rounded transition"
+            className="p-1.5 text-[#F3EEE8] hover:text-orange-400 hover:bg-[#332E29] rounded transition"
           >
             <RotateCcw className="w-3.5 h-3.5" />
           </button>
 
           {/* Speed Multiplier */}
-          <div className="flex items-center space-x-1 pl-2 border-l border-slate-700 text-xs">
+          <div className="flex items-center space-x-1 pl-2 border-l border-[#332E29] text-xs">
             {[1, 2, 5].map((spd) => (
               <button
                 key={spd}
                 onClick={() => setSimSpeed(spd)}
                 className={`px-1.5 py-0.5 rounded text-[10px] font-mono transition ${
                   simSpeed === spd 
-                    ? 'bg-cyan-500 text-slate-950 font-bold' 
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-orange-500 text-[#0C0B0A] font-bold' 
+                    : 'text-[#A09689] hover:text-[#F3EEE8]'
                 }`}
               >
                 {spd}x
@@ -130,7 +130,7 @@ export const Navbar: React.FC = () => {
             className={`ml-2 px-2 py-1 rounded text-[11px] font-mono flex items-center space-x-1 border transition ${
               driftInjected 
                 ? 'bg-red-500/20 border-red-500/50 text-red-300 animate-pulse' 
-                : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-cyan-500/40'
+                : 'bg-[#151311] border-[#332E29] text-[#F3EEE8] hover:border-orange-500/40'
             }`}
           >
             <Zap className="w-3 h-3 text-amber-400" />
@@ -143,7 +143,7 @@ export const Navbar: React.FC = () => {
           {/* Command Palette Trigger */}
           <button
             onClick={() => setCommandPaletteOpen(true)}
-            className="hidden sm:flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900/60 border border-slate-700/60 text-xs text-slate-400 hover:text-slate-200 hover:border-cyan-500/30 transition"
+            className="hidden sm:flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg bg-[#1E1B18]/60 border border-[#332E29] text-xs text-[#A09689] hover:text-[#F3EEE8] hover:border-amber-500/30 transition"
           >
             <Search className="w-3.5 h-3.5" />
             <span className="text-[11px]">Command (Ctrl+K)</span>
@@ -155,8 +155,8 @@ export const Navbar: React.FC = () => {
             title={is2DMode ? "Switch to High-Fidelity 3D View" : "Switch to Low-Power 2D Mode"}
             className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-lg border text-xs font-mono transition ${
               is2DMode
-                ? 'bg-purple-950/40 border-purple-500/40 text-purple-300'
-                : 'bg-cyan-950/40 border-cyan-500/40 text-cyan-300'
+                ? 'bg-amber-950/40 border-amber-500/40 text-amber-300'
+                : 'bg-orange-950/40 border-orange-500/40 text-orange-300'
             }`}
           >
             {is2DMode ? <Layers className="w-3.5 h-3.5" /> : <Box className="w-3.5 h-3.5" />}
@@ -170,20 +170,20 @@ export const Navbar: React.FC = () => {
             className={`p-2 rounded-lg border text-xs transition ${
               soundEnabled
                 ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
-                : 'bg-slate-900 border-slate-700 text-slate-400 hover:text-slate-200'
+                : 'bg-[#151311] border-[#332E29] text-[#A09689] hover:text-[#F3EEE8]'
             }`}
           >
             {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
           </button>
 
           {/* User Badge */}
-          <div className="flex items-center space-x-2 pl-2 border-l border-slate-700/60">
-            <div className="w-7 h-7 rounded-full bg-cyan-600/20 border border-cyan-500/30 flex items-center justify-center text-xs font-bold text-cyan-300">
+          <div className="flex items-center space-x-2 pl-2 border-l border-[#332E29]">
+            <div className="w-7 h-7 rounded-full bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-xs font-bold text-orange-400">
               SC
             </div>
             <div className="hidden xl:block text-left">
-              <p className="text-xs font-medium text-slate-200 leading-tight">Dr. Connor</p>
-              <p className="text-[10px] text-cyan-400 font-mono leading-tight">Admin / Chief</p>
+              <p className="text-xs font-medium text-[#F3EEE8] leading-tight">Dr. Connor</p>
+              <p className="text-[10px] text-orange-400 font-mono leading-tight">Admin / Chief</p>
             </div>
           </div>
         </div>

@@ -36,7 +36,7 @@ export const About: React.FC = () => {
       <div className="glass-panel p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
-            <Info className="w-5 h-5 text-cyan-400" />
+            <Info className="w-5 h-5 text-orange-400" />
             <h2 className="text-base font-bold font-display text-slate-100">
               About SepsisWatch-X: Model Card & System Architecture
             </h2>
@@ -51,7 +51,7 @@ export const About: React.FC = () => {
             href="https://github.com"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-800 text-slate-200 text-xs font-mono border border-slate-700 hover:border-cyan-500/40 transition"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-800 text-slate-200 text-xs font-mono border border-slate-700 hover:border-amber-500/40 transition"
           >
             <Github className="w-3.5 h-3.5" />
             <span>GitHub Repository</span>
@@ -60,7 +60,7 @@ export const About: React.FC = () => {
             href="https://huggingface.co/spaces"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/15 text-cyan-300 text-xs font-mono border border-cyan-500/30 hover:bg-cyan-500/25 transition glow-cyan"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-orange-500/15 text-amber-300 text-xs font-mono border border-amber-500/30 hover:bg-orange-500/25 transition glow-ember"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             <span>Hugging Face Space</span>
@@ -90,19 +90,19 @@ export const About: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs font-mono">
           <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800 space-y-1">
-            <span className="text-cyan-400 font-bold">1. LightGBM Branch</span>
+            <span className="text-orange-400 font-bold">1. LightGBM Branch</span>
             <p className="text-slate-300">Hand-crafted rolling 6h/12h mean, min, max, slope, shock index, delta vitals.</p>
           </div>
           <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800 space-y-1">
-            <span className="text-cyan-400 font-bold">2. GRU-D Branch</span>
+            <span className="text-orange-400 font-bold">2. GRU-D Branch</span>
             <p className="text-slate-300">Recurrent architecture with masks, time-since-last-measurement, and exponential decay vectors.</p>
           </div>
           <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800 space-y-1">
-            <span className="text-cyan-400 font-bold">3. DANN Adaptation</span>
+            <span className="text-orange-400 font-bold">3. DANN Adaptation</span>
             <p className="text-slate-300">Gradient Reversal Layer (GRL) head erasing hospital site signatures in latent space.</p>
           </div>
           <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800 space-y-1">
-            <span className="text-cyan-400 font-bold">4. Split Conformal</span>
+            <span className="text-orange-400 font-bold">4. Split Conformal</span>
             <p className="text-slate-300">Finite-sample mathematically guaranteed 90% coverage prediction sets (Sepsis / No Sepsis / Uncertain).</p>
           </div>
         </div>

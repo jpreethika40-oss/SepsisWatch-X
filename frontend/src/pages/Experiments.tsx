@@ -69,7 +69,7 @@ export const Experiments: React.FC = () => {
       <div className="glass-panel p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
-            <Cpu className="w-5 h-5 text-cyan-400" />
+            <Cpu className="w-5 h-5 text-orange-400" />
             <h2 className="text-base font-bold font-display text-slate-100">
               Optuna Hyperparameter Tuning & MLflow Model Registry
             </h2>
@@ -79,8 +79,8 @@ export const Experiments: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center space-x-2 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800 text-xs font-mono text-cyan-300">
-          <Database className="w-3.5 h-3.5 text-cyan-400" />
+        <div className="flex items-center space-x-2 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800 text-xs font-mono text-amber-300">
+          <Database className="w-3.5 h-3.5 text-orange-400" />
           <span>MLflow Tracking Server Active</span>
         </div>
       </div>
@@ -93,7 +93,7 @@ export const Experiments: React.FC = () => {
             <h3 className="text-xs font-mono uppercase tracking-wider text-slate-300 font-semibold">
               Optuna TPE Optimization History (Objective: PhysioNet Utility Score)
             </h3>
-            <span className="text-[11px] text-cyan-400 font-mono">25 Trials Completed</span>
+            <span className="text-[11px] text-orange-400 font-mono">25 Trials Completed</span>
           </div>
 
           <div className="h-56 w-full">
@@ -103,16 +103,16 @@ export const Experiments: React.FC = () => {
                 <XAxis dataKey="trial" stroke="#64748b" tickFormatter={(v) => `T${v}`} />
                 <YAxis domain={[0.3, 0.5]} stroke="#64748b" />
                 <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#38bdf8', fontSize: '11px' }} />
-                <Line type="monotone" dataKey="utility" name="Validation Utility Score" stroke="#06b6d4" strokeWidth={2.5} dot={{ r: 4, fill: '#06b6d4' }} />
+                <Line type="monotone" dataKey="utility" name="Validation Utility Score" stroke="#F97316" strokeWidth={2.5} dot={{ r: 4, fill: '#F97316' }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Best Model Checkpoint */}
-        <div className="glass-panel p-5 rounded-xl border-cyan-500/30 flex flex-col justify-between space-y-3">
+        <div className="glass-panel p-5 rounded-xl border-amber-500/30 flex flex-col justify-between space-y-3">
           <div>
-            <div className="flex items-center space-x-2 text-cyan-400 text-xs font-mono font-bold uppercase mb-2">
+            <div className="flex items-center space-x-2 text-orange-400 text-xs font-mono font-bold uppercase mb-2">
               <Award className="w-4 h-4 text-amber-400" />
               <span>Production Model Registry Checkpoint</span>
             </div>
@@ -126,7 +126,7 @@ export const Experiments: React.FC = () => {
             <div className="mt-4 space-y-1.5 text-xs font-mono">
               <div className="flex justify-between p-2 rounded bg-slate-900/60 border border-slate-800">
                 <span className="text-slate-400">CinC Utility Score:</span>
-                <span className="text-cyan-300 font-bold">0.452</span>
+                <span className="text-amber-300 font-bold">0.452</span>
               </div>
               <div className="flex justify-between p-2 rounded bg-slate-900/60 border border-slate-800">
                 <span className="text-slate-400">Cross-Hospital AUROC:</span>
@@ -134,7 +134,7 @@ export const Experiments: React.FC = () => {
               </div>
               <div className="flex justify-between p-2 rounded bg-slate-900/60 border border-slate-800">
                 <span className="text-slate-400">Domain Lambda (&lambda;):</span>
-                <span className="text-purple-300 font-bold">0.55 (Log Sched)</span>
+                <span className="text-amber-300 font-bold">0.55 (Log Sched)</span>
               </div>
             </div>
           </div>
@@ -160,7 +160,7 @@ export const Experiments: React.FC = () => {
                 <th className="p-3">Run ID</th>
                 <th className="p-3">Model Architecture</th>
                 <th className="p-3">Stage</th>
-                <th className="p-3 text-cyan-300">Utility Score</th>
+                <th className="p-3 text-amber-300">Utility Score</th>
                 <th className="p-3">AUROC</th>
                 <th className="p-3">AUPRC</th>
                 <th className="p-3">Git Commit</th>
@@ -170,7 +170,7 @@ export const Experiments: React.FC = () => {
             <tbody className="divide-y divide-slate-800/60">
               {mlflowRuns.map((r, idx) => (
                 <tr key={idx} className="hover:bg-slate-800/30">
-                  <td className="p-3 text-cyan-400 font-bold">{r.runId}</td>
+                  <td className="p-3 text-orange-400 font-bold">{r.runId}</td>
                   <td className="p-3 text-slate-200">{r.model}</td>
                   <td className="p-3">
                     <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
@@ -179,7 +179,7 @@ export const Experiments: React.FC = () => {
                       {r.stage}
                     </span>
                   </td>
-                  <td className="p-3 text-cyan-300 font-bold">{r.utility.toFixed(3)}</td>
+                  <td className="p-3 text-amber-300 font-bold">{r.utility.toFixed(3)}</td>
                   <td className="p-3 text-slate-300">{r.auroc.toFixed(3)}</td>
                   <td className="p-3 text-slate-300">{r.auprc.toFixed(3)}</td>
                   <td className="p-3 text-slate-400">{r.gitHash}</td>

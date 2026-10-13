@@ -47,7 +47,7 @@ export const AlertCenter: React.FC = () => {
               key={sev}
               onClick={() => setFilterSeverity(sev)}
               className={`px-2.5 py-1 rounded transition uppercase ${
-                filterSeverity === sev ? 'bg-cyan-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'
+                filterSeverity === sev ? 'bg-orange-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               {sev}
@@ -100,7 +100,7 @@ export const AlertCenter: React.FC = () => {
 
                   <div className="flex items-center space-x-4 text-[11px] font-mono text-slate-400 pt-0.5">
                     <span>Risk: <strong className="text-red-400">{(alert.risk_score * 100).toFixed(0)}%</strong></span>
-                    <span>Est. Lead Time: <strong className="text-cyan-400">{alert.lead_time_hours} hrs</strong></span>
+                    <span>Est. Lead Time: <strong className="text-orange-400">{alert.lead_time_hours} hrs</strong></span>
                     <span>Status: <strong className={alert.status === 'active' ? 'text-amber-400 uppercase' : 'text-emerald-400 uppercase'}>{alert.status}</strong></span>
                   </div>
                 </div>
@@ -140,7 +140,7 @@ export const AlertCenter: React.FC = () => {
       {/* Acknowledge Modal */}
       {selectedAlertForAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md bg-slate-900 border border-cyan-500/30 rounded-xl p-5 space-y-4 glass-panel">
+          <div className="w-full max-w-md bg-slate-900 border border-amber-500/30 rounded-xl p-5 space-y-4 glass-panel">
             <h3 className="text-sm font-bold font-display text-slate-100 flex items-center space-x-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-400" />
               <span>Acknowledge Clinical Sepsis Alarm</span>
@@ -153,7 +153,7 @@ export const AlertCenter: React.FC = () => {
               placeholder="e.g., Ordered blood cultures, started 30mL/kg crystalloid fluid bolus, alert sent to attending..."
               value={clinicalNote}
               onChange={(e) => setClinicalNote(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100 outline-none focus:border-cyan-500/50"
+              className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500/50"
             />
             <div className="flex justify-end space-x-2">
               <button
@@ -164,7 +164,7 @@ export const AlertCenter: React.FC = () => {
               </button>
               <button
                 onClick={() => handleAcknowledge(selectedAlertForAction)}
-                className="px-4 py-1.5 rounded-lg bg-cyan-500 text-slate-950 font-bold text-xs font-mono"
+                className="px-4 py-1.5 rounded-lg bg-orange-500 text-slate-950 font-bold text-xs font-mono"
               >
                 Confirm & Log
               </button>

@@ -68,11 +68,11 @@ export const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="w-64 flex-shrink-0 border-r border-slate-800/80 bg-clinical-surface/60 backdrop-blur-md flex flex-col justify-between overflow-y-auto">
+    <aside className="w-64 flex-shrink-0 border-r border-[#332E29] bg-[#151311]/70 backdrop-blur-md flex flex-col justify-between overflow-y-auto">
       <div className="p-3 space-y-6">
         {sections.map((sec, sIdx) => (
           <div key={sIdx} className="space-y-1">
-            <h2 className="px-3 text-[11px] font-mono uppercase tracking-wider text-slate-500 font-semibold">
+            <h2 className="px-3 text-[11px] font-mono uppercase tracking-wider text-[#A09689] font-semibold">
               {sec.title}
             </h2>
             <nav className="space-y-0.5">
@@ -85,8 +85,8 @@ export const Sidebar: React.FC = () => {
                     className={({ isActive }) =>
                       `flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition ${
                         isActive
-                          ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-semibold glow-cyan'
-                          : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/50'
+                          ? 'bg-orange-500/15 text-amber-300 border border-orange-500/30 font-semibold glow-ember'
+                          : 'text-[#A09689] hover:text-[#F3EEE8] hover:bg-[#1E1B18]'
                       }`
                     }
                   >
@@ -95,7 +95,7 @@ export const Sidebar: React.FC = () => {
                       <span>{item.name}</span>
                     </div>
                     {item.badge !== undefined && (
-                      <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${item.badgeColor || 'bg-slate-800 text-slate-300'}`}>
+                      <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${item.badgeColor || 'bg-[#1E1B18] text-[#F3EEE8]'}`}>
                         {item.badge}
                       </span>
                     )}
@@ -108,19 +108,19 @@ export const Sidebar: React.FC = () => {
       </div>
 
       {/* Footer System Status */}
-      <div className="p-3 border-t border-slate-800/60 bg-slate-950/40">
-        <div className="bg-slate-900/60 rounded-lg p-2.5 border border-slate-800 text-[11px] space-y-1">
-          <div className="flex justify-between text-slate-400 font-mono">
+      <div className="p-3 border-t border-[#332E29] bg-[#0C0B0A]/60">
+        <div className="bg-[#151311]/80 rounded-lg p-2.5 border border-[#332E29] text-[11px] space-y-1">
+          <div className="flex justify-between text-[#A09689] font-mono">
             <span>Stack:</span>
-            <span className="text-cyan-400 font-bold">LightGBM + GRU-D + DANN</span>
+            <span className="text-orange-400 font-bold">LightGBM + GRU-D + DANN</span>
           </div>
-          <div className="flex justify-between text-slate-400 font-mono">
+          <div className="flex justify-between text-[#A09689] font-mono">
             <span>Coverage:</span>
             <span className="text-emerald-400">90% Split Conformal</span>
           </div>
-          <div className="flex justify-between text-slate-400 font-mono">
+          <div className="flex justify-between text-[#A09689] font-mono">
             <span>Utility Score:</span>
-            <span className="text-cyan-300 font-bold">0.452 (CinC)</span>
+            <span className="text-amber-300 font-bold">0.452 (CinC)</span>
           </div>
         </div>
       </div>

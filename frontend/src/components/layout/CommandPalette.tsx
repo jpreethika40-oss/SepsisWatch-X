@@ -42,18 +42,18 @@ export const CommandPalette: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 bg-black/70 backdrop-blur-sm p-4">
-      <div className="w-full max-w-xl bg-slate-900 border border-cyan-500/30 rounded-xl shadow-2xl overflow-hidden glass-panel">
-        <div className="flex items-center px-4 py-3 border-b border-slate-800">
-          <Search className="w-5 h-5 text-cyan-400 mr-2 flex-shrink-0" />
+      <div className="w-full max-w-xl bg-[#151311] border border-amber-500/30 rounded-xl shadow-2xl overflow-hidden glass-panel">
+        <div className="flex items-center px-4 py-3 border-b border-[#332E29]">
+          <Search className="w-5 h-5 text-orange-500 mr-2 flex-shrink-0" />
           <input
             type="text"
             placeholder="Type a page, bed number, or action (e.g., 'Bed 3', 'Arena', 'Drift')..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
-            className="w-full bg-transparent text-sm text-slate-100 placeholder-slate-500 outline-none"
+            className="w-full bg-transparent text-sm text-[#F3EEE8] placeholder-[#A09689] outline-none font-mono"
           />
-          <button onClick={() => setCommandPaletteOpen(false)} className="text-slate-400 hover:text-slate-200">
+          <button onClick={() => setCommandPaletteOpen(false)} className="text-[#A09689] hover:text-[#F3EEE8]">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -62,7 +62,7 @@ export const CommandPalette: React.FC = () => {
           {/* Patients Section */}
           {filteredBeds.length > 0 && (
             <div>
-              <p className="px-2 text-[10px] font-mono uppercase text-slate-500 font-semibold mb-1">
+              <p className="px-2 text-[10px] font-mono uppercase text-[#A09689] font-semibold mb-1">
                 Patients / Beds
               </p>
               <div className="space-y-1">
@@ -74,11 +74,11 @@ export const CommandPalette: React.FC = () => {
                       navigate('/patient');
                       setCommandPaletteOpen(false);
                     }}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs hover:bg-cyan-500/20 text-slate-200 transition text-left"
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs hover:bg-orange-500/20 text-[#F3EEE8] transition text-left"
                   >
                     <div className="flex items-center space-x-2">
-                      <span className="font-bold text-cyan-400">Bed {b.bed_number}</span>
-                      <span className="text-slate-400 font-mono">({b.patient_code})</span>
+                      <span className="font-bold text-orange-400">Bed {b.bed_number}</span>
+                      <span className="text-[#A09689] font-mono">({b.patient_code})</span>
                     </div>
                     <span className={`px-2 py-0.5 rounded text-[10px] font-mono ${
                       b.risk >= 0.7 ? 'bg-red-950 text-red-300' : b.risk >= 0.4 ? 'bg-amber-950 text-amber-300' : 'bg-emerald-950 text-emerald-300'
@@ -93,7 +93,7 @@ export const CommandPalette: React.FC = () => {
 
           {/* Navigation Section */}
           <div>
-            <p className="px-2 text-[10px] font-mono uppercase text-slate-500 font-semibold mb-1">
+            <p className="px-2 text-[10px] font-mono uppercase text-[#A09689] font-semibold mb-1">
               Navigation
             </p>
             <div className="space-y-1">
@@ -106,9 +106,9 @@ export const CommandPalette: React.FC = () => {
                       navigate(item.path);
                       setCommandPaletteOpen(false);
                     }}
-                    className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs hover:bg-slate-800 text-slate-200 transition text-left"
+                    className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs hover:bg-[#1E1B18] text-[#F3EEE8] transition text-left"
                   >
-                    <Icon className="w-4 h-4 text-cyan-400" />
+                    <Icon className="w-4 h-4 text-orange-400" />
                     <span>{item.name}</span>
                   </button>
                 );
@@ -117,7 +117,7 @@ export const CommandPalette: React.FC = () => {
           </div>
         </div>
 
-        <div className="px-4 py-2 bg-slate-950/60 border-t border-slate-800 text-[11px] text-slate-500 flex justify-between font-mono">
+        <div className="px-4 py-2 bg-[#0C0B0A]/80 border-t border-[#332E29] text-[11px] text-[#A09689] flex justify-between font-mono">
           <span>Navigate with arrow keys</span>
           <span>Esc to close</span>
         </div>

@@ -66,7 +66,7 @@ export const AlarmBudgetControl: React.FC = () => {
 
         <button
           onClick={handleSave}
-          className="flex items-center space-x-1.5 px-4 py-2 rounded-lg bg-cyan-500 text-slate-950 font-bold text-xs font-mono hover:bg-cyan-400 transition glow-cyan"
+          className="flex items-center space-x-1.5 px-4 py-2 rounded-lg bg-orange-500 text-slate-950 font-bold text-xs font-mono hover:bg-amber-400 transition glow-ember"
         >
           <Save className="w-4 h-4" />
           <span>{savedSuccess ? 'Policy Deployed!' : 'Deploy Active Policy'}</span>
@@ -79,7 +79,7 @@ export const AlarmBudgetControl: React.FC = () => {
         <div className="glass-panel p-5 rounded-xl space-y-5">
           <h3 className="text-xs font-mono uppercase tracking-wider text-slate-300 font-semibold border-b border-slate-800 pb-2 flex items-center justify-between">
             <span>Operating Point Parameters</span>
-            <span className="text-cyan-400 font-normal">Version: {policy.version}</span>
+            <span className="text-orange-400 font-normal">Version: {policy.version}</span>
           </h3>
 
           <div className="space-y-4">
@@ -87,7 +87,7 @@ export const AlarmBudgetControl: React.FC = () => {
             <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800 space-y-1.5">
               <div className="flex justify-between items-center text-xs font-mono">
                 <span className="text-slate-300">Decision Threshold (&tau;):</span>
-                <span className="text-cyan-400 font-bold">{threshold.toFixed(2)}</span>
+                <span className="text-orange-400 font-bold">{threshold.toFixed(2)}</span>
               </div>
               <input
                 type="range"
@@ -96,7 +96,7 @@ export const AlarmBudgetControl: React.FC = () => {
                 step={0.01}
                 value={threshold}
                 onChange={(e) => setThreshold(Number(e.target.value))}
-                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-orange-500"
               />
               <div className="flex justify-between text-[10px] text-slate-500 font-mono">
                 <span>0.20 (Sensitive)</span>
@@ -109,7 +109,7 @@ export const AlarmBudgetControl: React.FC = () => {
             <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800 space-y-1.5">
               <div className="flex justify-between items-center text-xs font-mono">
                 <span className="text-slate-300">Persistence Window (k hours):</span>
-                <span className="text-cyan-400 font-bold">{persistence} Consecutive Hours</span>
+                <span className="text-orange-400 font-bold">{persistence} Consecutive Hours</span>
               </div>
               <input
                 type="range"
@@ -118,7 +118,7 @@ export const AlarmBudgetControl: React.FC = () => {
                 step={1}
                 value={persistence}
                 onChange={(e) => setPersistence(Number(e.target.value))}
-                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-orange-500"
               />
               <div className="flex justify-between text-[10px] text-slate-500 font-mono">
                 <span>1h (Immediate)</span>
@@ -131,7 +131,7 @@ export const AlarmBudgetControl: React.FC = () => {
             <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800 space-y-1.5">
               <div className="flex justify-between items-center text-xs font-mono">
                 <span className="text-slate-300">Alarm Cooldown Period:</span>
-                <span className="text-cyan-400 font-bold">{cooldown} Hours</span>
+                <span className="text-orange-400 font-bold">{cooldown} Hours</span>
               </div>
               <input
                 type="range"
@@ -140,7 +140,7 @@ export const AlarmBudgetControl: React.FC = () => {
                 step={1}
                 value={cooldown}
                 onChange={(e) => setCooldown(Number(e.target.value))}
-                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-orange-500"
               />
               <div className="flex justify-between text-[10px] text-slate-500 font-mono">
                 <span>2 Hours</span>
@@ -153,7 +153,7 @@ export const AlarmBudgetControl: React.FC = () => {
             <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800 space-y-1.5">
               <div className="flex justify-between items-center text-xs font-mono">
                 <span className="text-slate-300">Max Alarms Cap Per Patient:</span>
-                <span className="text-cyan-400 font-bold">{cap} Alarms</span>
+                <span className="text-orange-400 font-bold">{cap} Alarms</span>
               </div>
               <input
                 type="range"
@@ -162,7 +162,7 @@ export const AlarmBudgetControl: React.FC = () => {
                 step={1}
                 value={cap}
                 onChange={(e) => setCap(Number(e.target.value))}
-                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-orange-500"
               />
               <div className="flex justify-between text-[10px] text-slate-500 font-mono">
                 <span>1 Alarm</span>
@@ -198,7 +198,7 @@ export const AlarmBudgetControl: React.FC = () => {
 
               <div className="bg-slate-900/80 p-3 rounded-lg border border-slate-800 text-center">
                 <span className="text-[10px] font-mono text-slate-400 uppercase">PhysioNet Utility</span>
-                <p className="text-xl font-bold font-display text-cyan-400">
+                <p className="text-xl font-bold font-display text-orange-400">
                   {currentUtility.toFixed(3)}
                 </p>
               </div>
@@ -213,7 +213,7 @@ export const AlarmBudgetControl: React.FC = () => {
                   <YAxis stroke="#64748b" />
                   <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#38bdf8', fontSize: '11px' }} />
                   <Line type="monotone" dataKey="sensitivity" name="Sensitivity" stroke="#10b981" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="utility" name="Utility Score" stroke="#06b6d4" strokeWidth={2.5} dot={false} />
+                  <Line type="monotone" dataKey="utility" name="Utility Score" stroke="#F97316" strokeWidth={2.5} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
