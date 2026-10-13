@@ -122,3 +122,18 @@ async def test_alert_repo_and_acknowledgement(async_test_session: AsyncSession):
 
     active_after = await alert_repo.list_active()
     assert len(active_after) == 0
+
+
+@pytest.mark.asyncio
+async def test_all_26_tables_schema_created(async_test_session: AsyncSession):
+    required_tables = {
+        "users", "patients", "observations", "predictions", "explanations",
+        "counterfactuals", "forecasts", "alerts", "alert_actions", "triage_assignments",
+        "drift_snapshots", "performance_snapshots", "recalibration_proposals", "site_passports",
+        "fairness_snapshots", "incident_reports", "handover_briefings", "stress_runs",
+        "simulator_runs", "simulator_state", "policy_configs", "model_registry_cache",
+        "experiment_results", "audit_logs", "whatif_sessions", "saved_views"
+    }
+    actual_tables = set(Base.metadata.tables.keys())
+    assert required_tables.issubset(actual_tables), f"Missing tables: {required_tables - actual_tables}"
+    assert len(actual_tables) >= 26

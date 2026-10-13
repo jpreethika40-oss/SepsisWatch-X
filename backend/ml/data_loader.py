@@ -44,6 +44,9 @@ class DataLoader:
         self.raw_b_dir = Path(self.data_cfg.get("raw_set_b_dir", "data/raw/setB"))
         self.splits_path = Path(self.data_cfg.get("splits_dir", "data/splits")) / "splits.json"
         self.synthetic_marker = Path("data/.synthetic_data_active")
+        self.vital_cols = VITALS
+        self.lab_cols = LABS
+        self.all_columns = ALL_COLUMNS
 
     @property
     def is_synthetic(self) -> bool:
@@ -161,6 +164,22 @@ class DataLoader:
             except Exception:
                 pass
         return patients
+
+    def load_all(self, limit: Optional[int] = None) -> pd.DataFrame:
+        """Loads all patients concatenated into a single DataFrame."""
+        p_list = self.list_patients()
+        if limit is not None:
+            p_list = p_list[:limit]
+        dfs = []
+        for p_info in p_list:
+            try:
+                df = self.load_patient(p_info["patient_id"], p_info.get("hospital"))
+                dfs.append(df)
+            except Exception:
+                pass
+        if not dfs:
+            return pd.DataFrame()
+        return pd.concat(dfs, ignore_index=True)
 
     def get_split_patient_ids(self) -> Tuple[List[str], List[str], List[str]]:
         """Returns tuple of (train_ids, val_ids, test_ids)."""

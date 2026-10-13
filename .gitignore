@@ -58,3 +58,6 @@ htmlcov/
 *.swo
 .DS_Store
 Thumbs.db
+
+# Internal compliance map (never tracked in git)
+docs/internal/

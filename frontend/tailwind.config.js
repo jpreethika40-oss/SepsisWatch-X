@@ -8,22 +8,23 @@ export default {
   theme: {
     extend: {
       colors: {
-        clinical: {
-          bg: '#070b14',
-          surface: '#0d1527',
-          surfaceHover: '#131e36',
-          card: 'rgba(15, 23, 42, 0.75)',
-          border: 'rgba(56, 189, 248, 0.15)',
-          borderHover: 'rgba(56, 189, 248, 0.35)',
-          cyan: '#06b6d4',
-          cyanGlow: '#22d3ee',
-          emerald: '#10b981',
-          amber: '#f59e0b',
-          crimson: '#ef4444',
-          purple: '#a855f7',
-          muted: '#64748b',
-          text: '#f8fafc',
-          subtext: '#94a3b8'
+        ember: {
+          bg: '#0C0B0A',
+          surface: '#151311',
+          surfaceHover: '#1E1B18',
+          elevated: '#1E1B18',
+          card: 'rgba(21, 19, 17, 0.85)',
+          border: '#332E29',
+          borderHover: 'rgba(251, 191, 36, 0.4)',
+          primary: '#F97316',
+          gold: '#FBBF24',
+          accent: '#10B981',
+          stable: '#22C55E',
+          watch: '#FACC15',
+          critical: '#EF4444',
+          uncertain: '#B8B0A4',
+          text: '#F3EEE8',
+          muted: '#A09689'
         }
       },
       fontFamily: {
@@ -32,10 +33,11 @@ export default {
         display: ['Outfit', 'sans-serif'],
       },
       boxShadow: {
-        'glow-cyan': '0 0 20px -3px rgba(6, 182, 212, 0.35)',
-        'glow-crimson': '0 0 25px -3px rgba(239, 68, 68, 0.45)',
-        'glow-emerald': '0 0 20px -3px rgba(16, 185, 129, 0.35)',
-        'glow-amber': '0 0 20px -3px rgba(245, 158, 11, 0.35)',
+        'glow-ember': '0 0 25px rgba(249, 115, 22, 0.45)',
+        'glow-gold': '0 0 25px rgba(251, 191, 36, 0.45)',
+        'glow-emerald': '0 0 20px rgba(16, 185, 129, 0.35)',
+        'glow-critical': '0 0 30px rgba(239, 68, 68, 0.55)',
+        'glow-watch': '0 0 20px rgba(250, 204, 21, 0.40)',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',

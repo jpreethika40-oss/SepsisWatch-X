@@ -121,6 +121,7 @@ class Prediction(Base):
     lgbm_risk: Mapped[float] = mapped_column(Float, default=0.0)
     grud_risk: Mapped[float] = mapped_column(Float, default=0.0)
     rule_score: Mapped[float] = mapped_column(Float, default=0.0)
+    trust_score: Mapped[float] = mapped_column(Float, default=85.0)
     model_version: Mapped[str] = mapped_column(String(64), nullable=False)
     latency_ms: Mapped[float] = mapped_column(Float, default=0.0)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=False)
@@ -158,6 +159,7 @@ class Alert(Base):
     hour: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
     severity: Mapped[AlertSeverity] = mapped_column(SQLEnum(AlertSeverity), default=AlertSeverity.HIGH, nullable=False)
     risk_score: Mapped[float] = mapped_column(Float, nullable=False)
+    trust_score: Mapped[float] = mapped_column(Float, default=85.0)
     status: Mapped[AlertStatus] = mapped_column(SQLEnum(AlertStatus), default=AlertStatus.ACTIVE, nullable=False)
     lead_time_hours: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     message: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -311,3 +313,148 @@ class SavedView(Base):
     filters_json: Mapped[Dict[str, Any]] = mapped_column(JSON, nullable=False)
     layout_config_json: Mapped[Dict[str, Any]] = mapped_column(JSON, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+
+
+# 17. Counterfactual Table (Counterfactual Explorer)
+class Counterfactual(Base):
+    __tablename__ = "counterfactuals"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    patient_id: Mapped[int] = mapped_column(Integer, ForeignKey("patients.id", ondelete="CASCADE"), nullable=False, index=True)
+    hour: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    alert_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("alerts.id", ondelete="SET NULL"), nullable=True)
+    target_risk: Mapped[float] = mapped_column(Float, default=0.40, nullable=False)
+    modified_risk: Mapped[float] = mapped_column(Float, nullable=False)
+    changes_json: Mapped[List[Dict[str, Any]]] = mapped_column(JSON, nullable=False)
+    feasibility_score: Mapped[float] = mapped_column(Float, default=0.88)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=False)
+
+
+# 18. RiskForecast Table (Risk Forecast Ghost Curve)
+class RiskForecast(Base):
+    __tablename__ = "forecasts"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    patient_id: Mapped[int] = mapped_column(Integer, ForeignKey("patients.id", ondelete="CASCADE"), nullable=False, index=True)
+    current_hour: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    horizon_hours: Mapped[int] = mapped_column(Integer, default=6, nullable=False)
+    forecast_curve_json: Mapped[List[Dict[str, Any]]] = mapped_column(JSON, nullable=False)
+    estimated_time_to_threshold: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=False)
+
+
+# 19. TriageAssignment Table (Ward Triage Queue)
+class TriageAssignment(Base):
+    __tablename__ = "triage_assignments"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    patient_id: Mapped[int] = mapped_column(Integer, ForeignKey("patients.id", ondelete="CASCADE"), nullable=False, index=True)
+    priority_rank: Mapped[int] = mapped_column(Integer, nullable=False)
+    risk_score: Mapped[float] = mapped_column(Float, nullable=False)
+    trust_score: Mapped[float] = mapped_column(Float, default=85.0)
+    time_to_threshold: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    status: Mapped[str] = mapped_column(String(32), default="pending", nullable=False) # pending, assigned, snoozed, escalated
+    assigned_to_user_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    snooze_until: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
+
+
+# 20. PerformanceSnapshot Table (Self-Watch Live Performance Tracker)
+class PerformanceSnapshot(Base):
+    __tablename__ = "performance_snapshots"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    window_name: Mapped[str] = mapped_column(String(64), default="rolling_24h", nullable=False)
+    rolling_auroc: Mapped[float] = mapped_column(Float, nullable=False)
+    rolling_sensitivity: Mapped[float] = mapped_column(Float, nullable=False)
+    rolling_ece: Mapped[float] = mapped_column(Float, default=0.04)
+    alarms_per_patient_day: Mapped[float] = mapped_column(Float, default=0.95)
+    sample_size: Mapped[int] = mapped_column(Integer, nullable=False)
+    degradation_flag: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), index=True)
+
+
+# 21. RecalibrationProposal Table (Self-Watch Proposed Model Updates)
+class RecalibrationProposal(Base):
+    __tablename__ = "recalibration_proposals"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    source: Mapped[str] = mapped_column(String(64), default="self_watch", nullable=False)
+    proposed_policy_json: Mapped[Dict[str, Any]] = mapped_column(JSON, nullable=False)
+    estimated_improvement_json: Mapped[Dict[str, Any]] = mapped_column(JSON, nullable=False)
+    status: Mapped[str] = mapped_column(String(32), default="pending", nullable=False) # pending, approved, rejected
+    decided_by_user_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    decided_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=False)
+
+
+# 22. SitePassport Table (Site Passport Cross-Hospital Evaluation)
+class SitePassport(Base):
+    __tablename__ = "site_passports"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    site_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    file_format: Mapped[str] = mapped_column(String(32), default="psv")
+    patient_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    feature_psi_json: Mapped[Dict[str, float]] = mapped_column(JSON, nullable=False)
+    missingness_psi_json: Mapped[Dict[str, float]] = mapped_column(JSON, nullable=False)
+    estimated_drop: Mapped[float] = mapped_column(Float, nullable=False)
+    verdict: Mapped[str] = mapped_column(String(64), default="Ready", nullable=False) # Ready, Recalibrate first, Not recommended
+    report_pdf_path: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=False)
+
+
+# 23. FairnessSnapshot Table (Fairness Watch Subgroup Audits)
+class FairnessSnapshot(Base):
+    __tablename__ = "fairness_snapshots"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    subgroup_type: Mapped[str] = mapped_column(String(64), nullable=False) # age_band, gender, icu_unit, hospital
+    group_metrics_json: Mapped[Dict[str, Any]] = mapped_column(JSON, nullable=False)
+    disparity_ratio: Mapped[float] = mapped_column(Float, default=1.0)
+    flagged_gap: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), index=True)
+
+
+# 24. IncidentReport Table (Incident Replay Lab)
+class IncidentReport(Base):
+    __tablename__ = "incident_reports"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    patient_id: Mapped[int] = mapped_column(Integer, ForeignKey("patients.id", ondelete="CASCADE"), nullable=False, index=True)
+    incident_type: Mapped[str] = mapped_column(String(64), nullable=False) # late_detection, missed_case, excessive_false_alarm
+    onset_hour: Mapped[int] = mapped_column(Integer, nullable=False)
+    alert_hour: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    lead_time_hours: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    replay_summary_json: Mapped[Dict[str, Any]] = mapped_column(JSON, nullable=False)
+    findings_text: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=False)
+
+
+# 25. HandoverBriefing Table (Clinical Handover Shift Summaries)
+class HandoverBriefing(Base):
+    __tablename__ = "handover_briefings"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    shift_name: Mapped[str] = mapped_column(String(64), default="Morning Shift", nullable=False)
+    summary_text: Mapped[str] = mapped_column(Text, nullable=False)
+    rising_patients_json: Mapped[List[Dict[str, Any]]] = mapped_column(JSON, default=list)
+    active_alerts_json: Mapped[List[Dict[str, Any]]] = mapped_column(JSON, default=list)
+    data_gaps_json: Mapped[List[Dict[str, Any]]] = mapped_column(JSON, default=list)
+    drift_status: Mapped[str] = mapped_column(String(32), default="green")
+    pdf_path: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=False)
+
+
+# 26. StressRun Table (Stress Lab Resilience Scenarios)
+class StressRun(Base):
+    __tablename__ = "stress_runs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    scenario_name: Mapped[str] = mapped_column(String(64), nullable=False) # sensor_dropout, lab_delay, noisy_vitals, ward_surge, hospital_switch
+    resilience_score: Mapped[float] = mapped_column(Float, nullable=False)
+    baseline_utility: Mapped[float] = mapped_column(Float, nullable=False)
+    stressed_utility: Mapped[float] = mapped_column(Float, nullable=False)
+    metrics_delta_json: Mapped[Dict[str, Any]] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=False)

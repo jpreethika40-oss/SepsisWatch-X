@@ -4,73 +4,111 @@
 
 @layer base {
   :root {
-    --bg-base: #070b14;
-    --surface-base: #0d1527;
+    --bg-base: #0C0B0A;
+    --surface-base: #151311;
+    --elevated-base: #1E1B18;
+    --border-base: #332E29;
+    --text-base: #F3EEE8;
+    --text-muted: #A09689;
+    --primary-ember: #F97316;
+    --primary-gold: #FBBF24;
+    --accent-emerald: #10B981;
+    --status-stable: #22C55E;
+    --status-watch: #FACC15;
+    --status-critical: #EF4444;
+    --status-uncertain: #B8B0A4;
+  }
+
+  .light {
+    --bg-base: #FAF8F4;
+    --surface-base: #FFFFFF;
+    --elevated-base: #F1EDE6;
+    --border-base: #DDD6CB;
+    --text-base: #1C1917;
+    --text-muted: #78716C;
+    --primary-ember: #C2410C;
+    --accent-emerald: #047857;
+    --status-stable: #15803D;
+    --status-watch: #A16207;
+    --status-critical: #B91C1C;
+    --status-uncertain: #57534E;
   }
 
   body {
     background-color: var(--bg-base);
-    color: #f8fafc;
+    color: var(--text-base);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  ::selection {
+    background: rgba(249, 115, 22, 0.3);
+    color: #F3EEE8;
   }
 }
 
-/* Glassmorphism Panels */
+/* Glassmorphism Panels (Warm Charcoal & Gold Tint) */
 .glass-panel {
-  background: rgba(13, 21, 39, 0.72);
+  background: rgba(21, 19, 17, 0.82);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(56, 189, 248, 0.12);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  border: 1px solid rgba(251, 191, 36, 0.12);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
 }
 
 .glass-panel-hover {
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .glass-panel-hover:hover {
-  background: rgba(19, 30, 54, 0.85);
-  border-color: rgba(6, 182, 212, 0.35);
-  box-shadow: 0 10px 40px -10px rgba(6, 182, 212, 0.25);
+  background: rgba(30, 27, 24, 0.90);
+  border-color: rgba(249, 115, 22, 0.35);
+  box-shadow: 0 10px 40px -10px rgba(249, 115, 22, 0.25);
 }
 
-/* Clinical Glow Indicators */
-.glow-cyan {
-  box-shadow: 0 0 25px rgba(6, 182, 212, 0.4);
+/* Warm Ember Glow Indicators */
+.glow-ember {
+  box-shadow: 0 0 25px rgba(249, 115, 22, 0.45);
 }
-.glow-crimson {
+.glow-gold {
+  box-shadow: 0 0 25px rgba(251, 191, 36, 0.45);
+}
+.glow-critical {
   box-shadow: 0 0 30px rgba(239, 68, 68, 0.55);
 }
-.glow-amber {
-  box-shadow: 0 0 25px rgba(245, 158, 11, 0.45);
-}
 .glow-emerald {
-  box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.40);
+}
+.glow-watch {
+  box-shadow: 0 0 20px rgba(250, 204, 21, 0.40);
 }
 
-/* Scanline and holographic effects */
-.scanline {
-  background: linear-gradient(
-    to bottom,
-    rgba(255,255,255,0),
-    rgba(255,255,255,0) 50%,
-    rgba(6, 182, 212, 0.04) 50%,
-    rgba(6, 182, 212, 0.04)
+/* Diagonal Stripe Pattern for Watch Status */
+.pattern-diagonal-stripes {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(250, 204, 21, 0.15),
+    rgba(250, 204, 21, 0.15) 10px,
+    transparent 10px,
+    transparent 20px
   );
-  background-size: 100% 4px;
 }
 
-/* Custom Sleek Scrollbar */
+/* Dashed Outline & Flicker for Uncertain Status */
+.uncertain-dashed {
+  border: 1.5px dashed #B8B0A4;
+}
+
+/* Custom Sleek Warm Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(7, 11, 20, 0.8);
+  background: #0C0B0A;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(56, 189, 248, 0.25);
+  background: rgba(249, 115, 22, 0.35);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(6, 182, 212, 0.5);
+  background: rgba(251, 191, 36, 0.6);
 }
