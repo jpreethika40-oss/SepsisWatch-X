@@ -58,7 +58,7 @@ SepsisWatch-X monitors intensive care unit (ICU) patients continuously hour-by-h
 ---
 
 
-## 3. Dashboard Architecture: 14 Multi-Page Views & 5 3D Scenes
+## 3. Dashboard Architecture: 14 Multi-Page Views & 6 3D Scenes
 
 The frontend is built on **React 18 + Vite + TypeScript + Tailwind CSS + Three.js (@react-three/fiber & @react-three/drei) + Recharts + Zustand**.
 
@@ -68,6 +68,7 @@ The frontend is built on **React 18 + Vite + TypeScript + Tailwind CSS + Three.j
 3. **3D Embedding Cloud (`EmbeddingCloud3D.tsx`):** Latent space point cloud of 500 patient-hours with an animated morph between *Before DANN* (domain gap) and *After DANN* (invariant manifold).
 4. **3D Drift Radar (`DriftRadar3D.tsx`):** Rotating sensor ring encoding per-feature Population Stability Index (PSI) with vibration alerts under drift.
 5. **3D Scoreboard (`Scoreboard3D.tsx`):** Dual-pillar comparison bars contrasting in-hospital vs cross-hospital performance drops.
+6. **3D Data Quality & Sparsity Heatmap (`DataQualityHeatmap3D.tsx`):** Interactive 3D pillar matrix across 12 ward beds and 16 key clinical biomarkers (vitals, blood gas, chemistry, hematology) encoding observation latency and telemetry sparsity.
 
 ### 14 Clinical Pages:
 1. **Command Center (`/`):** 3D ward floorplan, live KPI strip, active alert ticker, quick telemetry inspector.
