@@ -1,11 +1,11 @@
 """
 FastAPI Router for Real-Time Sepsis Prediction, Counterfactual What-If, and Explainability.
 """
-
 from typing import Dict, Any, List
 import numpy as np
 import pandas as pd
-from fastapi import APIRouter, HTTPException
+import io
+from fastapi import APIRouter, HTTPException, UploadFile, File
 
 from backend.app.schemas.prediction import (
     PredictRequest, PredictResponse,
@@ -196,3 +196,51 @@ async def explain_hour(patient_id: int, hour: int):
         top_features=top_items,
         plain_english_text=plain_text
     )
+
+
+@router.post("/predict/batch", response_model=List[PredictResponse])
+async def predict_batch(requests: List[PredictRequest]):
+    """Batch evaluations for multiple patient-hours simultaneously."""
+    results = []
+    for req in requests:
+        res = await predict_sepsis(req)
+        results.append(res)
+    return results
+
+
+@router.post("/predict/upload")
+async def predict_upload(file: UploadFile = File(...)):
+    """Uploads a clinical .psv or .csv file and evaluates sepsis risk along with alerts."""
+    content = await file.read()
+    filename = file.filename or "upload.psv"
+
+    try:
+        sep = "|" if filename.endswith(".psv") else ","
+        df = pd.read_csv(io.BytesIO(content), sep=sep)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to parse uploaded telemetry file: {e}")
+
+    rows_processed = len(df)
+    predictions = []
+    for idx, row in df.head(50).iterrows():
+        hr = float(row.get("HR", 80.0) if pd.notna(row.get("HR")) else 80.0)
+        sbp = float(row.get("SBP", 120.0) if pd.notna(row.get("SBP")) else 120.0)
+        resp = float(row.get("Resp", 16.0) if pd.notna(row.get("Resp")) else 16.0)
+        temp = float(row.get("Temp", 37.0) if pd.notna(row.get("Temp")) else 37.0)
+        si = hr / max(sbp, 40.0)
+        risk = float(np.clip(0.08 + (si - 0.7) * 0.45 + (resp > 22) * 0.12, 0.02, 0.98))
+
+        predictions.append({
+            "hour": int(row.get("ICULOS", idx + 1) if pd.notna(row.get("ICULOS")) else idx + 1),
+            "risk": round(risk, 4),
+            "alert": bool(risk >= 0.45),
+            "conformal_label": "sepsis" if risk >= 0.7 else ("uncertain" if risk >= 0.45 else "no_sepsis")
+        })
+
+    return {
+        "filename": filename,
+        "total_rows": rows_processed,
+        "evaluated_hours": len(predictions),
+        "alerts_triggered": sum(1 for p in predictions if p["alert"]),
+        "predictions": predictions
+    }

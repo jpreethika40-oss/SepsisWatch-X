@@ -15,7 +15,12 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 import gradio as gr
 
-from backend.app.routers import patients, prediction, policy, drift, scoreboard, stream
+from backend.app.routers import (
+    patients, prediction, policy, drift, scoreboard, stream,
+    auth, alerts, models_router, simulator_router,
+    selfwatch_router, passport_router, incident_handover,
+    science, admin_reports
+)
 from backend.app.services.simulator import simulator
 from backend.app.gradio_app import build_gradio_app
 
@@ -47,10 +52,19 @@ app.add_middleware(
 )
 
 # 2. Register API Routers
+app.include_router(auth.router)
 app.include_router(patients.router)
 app.include_router(prediction.router)
+app.include_router(alerts.router)
 app.include_router(policy.router)
 app.include_router(drift.router)
+app.include_router(models_router.router)
+app.include_router(simulator_router.router)
+app.include_router(selfwatch_router.router)
+app.include_router(passport_router.router)
+app.include_router(incident_handover.router)
+app.include_router(science.router)
+app.include_router(admin_reports.router)
 app.include_router(scoreboard.router)
 app.include_router(stream.router)
 
