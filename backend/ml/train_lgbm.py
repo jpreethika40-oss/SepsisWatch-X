@@ -159,4 +159,9 @@ def run_train_lgbm(
 
 
 if __name__ == "__main__":
-    run_train_lgbm()
+    import argparse
+    parser = argparse.ArgumentParser(description="Train LightGBM tabular stream for SepsisWatch-X")
+    parser.add_argument("--subset", type=int, default=None, help="Subset number of patients for quick run")
+    parser.add_argument("--experiment", type=str, default="SepsisWatchX-LightGBM", help="MLflow experiment name")
+    args = parser.parse_args()
+    run_train_lgbm(subset_patients=args.subset, experiment_name=args.experiment)
