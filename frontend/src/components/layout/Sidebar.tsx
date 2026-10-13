@@ -4,7 +4,7 @@ import { useStore } from '../../store/useStore';
 import { 
   LayoutDashboard, UserCheck, Bell, Sliders, Swords, ShieldAlert,
   GitCompare, Radar, FlaskConical, LineChart, Cpu, UploadCloud,
-  FileText, Info
+  FileText, Info, Sparkles, Terminal
 } from 'lucide-react';
 
 interface NavItem {
@@ -38,6 +38,13 @@ export const Sidebar: React.FC = () => {
       title: 'ML Intelligence',
       items: [
         { name: 'Model Arena', path: '/arena', icon: Swords },
+        { 
+          name: 'Gradio ML Studio', 
+          path: '/gradio-studio', 
+          icon: Sparkles, 
+          badge: 'STUDIO', 
+          badgeColor: 'bg-orange-500/20 text-orange-400 border border-orange-500/30' 
+        },
         { name: 'Alarm Budget', path: '/policy', icon: ShieldAlert },
         { name: 'Scoreboard', path: '/scoreboard', icon: GitCompare },
         { 
@@ -59,9 +66,16 @@ export const Sidebar: React.FC = () => {
       ]
     },
     {
-      title: 'Governance',
+      title: 'Governance & APIs',
       items: [
         { name: 'Admin & Audit', path: '/admin', icon: FileText },
+        { 
+          name: 'Interactive API Docs', 
+          path: '/api-explorer', 
+          icon: Terminal, 
+          badge: 'SWAGGER', 
+          badgeColor: 'bg-emerald-950 text-emerald-400 border border-emerald-500/30' 
+        },
         { name: 'About / Limits', path: '/about', icon: Info },
       ]
     }

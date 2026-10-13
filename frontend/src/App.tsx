@@ -17,6 +17,8 @@ import { Experiments } from './pages/Experiments';
 import { DataUpload } from './pages/DataUpload';
 import { Admin } from './pages/Admin';
 import { About } from './pages/About';
+import { GradioStudio } from './pages/GradioStudio';
+import { ApiExplorer } from './pages/ApiExplorer';
 
 export const App: React.FC = () => {
   return (
@@ -27,6 +29,7 @@ export const App: React.FC = () => {
           <Route path="/patient" element={<PatientDetail />} />
           <Route path="/what-if" element={<WhatIfLab />} />
           <Route path="/arena" element={<ModelArena />} />
+          <Route path="/gradio-studio" element={<GradioStudio />} />
           <Route path="/alerts" element={<AlertCenter />} />
           <Route path="/policy" element={<AlarmBudgetControl />} />
           <Route path="/scoreboard" element={<Scoreboard />} />
@@ -36,6 +39,7 @@ export const App: React.FC = () => {
           <Route path="/experiments" element={<Experiments />} />
           <Route path="/upload" element={<DataUpload />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/api-explorer" element={<ApiExplorer />} />
           <Route path="/about" element={<About />} />
           {/* Catch-all redirect to Home */}
           <Route path="*" element={<Navigate to="/" replace />} />

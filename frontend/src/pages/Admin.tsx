@@ -1,7 +1,9 @@
-import React from 'react';
-import { FileText, Shield, Users, Server, CheckCircle2, Activity } from 'lucide-react';
+import React, { useState } from 'react';
+import { FileText, Shield, Users, Server, CheckCircle2, Activity, Terminal } from 'lucide-react';
 
 export const Admin: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'audit' | 'docs'>('audit');
+
   const auditLogs = [
     { id: 1, action: 'POLICY_UPDATE', user: 'admin@sepsiswatch.org', entity: 'PolicyConfig v1.0.0', ip: '127.0.0.1', time: '10 min ago' },
     { id: 2, action: 'ALERT_ACKNOWLEDGE', user: 'clinician@sepsiswatch.org', entity: 'Alert #1 (Bed 3)', ip: '192.168.1.45', time: '22 min ago' },
@@ -24,7 +26,7 @@ export const Admin: React.FC = () => {
           <div className="flex items-center space-x-2">
             <FileText className="w-5 h-5 text-orange-400" />
             <h2 className="text-base font-bold font-display text-slate-100">
-              System Administration, Security & Clinical Audit Trails
+              System Administration, Security & API Workbench
             </h2>
           </div>
           <p className="text-xs text-slate-400 font-mono mt-0.5">
@@ -32,11 +34,46 @@ export const Admin: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center space-x-2 bg-emerald-950/60 border border-emerald-500/40 px-3 py-1.5 rounded-lg text-xs font-mono text-emerald-300">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-          <span>System Health: ALL SYSTEMS OPERATIONAL</span>
+        <div className="flex items-center space-x-3">
+          {/* Tabs Switcher */}
+          <div className="flex items-center space-x-1 bg-slate-900/90 p-1 rounded-lg border border-slate-700/80 text-xs font-mono">
+            <button
+              onClick={() => setActiveTab('audit')}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded transition ${
+                activeTab === 'audit' ? 'bg-orange-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>Audit & Health</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('docs')}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded transition ${
+                activeTab === 'docs' ? 'bg-emerald-600 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Terminal className="w-3.5 h-3.5" />
+              <span>Interactive API Explorer</span>
+            </button>
+          </div>
+
+          <div className="hidden lg:flex items-center space-x-2 bg-emerald-950/60 border border-emerald-500/40 px-3 py-1.5 rounded-lg text-xs font-mono text-emerald-300">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <span>ALL SYSTEMS OPERATIONAL</span>
+          </div>
         </div>
       </div>
+
+      {activeTab === 'docs' ? (
+        <div className="rounded-xl overflow-hidden border border-amber-500/30 bg-white h-[760px]">
+          <iframe
+            src="/docs"
+            title="FastAPI Interactive Swagger Docs"
+            className="w-full h-full border-0 bg-white"
+          />
+        </div>
+      ) : (
+        <>
 
       {/* Users & Infrastructure Health */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -125,6 +162,8 @@ export const Admin: React.FC = () => {
           </tbody>
         </table>
       </div>
+        </>
+      )}
     </div>
   );
 };

@@ -15,7 +15,25 @@ export const PatientDetail: React.FC = () => {
   const [selectedHour, setSelectedHour] = useState<number>(14);
   const [explainMethod, setExplainMethod] = useState<'shap' | 'ig'>('shap');
 
-  const currentPatient = patients.find((p) => p.id === selectedPatientId) || patients[0];
+  const fallbackPatient: Patient = {
+    id: 1,
+    patient_code: 'p_A_00001',
+    hospital: 'setA',
+    age: 58,
+    gender: 0,
+    unit1: 1,
+    unit2: 0,
+    hosp_adm_time: -12.0,
+    is_active: true,
+    bed_number: 1,
+    current_hour: 4,
+    risk: 0.15,
+    calibrated_prob: 0.14,
+    conformal_label: 'no_sepsis',
+    status: 'normal',
+  };
+
+  const currentPatient = patients.find((p) => p.id === selectedPatientId) || patients[0] || fallbackPatient;
 
   // Synthesize realistic 24-hour EHR timeline for this patient
   const timelineData = Array.from({ length: 24 }, (_, i) => {

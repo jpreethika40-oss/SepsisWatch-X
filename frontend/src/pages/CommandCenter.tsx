@@ -12,7 +12,25 @@ export const CommandCenter: React.FC = () => {
   const { patients, selectedPatientId, alerts, acknowledgeAlert } = useStore();
   const navigate = useNavigate();
 
-  const selectedPatient = patients.find((p) => p.id === selectedPatientId) || patients[0];
+  const fallbackPatient: Patient = {
+    id: 1,
+    patient_code: 'p_A_00001',
+    hospital: 'setA',
+    age: 58,
+    gender: 0,
+    unit1: 1,
+    unit2: 0,
+    hosp_adm_time: -12.0,
+    is_active: true,
+    bed_number: 1,
+    current_hour: 4,
+    risk: 0.15,
+    calibrated_prob: 0.14,
+    conformal_label: 'no_sepsis',
+    status: 'normal',
+  };
+
+  const selectedPatient = patients.find((p) => p.id === selectedPatientId) || patients[0] || fallbackPatient;
   const criticalCount = patients.filter((p) => p.status === 'critical').length;
   const activeAlerts = alerts.filter((a) => a.status === 'active');
 

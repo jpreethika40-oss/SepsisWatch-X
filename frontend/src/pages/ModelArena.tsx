@@ -1,13 +1,32 @@
 import React, { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { Patient } from '../types';
-import { Swords, Building2, Cpu, Zap, CheckCircle2, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { Swords, Building2, Cpu, Zap, CheckCircle2, AlertTriangle, ShieldCheck, Sparkles, RefreshCw } from 'lucide-react';
 
 export const ModelArena: React.FC = () => {
   const { patients, selectedPatientId } = useStore();
   const [selectedHospitalDomain, setSelectedHospitalDomain] = useState<'setA' | 'setB'>('setA');
+  const [activeTab, setActiveTab] = useState<'comparison' | 'gradio'>('comparison');
 
-  const currentPatient = patients.find((p) => p.id === selectedPatientId) || patients[0];
+  const fallbackPatient: Patient = {
+    id: 1,
+    patient_code: 'p_A_00001',
+    hospital: 'setA',
+    age: 58,
+    gender: 0,
+    unit1: 1,
+    unit2: 0,
+    hosp_adm_time: -12.0,
+    is_active: true,
+    bed_number: 1,
+    current_hour: 4,
+    risk: 0.15,
+    calibrated_prob: 0.14,
+    conformal_label: 'no_sepsis',
+    status: 'normal',
+  };
+
+  const currentPatient = patients.find((p) => p.id === selectedPatientId) || patients[0] || fallbackPatient;
 
   // Head-to-head model prediction outputs on this patient
   const models = [
@@ -65,54 +84,90 @@ export const ModelArena: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
+      {/* Header with Mode Tabs */}
       <div className="glass-panel p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
             <Swords className="w-5 h-5 text-orange-400" />
             <h2 className="text-base font-bold font-display text-slate-100">
-              Model Arena: Multi-Model Head-to-Head Comparison
+              Model Arena & Interactive ML Studio
             </h2>
           </div>
           <p className="text-xs text-slate-400 font-mono mt-0.5">
-            Evaluate LightGBM, GRU-D, DANN Fusion, and Clinical Rules side-by-side on the same patient-hour.
+            Evaluate LightGBM, GRU-D, DANN Fusion, and Clinical Rules side-by-side or interact directly via the embedded workbench.
           </p>
         </div>
 
-        {/* Hospital Domain Recalibration Switch */}
-        <div className="flex items-center space-x-2 bg-slate-900/80 p-1 rounded-lg border border-slate-700/80 text-xs font-mono">
-          <span className="text-slate-400 pl-2 flex items-center space-x-1">
-            <Building2 className="w-3.5 h-3.5 text-orange-400" />
-            <span>Site Recalibration:</span>
-          </span>
-          <button
-            onClick={() => setSelectedHospitalDomain('setA')}
-            className={`px-3 py-1 rounded transition ${
-              selectedHospitalDomain === 'setA' ? 'bg-orange-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Hospital A (Emory)
-          </button>
-          <button
-            onClick={() => setSelectedHospitalDomain('setB')}
-            className={`px-3 py-1 rounded transition ${
-              selectedHospitalDomain === 'setB' ? 'bg-amber-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Hospital B (BIDMC)
-          </button>
+        {/* View Switcher Tabs & Hospital Switch */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center space-x-1 bg-slate-900/90 p-1 rounded-lg border border-slate-700/80 text-xs font-mono">
+            <button
+              onClick={() => setActiveTab('comparison')}
+              className={`flex items-center space-x-1 px-3 py-1.5 rounded transition ${
+                activeTab === 'comparison' ? 'bg-orange-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Swords className="w-3.5 h-3.5" />
+              <span>Model Cards</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('gradio')}
+              className={`flex items-center space-x-1 px-3 py-1.5 rounded transition ${
+                activeTab === 'gradio' ? 'bg-orange-500 text-slate-950 font-bold glow-ember' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              <span>Interactive Studio</span>
+            </button>
+          </div>
+
+          {activeTab === 'comparison' && (
+            <div className="flex items-center space-x-2 bg-slate-900/80 p-1 rounded-lg border border-slate-700/80 text-xs font-mono">
+              <span className="text-slate-400 pl-2 flex items-center space-x-1">
+                <Building2 className="w-3.5 h-3.5 text-orange-400" />
+                <span>Site:</span>
+              </span>
+              <button
+                onClick={() => setSelectedHospitalDomain('setA')}
+                className={`px-2.5 py-1 rounded transition ${
+                  selectedHospitalDomain === 'setA' ? 'bg-orange-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                Hosp A
+              </button>
+              <button
+                onClick={() => setSelectedHospitalDomain('setB')}
+                className={`px-2.5 py-1 rounded transition ${
+                  selectedHospitalDomain === 'setB' ? 'bg-amber-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                Hosp B
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Patient Context Banner */}
-      <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800 flex justify-between items-center text-xs font-mono">
-        <span className="text-slate-300">
-          Evaluating: <strong>Bed {currentPatient.bed_number} ({currentPatient.patient_code})</strong> • Native Origin: {currentPatient.hospital === 'setA' ? 'Hospital A' : 'Hospital B'}
-        </span>
-        <span className="text-orange-400">
-          Target Lead Prediction: 6 Hours Prior to Clinical Sepsis Onset
-        </span>
-      </div>
+      {/* Embedded Studio Tab */}
+      {activeTab === 'gradio' ? (
+        <div className="glass-panel rounded-xl overflow-hidden border border-amber-500/30 glow-ember h-[750px]">
+          <iframe
+            src="/gradio/"
+            title="Embedded Gradio Studio"
+            className="w-full h-full border-0 bg-[#0C0B0A]"
+          />
+        </div>
+      ) : (
+        <>
+          {/* Patient Context Banner */}
+          <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800 flex justify-between items-center text-xs font-mono">
+            <span className="text-slate-300">
+              Evaluating: <strong>Bed {currentPatient.bed_number} ({currentPatient.patient_code})</strong> • Native Origin: {currentPatient.hospital === 'setA' ? 'Hospital A' : 'Hospital B'}
+            </span>
+            <span className="text-orange-400">
+              Target Lead Prediction: 6 Hours Prior to Clinical Sepsis Onset
+            </span>
+          </div>
 
       {/* Model Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -171,6 +226,8 @@ export const ModelArena: React.FC = () => {
           </div>
         ))}
       </div>
+        </>
+      )}
     </div>
   );
 };

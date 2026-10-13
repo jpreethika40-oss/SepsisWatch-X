@@ -142,7 +142,9 @@ export const useStore = create<AppState>((set) => ({
   commandPaletteOpen: false,
   
   setSelectedPatientId: (id) => set({ selectedPatientId: id }),
-  setPatients: (patients) => set({ patients }),
+  setPatients: (patients) => set({
+    patients: Array.isArray(patients) && patients.length > 0 ? patients : INITIAL_PATIENTS
+  }),
   updatePatientRisk: (id, risk, hour, conformal) => set((state) => ({
     patients: state.patients.map((p) =>
       p.id === id

@@ -1,8 +1,10 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import { useStore } from '../../store/useStore';
 import { 
   Play, Pause, RotateCcw, FastForward, Volume2, VolumeX, 
-  Layers, Box, AlertTriangle, Activity, Search, Zap
+  Layers, Box, AlertTriangle, Activity, Search, Zap,
+  Sparkles, Terminal
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -140,6 +142,37 @@ export const Navbar: React.FC = () => {
 
         {/* Right: View Toggles & Profile */}
         <div className="flex items-center space-x-2.5">
+          {/* Direct Quick Launchers for ML Studio and API Docs */}
+          <NavLink
+            to="/gradio-studio"
+            className={({ isActive }) =>
+              `hidden md:flex items-center space-x-1 px-2.5 py-1.5 rounded-lg border text-xs font-mono transition ${
+                isActive
+                  ? 'bg-orange-500/20 border-orange-500/50 text-orange-400 glow-ember'
+                  : 'bg-[#1E1B18]/60 border-[#332E29] text-[#A09689] hover:text-[#F3EEE8] hover:border-amber-500/30'
+              }`
+            }
+            title="Interactive ML Inference & Conformal Studio"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-orange-400" />
+            <span className="text-[11px]">ML Studio</span>
+          </NavLink>
+
+          <NavLink
+            to="/api-explorer"
+            className={({ isActive }) =>
+              `hidden md:flex items-center space-x-1 px-2.5 py-1.5 rounded-lg border text-xs font-mono transition ${
+                isActive
+                  ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-400'
+                  : 'bg-[#1E1B18]/60 border-[#332E29] text-[#A09689] hover:text-[#F3EEE8] hover:border-amber-500/30'
+              }`
+            }
+            title="Interactive FastAPI Swagger Explorer"
+          >
+            <Terminal className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="text-[11px]">API Docs</span>
+          </NavLink>
+
           {/* Command Palette Trigger */}
           <button
             onClick={() => setCommandPaletteOpen(true)}
