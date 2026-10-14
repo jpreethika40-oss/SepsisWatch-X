@@ -219,6 +219,29 @@ export const useWebSocketStream = () => {
                   }
                 });
               }
+            } else if (data.type === 'NURSE_ESCALATION') {
+              if (data.escalation) {
+                audioAlertService.playCriticalAlarm(`esc-${data.escalation.id}`);
+                const store = useStore.getState();
+                const existing = store.escalations.find(e => e.id === data.escalation.id);
+                if (!existing) {
+                  store.setEscalations([data.escalation, ...store.escalations]);
+                  store.setLastAckNotice(data.message || `🚨 New Nurse Escalation for Bed ${data.escalation.bed_number}!`);
+                  setTimeout(() => store.setLastAckNotice(null), 7000);
+                }
+              }
+            } else if (data.type === 'DOCTOR_ACKNOWLEDGED') {
+              if (Array.isArray(data.acknowledged_ids)) {
+                const store = useStore.getState();
+                const updated = store.escalations.map(e => 
+                  data.acknowledged_ids.includes(e.id)
+                    ? { ...e, status: 'acknowledged' as const, acknowledged_by: data.doctor_name, acknowledged_at: data.acknowledged_at, doctor_orders: data.orders }
+                    : e
+                );
+                store.setEscalations(updated);
+                store.setLastAckNotice(`✓ Attending Physician ${data.doctor_name} acknowledged ${data.acknowledged_ids.length} alerts.`);
+                setTimeout(() => store.setLastAckNotice(null), 5000);
+              }
             }
           } catch (err) {
             console.error('[SepsisWatch-X] Error parsing stream message:', err);

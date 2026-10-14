@@ -8,11 +8,23 @@ Explainability Engine for SepsisWatch-X:
 from typing import Dict, List, Tuple, Optional, Any
 import numpy as np
 import pandas as pd
-import torch
-import shap
+try:
+    import torch
+    from backend.ml.grud_model import GRUDModel
+    HAS_TORCH = True
+except (ImportError, OSError, Exception):
+    torch = None
+    GRUDModel = None
+    HAS_TORCH = False
+
+try:
+    import shap
+    HAS_SHAP = True
+except ImportError:
+    shap = None
+    HAS_SHAP = False
 
 from backend.ml.lgbm_model import LightGBMSepsisModel
-from backend.ml.grud_model import GRUDModel
 
 
 class ExplainabilityEngine:
@@ -21,16 +33,19 @@ class ExplainabilityEngine:
     def __init__(
         self,
         lgbm_model: Optional[LightGBMSepsisModel] = None,
-        grud_model: Optional[GRUDModel] = None
+        grud_model: Optional[Any] = None
     ):
         self.lgbm = lgbm_model
-        self.grud = grud_model
+        self.grud = grud_model if HAS_TORCH else None
         self.shap_explainer = None
         if self.lgbm and self.lgbm.is_fitted:
             self._init_shap()
 
     def _init_shap(self):
         """Initializes TreeExplainer on LightGBM booster."""
+        if not HAS_SHAP or shap is None or self.lgbm is None:
+            self.shap_explainer = None
+            return
         try:
             self.shap_explainer = shap.TreeExplainer(self.lgbm.model)
         except Exception:
@@ -89,9 +104,9 @@ class ExplainabilityEngine:
 
     def explain_temporal_integrated_gradients(
         self,
-        values: torch.Tensor,
-        masks: torch.Tensor,
-        delta_t: torch.Tensor,
+        values: Any,
+        masks: Any,
+        delta_t: Any,
         target_step: int = -1,
         steps: int = 20
     ) -> Dict[str, Any]:
@@ -99,7 +114,7 @@ class ExplainabilityEngine:
         Path-integral Integrated Gradients for GRU-D temporal sequences.
         Approximates IG_i = (x_i - x'_i) * integral(grad_i d_alpha) via Riemann sum.
         """
-        if self.grud is None:
+        if not HAS_TORCH or self.grud is None or torch is None:
             return {"steps": [], "mean_attributions": []}
 
         device = values.device

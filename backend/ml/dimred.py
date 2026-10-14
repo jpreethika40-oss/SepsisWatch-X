@@ -9,8 +9,12 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
 import numpy as np
 from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
-import umap
+try:
+    import umap
+    HAS_UMAP = True
+except ImportError:
+    umap = None
+    HAS_UMAP = False
 
 
 class DimensionalityReducer:
@@ -45,6 +49,9 @@ class DimensionalityReducer:
 
     def fit_transform_umap(self, X: np.ndarray, n_components: int = 2, n_neighbors: int = 15) -> np.ndarray:
         """Uniform Manifold Approximation and Projection (UMAP)."""
+        if not HAS_UMAP or umap is None:
+            pca = PCA(n_components=n_components, random_state=self.random_state)
+            return pca.fit_transform(X)
         reducer = umap.UMAP(
             n_components=n_components,
             n_neighbors=min(n_neighbors, len(X) - 1),

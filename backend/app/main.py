@@ -16,16 +16,21 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-import gradio as gr
+try:
+    import gradio as gr
+    from backend.app.gradio_app import build_gradio_app
+    HAS_GRADIO = True
+except ImportError:
+    gr = None
+    HAS_GRADIO = False
 
 from backend.app.routers import (
     patients, prediction, policy, drift, scoreboard, stream,
     auth, alerts, models_router, simulator_router,
     selfwatch_router, passport_router, incident_handover,
-    science, admin_reports, datasets, assistant
+    science, admin_reports, datasets, assistant, escalations
 )
 from backend.app.services.simulator import simulator
-from backend.app.gradio_app import build_gradio_app
 
 
 @asynccontextmanager
@@ -72,6 +77,7 @@ app.include_router(scoreboard.router)
 app.include_router(stream.router)
 app.include_router(datasets.router)
 app.include_router(assistant.router)
+app.include_router(escalations.router)
 
 # 3. Mount Static Figures Directory for InsightsLab
 figures_dir = Path("results/figures")
@@ -79,11 +85,12 @@ figures_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/figures", StaticFiles(directory=str(figures_dir)), name="figures")
 
 # 4. Mount Embedded Gradio Application at /gradio
-try:
-    gradio_blocks = build_gradio_app()
-    app = gr.mount_gradio_app(app, gradio_blocks, path="/gradio")
-except Exception as e:
-    print(f"Warning: Could not mount Gradio app: {e}")
+if HAS_GRADIO and gr is not None:
+    try:
+        gradio_blocks = build_gradio_app()
+        app = gr.mount_gradio_app(app, gradio_blocks, path="/gradio")
+    except Exception as e:
+        print(f"Warning: Could not mount Gradio app: {e}")
 
 
 @app.get("/api/health")

@@ -136,3 +136,37 @@ export interface CrossHospitalScore {
   B_to_A: { utility: number; auroc: number; auprc: number; ci: [number, number] };
   transfer_drop_pct: number;
 }
+
+export interface EscalationEntry {
+  id: string;
+  bed_number: number;
+  patient_code: string;
+  patient_id: number;
+  severity: 'moderate' | 'critical';
+  risk_score: number;
+  nurse_name: string;
+  notes: string;
+  vitals_snapshot?: Record<string, number>;
+  status: 'pending' | 'acknowledged';
+  created_at: string;
+  acknowledged_by?: string | null;
+  acknowledged_at?: string | null;
+  doctor_orders?: string | null;
+  signature_pin?: string | null;
+}
+
+export interface ClinicalBenchmark {
+  score_id: string;
+  name: string;
+  architecture: string;
+  type: string;
+  auroc: number;
+  auprc: number;
+  lead_time_hours: number;
+  false_alarm_rate: number;
+  sensitivity: number;
+  specificity: number;
+  utility_score: number;
+  key_advantage: string;
+}
+

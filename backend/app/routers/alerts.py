@@ -40,6 +40,14 @@ class AcknowledgeRequest(BaseModel):
     notes: Optional[str] = "Clinical signs concordant with systemic inflammatory response."
 
 
+class BatchAlertAcknowledgeRequest(BaseModel):
+    alert_ids: List[str]
+    clinician_name: Optional[str] = "Dr. Sarah Connor, MD"
+    action_taken: str = "SEP-1 1-Hour Sepsis Bundle initiated (IV fluids + blood cultures + broad-spectrum antibiotics)"
+    signature_pin: Optional[str] = "DOC-8921"
+    notes: Optional[str] = "Batch clinical sign-off executed via Attending Diagnostic Workspace."
+
+
 class SnoozeRequest(BaseModel):
     duration_hours: int = 2
     reason: str = "Post-procedural recovery observation."
@@ -137,6 +145,62 @@ async def acknowledge_alert(
         "acknowledged_by": clinician,
         "timestamp": now_iso,
         "audit_entry": audit_entry
+    }
+
+
+@router.post("/alerts/batch-acknowledge")
+async def batch_acknowledge_alerts(req: BatchAlertAcknowledgeRequest):
+    """Marks multiple active alerts as acknowledged in a single digital batch sign-off."""
+    if not req.alert_ids:
+        raise HTTPException(status_code=400, detail="No alert IDs provided.")
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    clinician = req.clinician_name or "Dr. Sarah Connor, MD"
+    ack_results = []
+
+    for alert_id in req.alert_ids:
+        parts = alert_id.split("-")
+        bed_id = parts[1] if len(parts) >= 2 else "1"
+
+        ALERTS_STORE[bed_id] = {
+            "acknowledged": True,
+            "acknowledged_by": clinician,
+            "acknowledged_at": now_iso,
+            "action_taken": req.action_taken,
+            "notes": req.notes,
+            "trust_score": 92.0
+        }
+
+        audit_entry = {
+            "id": f"AUD-{len(AUDIT_LOG_STORE) + 1:03d}",
+            "alert_id": alert_id,
+            "bed_number": int(bed_id) if bed_id.isdigit() else 3,
+            "patient_code": f"p_A_{int(bed_id):05d}" if bed_id.isdigit() else "p_A_00003",
+            "clinician_name": clinician,
+            "action_taken": req.action_taken,
+            "notes": f"Batch Sign-off [PIN: ***{req.signature_pin[-3:] if len(req.signature_pin) >= 3 else '***'}]: {req.notes}",
+            "timestamp": now_iso,
+            "status": "Acknowledged & Managed"
+        }
+        AUDIT_LOG_STORE.insert(0, audit_entry)
+        ack_results.append(audit_entry)
+
+    # Broadcast batch acknowledgment
+    try:
+        await simulator.broadcast({
+            "type": "batch_alerts_acknowledged",
+            "alert_ids": req.alert_ids,
+            "clinician_name": clinician,
+            "action_taken": req.action_taken,
+            "timestamp": now_iso
+        })
+    except Exception:
+        pass
+
+    return {
+        "status": "success",
+        "acknowledged_count": len(ack_results),
+        "acknowledged_alerts": ack_results
     }
 
 

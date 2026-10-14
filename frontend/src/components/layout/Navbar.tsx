@@ -248,38 +248,26 @@ export const Navbar: React.FC = () => {
             <span className="text-[11px]">AI Assistant</span>
           </NavLink>
 
-          {/* Clinical Persona Role Switcher */}
-          <div className="hidden lg:flex items-center space-x-1 bg-[#1E1B18] p-1 rounded-lg border border-[#332E29] text-xs font-mono">
-            <button
-              onClick={() => setCurrentRole('doctor')}
-              title="Switch to Doctor (Physician) Diagnostic View"
-              className={`px-2 py-1 rounded transition flex items-center space-x-1 ${
-                currentRole === 'doctor' ? 'bg-orange-500 text-[#0C0B0A] font-bold glow-ember' : 'text-[#A09689] hover:text-[#F3EEE8]'
-              }`}
-            >
-              <Stethoscope className="w-3.5 h-3.5" />
-              <span>Doctor</span>
-            </button>
-            <button
-              onClick={() => setCurrentRole('nurse')}
-              title="Switch to Nurse Bedside Triage View"
-              className={`px-2 py-1 rounded transition flex items-center space-x-1 ${
-                currentRole === 'nurse' ? 'bg-emerald-500 text-[#0C0B0A] font-bold' : 'text-[#A09689] hover:text-[#F3EEE8]'
-              }`}
-            >
-              <HeartPulse className="w-3.5 h-3.5" />
-              <span>Nurse</span>
-            </button>
-            <button
-              onClick={() => setCurrentRole('hospital_chief')}
-              title="Switch to Hospital Chief Executive & Ward Governance View"
-              className={`px-2 py-1 rounded transition flex items-center space-x-1 ${
-                currentRole === 'hospital_chief' ? 'bg-amber-400 text-[#0C0B0A] font-bold' : 'text-[#A09689] hover:text-[#F3EEE8]'
-              }`}
-            >
-              <Building2 className="w-3.5 h-3.5" />
-              <span>Chief</span>
-            </button>
+          {/* Active Role Indicator (Locked - must log out to switch role) */}
+          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg border text-xs font-mono bg-[#1E1B18] border-[#332E29]">
+            {currentRole === 'doctor' && (
+              <span className="flex items-center space-x-1 text-orange-400 font-semibold">
+                <Stethoscope className="w-3.5 h-3.5" />
+                <span>Doctor Workspace</span>
+              </span>
+            )}
+            {currentRole === 'nurse' && (
+              <span className="flex items-center space-x-1 text-emerald-400 font-semibold">
+                <HeartPulse className="w-3.5 h-3.5" />
+                <span>Nurse Bedside</span>
+              </span>
+            )}
+            {currentRole === 'hospital_chief' && (
+              <span className="flex items-center space-x-1 text-amber-400 font-semibold">
+                <Building2 className="w-3.5 h-3.5" />
+                <span>Chief Executive</span>
+              </span>
+            )}
           </div>
 
           {/* Hospital Bay Filter */}
@@ -371,32 +359,31 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* User Profile Badge (Click to open Auth / Role modal) */}
-          <button
-            onClick={() => setIsAuthModalOpen(true)}
-            title="Click to sign in or switch active clinical persona"
-            className="flex items-center space-x-2 pl-2 border-l border-[#332E29] hover:opacity-80 transition cursor-pointer"
-          >
+          {/* User Profile & Explicit Log Out Button */}
+          <div className="flex items-center space-x-2.5 pl-2 border-l border-[#332E29]">
             <div className="w-7 h-7 rounded-full bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-xs font-bold text-orange-400">
               {currentUser.full_name ? currentUser.full_name.slice(0, 2).toUpperCase() : 'SC'}
             </div>
             <div className="hidden xl:block text-left">
-              <p className="text-xs font-medium text-[#F3EEE8] leading-tight truncate max-w-[120px]">
+              <p className="text-xs font-medium text-[#F3EEE8] leading-tight truncate max-w-[130px]">
                 {currentUser.full_name || 'Dr. Connor'}
               </p>
-              <p className="text-[10px] text-orange-400 font-mono leading-tight">
-                {currentRole === 'doctor' ? 'Attending MD' : currentRole === 'nurse' ? 'Charge Nurse' : 'Hospital Chief'}
+              <p className="text-[10px] text-orange-400 font-mono leading-tight uppercase">
+                {currentRole === 'doctor' ? 'Attending MD' : currentRole === 'nurse' ? 'Charge Nurse' : 'Chief Medical'}
               </p>
             </div>
-          </button>
-
-          {/* Log Out Button */}
-          <button
-            onClick={logout}
-            title="Sign out of clinical session"
-            className="p-1.5 rounded-lg border border-[#332E29] bg-[#1E1B18]/60 text-stone-400 hover:text-red-400 hover:border-red-500/40 transition"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-          </button>
+            <button
+              onClick={() => {
+                logout();
+                window.location.href = '/';
+              }}
+              title="Logout from ICU Workspace to switch clinical role"
+              className="px-2.5 py-1 rounded-lg bg-red-950/70 border border-red-500/50 text-red-300 hover:bg-red-900/80 hover:text-white text-xs font-mono transition flex items-center space-x-1.5 shadow-sm cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
       </div>
     </header>

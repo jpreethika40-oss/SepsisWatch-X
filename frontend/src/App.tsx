@@ -29,49 +29,61 @@ import { Assistant } from './pages/Assistant';
 import { useStore } from './store/useStore';
 
 export const App: React.FC = () => {
-  const { isAuthenticated } = useStore();
+  const { isAuthenticated, currentRole } = useStore();
 
   if (!isAuthenticated) {
     return <LoginPage />;
   }
 
+  const defaultRedirect = currentRole === 'doctor' ? '/doctor' : currentRole === 'nurse' ? '/nurse' : '/chief';
+
   return (
     <BrowserRouter>
       <AppLayout>
         <Routes>
-          {/* Main 3D Command Center */}
-          <Route path="/" element={<CommandCenter />} />
+          {/* Nurse-Specific Clinical Route Tree */}
+          {currentRole === 'nurse' && (
+            <>
+              <Route path="/nurse" element={<NurseDashboard />} />
+              <Route path="/patient" element={<PatientDetail />} />
+              <Route path="/assistant" element={<Assistant />} />
+              <Route path="*" element={<Navigate to="/nurse" replace />} />
+            </>
+          )}
 
-          {/* Role-Specific Workspaces */}
-          <Route path="/doctor" element={<DoctorDashboard />} />
-          <Route path="/nurse" element={<NurseDashboard />} />
-          <Route path="/chief" element={<ChiefDashboard />} />
+          {/* Doctor-Specific Attending Diagnostic Route Tree */}
+          {currentRole === 'doctor' && (
+            <>
+              <Route path="/doctor" element={<DoctorDashboard />} />
+              <Route path="/" element={<CommandCenter />} />
+              <Route path="/patient" element={<PatientDetail />} />
+              <Route path="/alerts" element={<AlertCenter />} />
+              <Route path="/what-if" element={<WhatIfLab />} />
+              <Route path="/insights" element={<InsightsLab />} />
+              <Route path="/assistant" element={<Assistant />} />
+              <Route path="/gradio-studio" element={<GradioStudio />} />
+              <Route path="*" element={<Navigate to="/doctor" replace />} />
+            </>
+          )}
 
-          {/* Clinical AI Assistant */}
-          <Route path="/assistant" element={<Assistant />} />
+          {/* Chief-Specific Executive Governance Route Tree */}
+          {currentRole === 'hospital_chief' && (
+            <>
+              <Route path="/chief" element={<ChiefDashboard />} />
+              <Route path="/benchmark" element={<BenchmarkErrorAnalysis />} />
+              <Route path="/policy" element={<AlarmBudgetControl />} />
+              <Route path="/scoreboard" element={<Scoreboard />} />
+              <Route path="/drift" element={<DriftMonitor />} />
+              <Route path="/upload" element={<DataUpload />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/assistant" element={<Assistant />} />
+              <Route path="*" element={<Navigate to="/chief" replace />} />
+            </>
+          )}
 
-          {/* Clinical Operations & Telemetry */}
-          <Route path="/patient" element={<PatientDetail />} />
-          <Route path="/what-if" element={<WhatIfLab />} />
-          <Route path="/arena" element={<ModelArena />} />
-          <Route path="/gradio-studio" element={<GradioStudio />} />
-          <Route path="/alerts" element={<AlertCenter />} />
-          <Route path="/policy" element={<AlarmBudgetControl />} />
-          <Route path="/scoreboard" element={<Scoreboard />} />
-          <Route path="/drift" element={<DriftMonitor />} />
-          <Route path="/insights" element={<InsightsLab />} />
-          <Route path="/benchmark" element={<BenchmarkErrorAnalysis />} />
-          <Route path="/experiments" element={<Experiments />} />
-          <Route path="/upload" element={<DataUpload />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/about" element={<About />} />
-
-          {/* Rubric Removal Redirects */}
-          <Route path="/rubric" element={<Navigate to="/" replace />} />
-          <Route path="/api-explorer" element={<Navigate to="/" replace />} />
-
-          {/* Catch-all redirect to Home */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Fallback to Role Default */}
+          <Route path="*" element={<Navigate to={defaultRedirect} replace />} />
         </Routes>
       </AppLayout>
     </BrowserRouter>

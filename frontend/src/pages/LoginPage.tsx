@@ -145,10 +145,10 @@ export const LoginPage: React.FC = () => {
       color: 'emerald'
     },
     {
-      role: 'hospital_view' as ClinicalPersona,
+      role: 'hospital_chief' as ClinicalPersona,
       name: 'Dr. Robert Chen, MD',
       email: 'admin.chen@icu.org',
-      badge: 'Chief Medical Officer / Admin',
+      badge: 'Chief Medical Officer',
       desc: 'Ward Alarm Budgets, Drift Audit & Cross-Hospital Benchmarks',
       icon: Shield,
       color: 'blue'
@@ -175,10 +175,10 @@ export const LoginPage: React.FC = () => {
 
     setTimeout(() => {
       const landingPath = selectedRole === 'doctor' ? '/doctor' : selectedRole === 'nurse' ? '/nurse' : '/chief';
-      window.history.replaceState(null, '', landingPath);
+      window.history.pushState(null, '', landingPath);
       login(userObj, selectedRole);
       setIsLoading(false);
-    }, 350);
+    }, 300);
   };
 
   return (

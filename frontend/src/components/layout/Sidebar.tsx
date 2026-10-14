@@ -16,71 +16,154 @@ interface NavItem {
 }
 
 export const Sidebar: React.FC = () => {
-  const { unreadAlertCount, drift, currentRole } = useStore();
+  const { unreadAlertCount, escalations, drift, currentRole } = useStore();
+  const pendingEscalations = escalations.filter(e => e.status === 'pending').length;
 
-  // Role-specific quick launch item
-  const roleWorkspaceItem: NavItem = 
-    currentRole === 'doctor'
-      ? { name: 'Doctor Workspace', path: '/doctor', icon: Stethoscope, badge: 'ATTENDING', badgeColor: 'bg-orange-950 text-orange-400 border border-orange-500/30' }
-      : currentRole === 'nurse'
-      ? { name: 'Nurse Bedside', path: '/nurse', icon: HeartPulse, badge: 'CHARGE RN', badgeColor: 'bg-emerald-950 text-emerald-400 border border-emerald-500/30' }
-      : { name: 'Chief Dashboard', path: '/chief', icon: Building2, badge: 'CHIEF', badgeColor: 'bg-amber-950 text-amber-400 border border-amber-500/30' };
+  // Role-specific isolated navigation trees
+  let sections: { title: string; items: NavItem[] }[] = [];
 
-  const sections: { title: string; items: NavItem[] }[] = [
-    {
-      title: 'Active Workspace',
-      items: [
-        roleWorkspaceItem,
-        { name: '3D Command Center', path: '/', icon: LayoutDashboard },
-        { name: 'Patient Detail (EHR)', path: '/patient', icon: UserCheck },
-        { 
-          name: 'Alert Center', 
-          path: '/alerts', 
-          icon: Bell, 
-          badge: unreadAlertCount > 0 ? unreadAlertCount : undefined,
-          badgeColor: 'bg-red-500 text-white animate-pulse'
-        },
-      ]
-    },
-    {
-      title: 'Clinical AI & Simulation',
-      items: [
-        { 
-          name: 'AI Clinical Assistant', 
-          path: '/assistant', 
-          icon: Bot,
-          badge: 'ONLINE',
-          badgeColor: 'bg-amber-950 text-amber-300 border border-amber-500/40 glow-ember'
-        },
-        { name: 'What-If Prediction Lab', path: '/what-if', icon: Sliders },
-        { name: 'Explainable AI (SHAP)', path: '/insights', icon: Sparkles },
-        { 
-          name: 'Gradio ML Studio', 
-          path: '/gradio-studio', 
-          icon: Sparkles, 
-          badge: 'STUDIO', 
-          badgeColor: 'bg-orange-500/20 text-orange-400 border border-orange-500/30' 
-        },
-      ]
-    },
-    {
-      title: 'ICU Telemetry & Safety',
-      items: [
-        { 
-          name: 'Drift Monitor (3D)', 
-          path: '/drift', 
-          icon: Radar,
-          badge: drift.overall_status.toUpperCase(),
-          badgeColor: drift.overall_status === 'green' ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/30' : 'bg-red-950 text-red-400 border border-red-500/30'
-        },
-        { name: 'Alarm Policy Simulator', path: '/policy', icon: ShieldAlert },
-        { name: 'Model Arena & Metrics', path: '/scoreboard', icon: GitCompare },
-        { name: 'Dataset Upload Studio', path: '/upload', icon: UploadCloud },
-        { name: 'Admin & Audit Trail', path: '/admin', icon: FileText },
-        { name: 'Clinical Governance', path: '/about', icon: Info },
-      ]
-    }
-  ];
+  if (currentRole === 'nurse') {
+    sections = [
+      {
+        title: 'Bedside Nursing Care',
+        items: [
+          { 
+            name: 'Bedside Telemetry & Triage', 
+            path: '/nurse', 
+            icon: HeartPulse, 
+            badge: 'CHARGE RN', 
+            badgeColor: 'bg-emerald-950 text-emerald-400 border border-emerald-500/30' 
+          },
+          { 
+            name: 'Bed Vitals & Observations', 
+            path: '/patient', 
+            icon: UserCheck 
+          },
+          { 
+            name: 'Clinical AI Protocol Guide', 
+            path: '/assistant', 
+            icon: Bot, 
+            badge: 'PROTOCOL', 
+            badgeColor: 'bg-amber-950 text-amber-300 border border-amber-500/30' 
+          },
+        ]
+      }
+    ];
+  } else if (currentRole === 'doctor') {
+    sections = [
+      {
+        title: 'Attending Clinical Workspace',
+        items: [
+          { 
+            name: 'Attending Diagnostic Workspace', 
+            path: '/doctor', 
+            icon: Stethoscope, 
+            badge: pendingEscalations > 0 ? `${pendingEscalations} ESC` : 'ONLINE', 
+            badgeColor: pendingEscalations > 0 ? 'bg-red-500 text-white animate-pulse' : 'bg-orange-950 text-orange-400 border border-orange-500/30' 
+          },
+          { 
+            name: '3D ICU Command Center', 
+            path: '/', 
+            icon: LayoutDashboard 
+          },
+          { 
+            name: 'Patient EHR & Risk Detail', 
+            path: '/patient', 
+            icon: UserCheck 
+          },
+          { 
+            name: 'Alert & Sign-off Center', 
+            path: '/alerts', 
+            icon: Bell, 
+            badge: unreadAlertCount > 0 ? unreadAlertCount : undefined,
+            badgeColor: 'bg-red-500 text-white' 
+          },
+        ]
+      },
+      {
+        title: 'Diagnostic AI & Counterfactuals',
+        items: [
+          { 
+            name: 'What-If Prediction Lab', 
+            path: '/what-if', 
+            icon: Sliders 
+          },
+          { 
+            name: 'Explainable AI (SHAP)', 
+            path: '/insights', 
+            icon: Sparkles 
+          },
+          { 
+            name: 'Clinical AI Consult', 
+            path: '/assistant', 
+            icon: Bot 
+          },
+          { 
+            name: 'Interactive ML Studio', 
+            path: '/gradio-studio', 
+            icon: Sparkles, 
+            badge: 'STUDIO', 
+            badgeColor: 'bg-orange-500/20 text-orange-400 border border-orange-500/30' 
+          },
+        ]
+      }
+    ];
+  } else {
+    // Hospital Chief Executive / Governance
+    sections = [
+      {
+        title: 'Executive Clinical Governance',
+        items: [
+          { 
+            name: 'Chief Executive Dashboard', 
+            path: '/chief', 
+            icon: Building2, 
+            badge: 'CHIEF', 
+            badgeColor: 'bg-amber-950 text-amber-400 border border-amber-500/30' 
+          },
+          { 
+            name: 'Clinical Benchmark Comparison', 
+            path: '/benchmark', 
+            icon: GitCompare,
+            badge: 'BENCHMARK',
+            badgeColor: 'bg-orange-950 text-orange-300 border border-orange-500/30'
+          },
+          { 
+            name: 'Alarm Budget Policy Control', 
+            path: '/policy', 
+            icon: ShieldAlert 
+          },
+        ]
+      },
+      {
+        title: 'Hospital Telemetry & Quality',
+        items: [
+          { 
+            name: 'Model Arena & Evaluation', 
+            path: '/scoreboard', 
+            icon: GitCompare 
+          },
+          { 
+            name: 'Population Drift Monitor (3D)', 
+            path: '/drift', 
+            icon: Radar,
+            badge: drift.overall_status.toUpperCase(),
+            badgeColor: drift.overall_status === 'green' ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/30' : 'bg-red-950 text-red-400 border border-red-500/30'
+          },
+          { 
+            name: 'Audit Trail & Compliance', 
+            path: '/admin', 
+            icon: FileText 
+          },
+          { 
+            name: 'Dual-Hospital Overview', 
+            path: '/about', 
+            icon: Info 
+          },
+        ]
+      }
+    ];
+  }
 
   return (
     <aside className="w-64 flex-shrink-0 border-r border-[#332E29] bg-[#151311]/70 backdrop-blur-md flex flex-col justify-between overflow-y-auto">

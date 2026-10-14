@@ -13,9 +13,47 @@ import os
 import io
 import json
 import pytest
-import requests
+import requests as _requests_lib
+from fastapi.testclient import TestClient
+from backend.app.main import app
 
 BASE_URL = "http://127.0.0.1:8000"
+
+_test_client = TestClient(app)
+
+class _ClientWrapper:
+    def __init__(self, base_url: str):
+        self.base_url = base_url
+        self.use_live = False
+        try:
+            r = _requests_lib.get(f"{base_url}/api/health", timeout=0.5)
+            if r.status_code == 200:
+                self.use_live = True
+        except Exception:
+            self.use_live = False
+
+    def get(self, url, **kwargs):
+        if self.use_live:
+            return _requests_lib.get(url, **kwargs)
+        path = url.replace(self.base_url, "")
+        kwargs.pop("timeout", None)
+        return _test_client.get(path, **kwargs)
+
+    def post(self, url, **kwargs):
+        if self.use_live:
+            return _requests_lib.post(url, **kwargs)
+        path = url.replace(self.base_url, "")
+        kwargs.pop("timeout", None)
+        return _test_client.post(path, **kwargs)
+
+    def delete(self, url, **kwargs):
+        if self.use_live:
+            return _requests_lib.delete(url, **kwargs)
+        path = url.replace(self.base_url, "")
+        kwargs.pop("timeout", None)
+        return _test_client.delete(path, **kwargs)
+
+requests = _ClientWrapper(BASE_URL)
 
 
 def test_01_health_and_root_spa():

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { 
   Patient, Alert, PolicyConfig, DriftReport, User, 
-  ClinicalPersona, AuditEntry 
+  ClinicalPersona, AuditEntry, EscalationEntry 
 } from '../types';
 
 interface AppState {
@@ -13,6 +13,13 @@ interface AppState {
   auditTrail: AuditEntry[];
   lastAckNotice: string | null;
   setLastAckNotice: (msg: string | null) => void;
+  
+  // Nurse-to-Doctor Escalations
+  escalations: EscalationEntry[];
+  addEscalation: (esc: Omit<EscalationEntry, 'id' | 'created_at' | 'status'>) => Promise<void>;
+  batchAcknowledgeEscalations: (ids: string[], doctorName: string, pin: string, orders: string) => Promise<void>;
+  batchAcknowledgeAlerts: (alertIds: number[], doctorName: string, pin: string, orders: string) => Promise<void>;
+  setEscalations: (escalations: EscalationEntry[]) => void;
   
   // Role & Hospital Views
   currentRole: ClinicalPersona;
@@ -146,6 +153,35 @@ const INITIAL_ALERTS: Alert[] = [
   }
 ];
 
+const INITIAL_ESCALATIONS: EscalationEntry[] = [
+  {
+    id: "ESC-001",
+    bed_number: 3,
+    patient_code: "p_A_00003",
+    patient_id: 3,
+    severity: "critical",
+    risk_score: 0.88,
+    nurse_name: "RN Alex Reed, BSN",
+    notes: "Hypotension (MAP 61 mmHg), SpO2 93%, tachycardia (HR 124). Suspected septic shock.",
+    vitals_snapshot: { HR: 124, MAP: 61, Resp: 28, Temp: 38.8, Lactate: 3.8 },
+    status: "pending",
+    created_at: "5 min ago"
+  },
+  {
+    id: "ESC-002",
+    bed_number: 7,
+    patient_code: "p_A_00007",
+    patient_id: 7,
+    severity: "moderate",
+    risk_score: 0.58,
+    nurse_name: "RN Elena Rostova, BSN",
+    notes: "Borderline fever 38.1°C, resp rate 22, lactate elevated to 2.4. Bedside assessment requested.",
+    vitals_snapshot: { HR: 98, MAP: 72, Resp: 22, Temp: 38.1, Lactate: 2.4 },
+    status: "pending",
+    created_at: "18 min ago"
+  }
+];
+
 const INITIAL_AUDIT_LOG: AuditEntry[] = [
   {
     id: 'AUD-001',
@@ -163,7 +199,7 @@ const INITIAL_AUDIT_LOG: AuditEntry[] = [
 const INITIAL_USER: User = {
   id: 1,
   email: 'dr.connor@icu.org',
-  role: 'clinician',
+  role: 'doctor',
   full_name: 'Dr. Sarah Connor, MD',
 };
 
@@ -176,23 +212,28 @@ export const useStore = create<AppState>((set, get) => ({
   lastAckNotice: null,
   setLastAckNotice: (lastAckNotice) => set({ lastAckNotice }),
   
+  // Nurse-to-Doctor Escalations
+  escalations: INITIAL_ESCALATIONS,
+  setEscalations: (escalations) => set({ escalations }),
+  
   // Role & Hospital Views
-  currentRole: (localStorage.getItem('sepsiswatch_role') as ClinicalPersona) || 'doctor',
+  currentRole: (sessionStorage.getItem('sepsiswatch_role') as ClinicalPersona) || 'doctor',
   selectedHospital: 'all',
   isAuthModalOpen: false,
   currentUser: {
     id: 1,
-    email: localStorage.getItem('sepsiswatch_email') || 'dr.connor@icu.org',
-    role: (localStorage.getItem('sepsiswatch_role') as ClinicalPersona) || 'doctor',
-    full_name: localStorage.getItem('sepsiswatch_name') || 'Dr. Sarah Connor, MD',
+    email: sessionStorage.getItem('sepsiswatch_email') || 'dr.connor@icu.org',
+    role: (sessionStorage.getItem('sepsiswatch_role') as ClinicalPersona) || 'doctor',
+    full_name: sessionStorage.getItem('sepsiswatch_name') || 'Dr. Sarah Connor, MD',
   },
-  isAuthenticated: localStorage.getItem('sepsiswatch_auth') === 'true',
+  // Ensure the app always starts at the Login page on fresh browser launch
+  isAuthenticated: sessionStorage.getItem('sepsiswatch_auth') === 'true',
 
   login: (user: User, role: ClinicalPersona) => {
-    localStorage.setItem('sepsiswatch_auth', 'true');
-    localStorage.setItem('sepsiswatch_role', role);
-    localStorage.setItem('sepsiswatch_name', user.full_name);
-    localStorage.setItem('sepsiswatch_email', user.email);
+    sessionStorage.setItem('sepsiswatch_auth', 'true');
+    sessionStorage.setItem('sepsiswatch_role', role);
+    sessionStorage.setItem('sepsiswatch_name', user.full_name);
+    sessionStorage.setItem('sepsiswatch_email', user.email);
     set({
       isAuthenticated: true,
       currentUser: user,
@@ -201,10 +242,8 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   logout: () => {
-    localStorage.removeItem('sepsiswatch_auth');
-    localStorage.removeItem('sepsiswatch_role');
-    localStorage.removeItem('sepsiswatch_name');
-    localStorage.removeItem('sepsiswatch_email');
+    sessionStorage.clear();
+    localStorage.clear();
     set({
       isAuthenticated: false,
       currentUser: INITIAL_USER,
@@ -335,6 +374,166 @@ export const useStore = create<AppState>((set, get) => ({
     }));
 
     // Auto-clear notification toast after 6 seconds
+    setTimeout(() => {
+      set({ lastAckNotice: null });
+    }, 6000);
+  },
+
+  addEscalation: async (escData) => {
+    const escId = `ESC-${Date.now().toString().slice(-3)}`;
+    const newEsc: EscalationEntry = {
+      ...escData,
+      id: escId,
+      status: 'pending',
+      created_at: 'Just now'
+    };
+
+    set((state) => ({
+      escalations: [newEsc, ...state.escalations],
+      lastAckNotice: `🚨 Escalation for Bed ${escData.bed_number} sent to Attending Physician.`
+    }));
+
+    try {
+      await fetch('/api/escalations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(escData)
+      });
+    } catch (e) {
+      console.warn('[Escalation] Fallback local persistence:', e);
+    }
+
+    setTimeout(() => {
+      set({ lastAckNotice: null });
+    }, 5000);
+  },
+
+  batchAcknowledgeEscalations: async (ids, doctorName, pin, orders) => {
+    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const maskedPin = pin.length >= 3 ? `***${pin.slice(-3)}` : '***';
+
+    try {
+      await fetch('/api/escalations/batch-acknowledge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          escalation_ids: ids,
+          doctor_name: doctorName,
+          signature_pin: pin,
+          orders: orders
+        })
+      });
+    } catch (e) {
+      console.warn('[BatchEsc] Fallback local batch ack:', e);
+    }
+
+    set((state) => {
+      const updatedEscalations = state.escalations.map((esc) => {
+        if (ids.includes(esc.id)) {
+          return {
+            ...esc,
+            status: 'acknowledged' as const,
+            acknowledged_by: doctorName,
+            acknowledged_at: now,
+            doctor_orders: orders,
+            signature_pin: maskedPin
+          };
+        }
+        return esc;
+      });
+
+      const updatedAlerts = state.alerts.map((a) => {
+        const matchingEsc = state.escalations.find(e => ids.includes(e.id) && e.bed_number === a.bed_number);
+        if (matchingEsc) {
+          return {
+            ...a,
+            status: 'acknowledged' as const,
+            acknowledged_by: doctorName,
+            acknowledged_at: now,
+            action_taken: orders
+          };
+        }
+        return a;
+      });
+
+      const newAuditEntries: AuditEntry[] = ids.map((id) => {
+        const esc = state.escalations.find(e => e.id === id);
+        return {
+          id: `AUD-${Date.now().toString().slice(-4)}-${esc?.bed_number || 0}`,
+          alert_id: id,
+          bed_number: esc?.bed_number || 0,
+          patient_code: esc?.patient_code || 'p_A_00000',
+          clinician_name: doctorName,
+          action_taken: orders,
+          notes: `Batch Digital Sign-off [PIN: ${maskedPin}]. Nurse Notes: ${esc?.notes || 'N/A'}`,
+          timestamp: now,
+          status: 'Acknowledged & Managed'
+        };
+      });
+
+      return {
+        escalations: updatedEscalations,
+        alerts: updatedAlerts,
+        unreadAlertCount: Math.max(0, state.unreadAlertCount - ids.length),
+        auditTrail: [...newAuditEntries, ...state.auditTrail],
+        lastAckNotice: `✓ Successfully batch-acknowledged ${ids.length} alerts with digital signature.`
+      };
+    });
+
+    setTimeout(() => {
+      set({ lastAckNotice: null });
+    }, 6000);
+  },
+
+  batchAcknowledgeAlerts: async (alertIds, doctorName, pin, orders) => {
+    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const maskedPin = pin.length >= 3 ? `***${pin.slice(-3)}` : '***';
+
+    try {
+      await fetch('/api/alerts/batch-acknowledge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          alert_ids: alertIds.map(String),
+          clinician_name: doctorName,
+          signature_pin: pin,
+          action_taken: orders
+        })
+      });
+    } catch (e) {
+      console.warn('[BatchAlerts] Fallback local batch ack:', e);
+    }
+
+    set((state) => {
+      const updatedAlerts = state.alerts.map(a => 
+        alertIds.includes(a.id)
+          ? { ...a, status: 'acknowledged' as const, acknowledged_by: doctorName, acknowledged_at: now, action_taken: orders }
+          : a
+      );
+
+      const newAudits: AuditEntry[] = alertIds.map(id => {
+        const a = state.alerts.find(x => x.id === id);
+        return {
+          id: `AUD-${Date.now().toString().slice(-4)}-${a?.bed_number || id}`,
+          alert_id: `ALT-${a?.bed_number || id}`,
+          bed_number: a?.bed_number || 0,
+          patient_code: a?.patient_code || 'p_A_00000',
+          clinician_name: doctorName,
+          action_taken: orders,
+          notes: `Batch Digital Sign-off [PIN: ${maskedPin}]`,
+          timestamp: now,
+          status: 'Acknowledged & Managed'
+        };
+      });
+
+      return {
+        alerts: updatedAlerts,
+        unreadAlertCount: Math.max(0, state.unreadAlertCount - alertIds.length),
+        auditTrail: [...newAudits, ...state.auditTrail],
+        lastAckNotice: `✓ Successfully batch-acknowledged ${alertIds.length} alarms with digital signature.`
+      };
+    });
+
     setTimeout(() => {
       set({ lastAckNotice: null });
     }, 6000);
