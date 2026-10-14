@@ -28,7 +28,8 @@ sudo usermod -aG docker $USER
 echo "--> [3/5] Pulling SepsisWatch-X repository..."
 if [ -d "SepsisWatch-X" ]; then
     cd SepsisWatch-X
-    git pull origin main
+    git fetch origin main
+    git reset --hard origin/main
 else
     git clone https://github.com/jpreethika40-oss/SepsisWatch-X.git
     cd SepsisWatch-X
