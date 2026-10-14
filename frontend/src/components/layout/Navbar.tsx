@@ -42,10 +42,33 @@ export const Navbar: React.FC = () => {
       if (res.ok) {
         const data = await res.json();
         if (data.tick) setCurrentSimHour(data.tick);
+        return;
       }
     } catch {
-      setCurrentSimHour(currentSimHour + 1);
+      // Offline / Static Space stepping
     }
+
+    const nextHour = currentSimHour + 1;
+    setCurrentSimHour(nextHour);
+    const store = useStore.getState();
+    store.patients.forEach((p) => {
+      let newRisk = p.risk;
+      const newVitals = { ...(p.vitals || {}) };
+
+      if (p.bed_number === 3) {
+        newRisk = Math.min(0.96, Math.max(0.70, p.risk + (Math.random() * 0.04 - 0.01)));
+        newVitals.HR = Math.min(138, Math.max(105, (newVitals.HR || 112) + (Math.random() * 4 - 1.5)));
+        newVitals.MAP = Math.max(52, Math.min(64, (newVitals.MAP || 58) - (Math.random() * 3 - 1)));
+      } else if (p.bed_number === 7) {
+        newRisk = Math.min(0.65, Math.max(0.45, p.risk + (Math.random() * 0.03 - 0.015)));
+        newVitals.HR = Math.min(108, Math.max(88, (newVitals.HR || 94) + (Math.random() * 3 - 1.5)));
+        newVitals.MAP = Math.min(74, Math.max(62, (newVitals.MAP || 67) + (Math.random() * 3 - 2)));
+      } else {
+        newRisk = Math.min(0.32, Math.max(0.06, p.risk + (Math.random() * 0.02 - 0.01)));
+      }
+      const conf = newRisk >= 0.70 ? 'sepsis' : newRisk >= 0.40 ? 'uncertain' : 'no_sepsis';
+      store.updatePatientRisk(p.id, Number(newRisk.toFixed(2)), nextHour, conf, newVitals);
+    });
   };
 
   const handleReset = async () => {

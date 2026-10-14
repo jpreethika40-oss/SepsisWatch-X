@@ -24,9 +24,57 @@ export const useWebSocketStream = () => {
     const intervalTime = Math.max(600, 2400 / (simSpeed || 1));
     const timer = setInterval(async () => {
       try {
-        await fetch('/api/sim/tick', { method: 'POST' });
+        const res = await fetch('/api/sim/tick', { method: 'POST' });
+        if (!res.ok) throw new Error('API offline');
       } catch (err) {
-        console.warn('[SepsisWatch-X] Error pulsing simulation tick:', err);
+        // Client-side simulation tick fallback for Hugging Face Static Space mode
+        const store = useStore.getState();
+        const nextHour = store.currentSimHour + 1;
+        setCurrentSimHour(nextHour);
+
+        store.patients.forEach((p) => {
+          let newRisk = p.risk;
+          const newVitals = { ...(p.vitals || {}) };
+
+          if (p.bed_number === 3) {
+            newRisk = Math.min(0.96, Math.max(0.70, p.risk + (Math.random() * 0.04 - 0.01)));
+            newVitals.HR = Math.min(138, Math.max(105, (newVitals.HR || 112) + (Math.random() * 4 - 1.5)));
+            newVitals.MAP = Math.max(52, Math.min(64, (newVitals.MAP || 58) - (Math.random() * 3 - 1)));
+            newVitals.Lactate = Math.min(5.6, Math.max(2.8, (newVitals.Lactate || 3.4) + (Math.random() * 0.2 - 0.05)));
+          } else if (p.bed_number === 7) {
+            newRisk = Math.min(0.65, Math.max(0.45, p.risk + (Math.random() * 0.03 - 0.015)));
+            newVitals.HR = Math.min(108, Math.max(88, (newVitals.HR || 94) + (Math.random() * 3 - 1.5)));
+            newVitals.MAP = Math.min(74, Math.max(62, (newVitals.MAP || 67) + (Math.random() * 3 - 2)));
+          } else {
+            newRisk = Math.min(0.32, Math.max(0.06, p.risk + (Math.random() * 0.02 - 0.01)));
+            newVitals.HR = Math.min(95, Math.max(65, (newVitals.HR || 75) + (Math.random() * 2 - 1)));
+            newVitals.MAP = Math.min(95, Math.max(72, (newVitals.MAP || 82) + (Math.random() * 2 - 1)));
+          }
+
+          const conf = newRisk >= 0.70 ? 'sepsis' : newRisk >= 0.40 ? 'uncertain' : 'no_sepsis';
+          updatePatientRisk(p.id, Number(newRisk.toFixed(2)), nextHour, conf, newVitals);
+
+          if (newRisk >= 0.40) {
+            const fingerprint = `crit-${p.id}-${nextHour}`;
+            if (!triggeredAlertsRef.current.has(fingerprint)) {
+              triggeredAlertsRef.current.add(fingerprint);
+              audioAlertService.playCriticalAlarm(fingerprint);
+              addAlert({
+                id: Date.now() + p.id,
+                patient_id: p.id,
+                patient_code: p.patient_code,
+                bed_number: p.bed_number,
+                hour: nextHour,
+                severity: 'critical',
+                risk_score: Number(newRisk.toFixed(2)),
+                status: 'active',
+                lead_time_hours: 5.2,
+                message: `Bed ${p.bed_number} (${p.patient_code}) acute sepsis risk elevation to ${(newRisk * 100).toFixed(0)}%. Conformal status: ${conf.toUpperCase()}.`,
+                created_at: 'Just now'
+              });
+            }
+          }
+        });
       }
     }, intervalTime);
 

@@ -3,9 +3,7 @@ title: SepsisWatch-X ICU Early Warning
 emoji: 🏥
 colorFrom: red
 colorTo: gray
-sdk: gradio
-sdk_version: 4.28.3
-app_file: app.py
+sdk: static
 pinned: false
 license: apache-2.0
 ---
