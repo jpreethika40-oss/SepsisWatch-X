@@ -332,24 +332,55 @@ export const useStore = create<AppState>((set, get) => ({
       created_at: 'Just now'
     };
 
+    // Ensure corresponding active alert exists in alerts state so notification counters increment
+    const currentAlerts = get().alerts;
+    const matchingAlert = currentAlerts.find(a => a.bed_number === escData.bed_number && a.status === 'active');
+    let updatedAlerts = currentAlerts;
+    if (!matchingAlert) {
+      const newAlert: Alert = {
+        id: Date.now() + escData.bed_number,
+        patient_id: escData.patient_id || escData.bed_number,
+        patient_code: escData.patient_code || `p_A_${escData.bed_number.toString().padStart(5, '0')}`,
+        bed_number: escData.bed_number,
+        hour: get().currentSimHour,
+        severity: (escData.severity as 'critical' | 'moderate') || 'critical',
+        risk_score: escData.risk_score || 0.85,
+        status: 'active',
+        lead_time_hours: 5.0,
+        message: `🚨 Bed ${escData.bed_number} (${escData.patient_code}) escalated by Nurse ${escData.nurse_name}: ${escData.notes}`,
+        created_at: 'Just now'
+      };
+      updatedAlerts = [newAlert, ...currentAlerts];
+    }
+
     set((state) => ({
       escalations: [newEsc, ...state.escalations],
-      lastAckNotice: `🚨 Escalation for Bed ${escData.bed_number} sent to Attending Physician.`
+      alerts: updatedAlerts,
+      unreadAlertCount: updatedAlerts.filter(a => a.status === 'active').length,
+      lastAckNotice: `🚨 Escalation for Bed ${escData.bed_number} transmitted to Attending Physician.`
     }));
 
     try {
-      await fetch('/api/escalations', {
+      const res = await fetch('/api/escalations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(escData)
       });
+      if (res.ok) {
+        const resData = await res.json();
+        if (resData.escalation && resData.escalation.id) {
+          set((state) => ({
+            escalations: state.escalations.map(e => e.id === escId ? { ...e, id: resData.escalation.id } : e)
+          }));
+        }
+      }
     } catch (e) {
       console.warn('[Escalation] Fallback local persistence:', e);
     }
 
     setTimeout(() => {
       set({ lastAckNotice: null });
-    }, 5000);
+    }, 6000);
   },
 
   batchAcknowledgeEscalations: async (ids, doctorName, pin, orders) => {

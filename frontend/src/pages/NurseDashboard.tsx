@@ -12,7 +12,8 @@ import { Ward3D } from '../components/3d/Ward3D';
 export const NurseDashboard: React.FC = () => {
   const { 
     patients, alerts, escalations, addEscalation, currentUser,
-    is2DMode, setIs2DMode, setSelectedPatientId, selectedHospital
+    is2DMode, setIs2DMode, setSelectedPatientId, selectedHospital,
+    lastAckNotice, setLastAckNotice, unreadAlertCount
   } = useStore();
   const [checkedVitals, setCheckedVitals] = useState<Record<number, boolean>>({});
   const [handoverNote, setHandoverNote] = useState<string>('');
@@ -94,13 +95,64 @@ export const NurseDashboard: React.FC = () => {
     }
   };
 
+  const visiblePatients = selectedHospital === 'all' 
+    ? patients 
+    : patients.filter(p => p.hospital === selectedHospital);
+
+  const criticalPatients = visiblePatients.filter(p => p.risk >= 0.70 || p.status === 'critical');
+
   return (
     <div className="space-y-6">
-      {/* Toast Notice */}
-      {handoverSuccess && (
-        <div className="bg-emerald-950/90 border border-emerald-500/50 p-3.5 rounded-xl flex items-center space-x-3 text-emerald-200 text-xs font-mono shadow-lg animate-fade-in">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-          <span>{handoverSuccess}</span>
+      {/* 1. Real-time Toast Notice for Doctor Acknowledgment or Transmitted Escalation */}
+      {(lastAckNotice || handoverSuccess) && (
+        <div className="bg-gradient-to-r from-amber-950/90 via-orange-950/90 to-amber-950/90 border border-amber-500/60 p-4 rounded-xl flex items-center justify-between text-amber-200 text-xs font-mono shadow-2xl shadow-amber-950/50 animate-fade-in">
+          <div className="flex items-center space-x-3">
+            <Bell className="w-5 h-5 text-amber-400 animate-bounce flex-shrink-0" />
+            <div>
+              <span className="font-bold text-white uppercase tracking-wider block sm:inline mr-2">
+                Clinical Notification:
+              </span>
+              <span>{lastAckNotice || handoverSuccess}</span>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              setLastAckNotice(null);
+              setHandoverSuccess(null);
+            }}
+            className="p-1 text-stone-400 hover:text-white rounded transition ml-2 cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* 2. Urgent Critical Sepsis Bedside Alarm Notification Banner */}
+      {criticalPatients.length > 0 && (
+        <div className="bg-gradient-to-r from-red-950/90 via-[#200B0B]/90 to-red-950/90 border border-red-500/60 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-red-200 text-xs font-mono shadow-xl shadow-red-950/60 animate-fade-in">
+          <div className="flex items-center space-x-3">
+            <AlertCircle className="w-6 h-6 text-red-400 animate-pulse flex-shrink-0" />
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="font-bold text-white uppercase tracking-wider text-sm">
+                  🚨 Active Critical Sepsis Alarm ({criticalPatients.length} High-Risk Patient{criticalPatients.length > 1 ? 's' : ''})
+                </span>
+                <span className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded font-bold animate-pulse">
+                  Urgent Escalation Needed
+                </span>
+              </div>
+              <p className="text-xs text-red-300 mt-1">
+                {criticalPatients.map(p => `Bed ${p.bed_number} (${(p.risk * 100).toFixed(0)}% sepsis probability • HR: ${p.vitals?.HR || 122} bpm • MAP: ${p.vitals?.MAP || 58} mmHg • Lactate: ${p.vitals?.Lactate || 3.8} mmol/L)`).join(' | ')}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => handleOpenEscalation(criticalPatients[0])}
+            className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold transition flex items-center space-x-2 shadow-lg shadow-red-900/60 cursor-pointer flex-shrink-0"
+          >
+            <Bell className="w-4 h-4 animate-bounce" />
+            <span>Transmit Bed {criticalPatients[0].bed_number} Alert &rarr;</span>
+          </button>
         </div>
       )}
 
@@ -313,20 +365,22 @@ export const NurseDashboard: React.FC = () => {
                     ) : isAcknowledged ? (
                       <div className="flex items-center space-x-1.5 p-1.5 rounded-lg bg-emerald-950/50 border border-emerald-500/40 text-[10px] font-mono text-emerald-300">
                         <CheckCircle2 className="w-3 h-3 text-emerald-400 flex-shrink-0" />
-                        <span className="truncate">Doctor Acknowledged & Signed</span>
+                        <span className="truncate">Doctor Signed: {bedEscalation.doctor_orders?.slice(0, 24) || 'Reviewed'}...</span>
                       </div>
-                    ) : (isCritical || isCaution) ? (
+                    ) : (
                       <button
                         onClick={() => handleOpenEscalation(p)}
-                        className="w-full py-1.5 px-2 rounded-lg bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-mono text-xs font-bold flex items-center justify-center space-x-1 shadow-md shadow-red-600/20 transition cursor-pointer"
+                        className={`w-full py-1.5 px-2 rounded-lg font-mono text-xs font-bold flex items-center justify-center space-x-1 transition cursor-pointer ${
+                          isCritical
+                            ? 'bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white shadow-md shadow-red-600/30'
+                            : isCaution
+                            ? 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white shadow-md shadow-amber-600/20'
+                            : 'bg-stone-800/90 hover:bg-stone-700 border border-stone-700 text-stone-300'
+                        }`}
                       >
-                        <Bell className="w-3.5 h-3.5 animate-bounce" />
+                        <Bell className={`w-3.5 h-3.5 ${(isCritical || isCaution) ? 'animate-bounce' : ''}`} />
                         <span>Notify Doctor &rarr;</span>
                       </button>
-                    ) : (
-                      <div className="text-[10px] font-mono text-stone-500 py-1 text-center">
-                        Hemodynamically Stable
-                      </div>
                     )}
                   </div>
                 </div>

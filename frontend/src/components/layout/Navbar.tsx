@@ -4,7 +4,8 @@ import { useStore } from '../../store/useStore';
 import { 
   Play, Pause, RotateCcw, FastForward, Volume2, VolumeX, Volume1,
   Layers, Box, Activity, Zap, Bot,
-  Sparkles, Stethoscope, HeartPulse, Building2, LogOut, Check
+  Sparkles, Stethoscope, HeartPulse, Building2, LogOut, Check,
+  Bell, X, AlertCircle
 } from 'lucide-react';
 import { audioAlertService } from '../../services/audioAlertService';
 
@@ -16,11 +17,15 @@ export const Navbar: React.FC = () => {
     driftInjected, setDriftInjected,
     currentRole, setCurrentRole,
     selectedHospital, setSelectedHospital,
-    currentUser, setIsAuthModalOpen, logout
+    currentUser, setIsAuthModalOpen, logout,
+    alerts, escalations, unreadAlertCount, lastAckNotice, setLastAckNotice
   } = useStore();
 
   const [testNotice, setTestNotice] = useState<string | null>(null);
+  const [showNotificationMenu, setShowNotificationMenu] = useState<boolean>(false);
   const [currentVol, setCurrentVol] = useState<number>(audioAlertService.getVolume());
+
+  const pendingEscalations = escalations.filter(e => e.status === 'pending');
 
   const toggleSimulation = async () => {
     const next = !isSimRunning;
@@ -95,6 +100,28 @@ export const Navbar: React.FC = () => {
 
       const conf = newRisk >= 0.70 ? 'sepsis' : newRisk >= 0.40 ? 'uncertain' : 'no_sepsis';
       store.updatePatientRisk(p.id, Number(newRisk.toFixed(2)), nextHour, conf, newVitals);
+
+      // Generate critical alert and clinical notification if patient deteriorates to severe sepsis risk
+      if (newRisk >= 0.70) {
+        const hasExisting = store.alerts.some(a => a.bed_number === p.bed_number && a.status === 'active');
+        if (!hasExisting) {
+          store.addAlert({
+            id: Date.now() + p.id,
+            patient_id: p.id,
+            patient_code: p.patient_code,
+            bed_number: p.bed_number,
+            hour: nextHour,
+            severity: 'critical',
+            risk_score: newRisk,
+            status: 'active',
+            lead_time_hours: 5.2,
+            message: `Bed ${p.bed_number} (${p.patient_code}) acute sepsis alert: risk elevated to ${(newRisk * 100).toFixed(0)}%.`,
+            created_at: 'Just now'
+          });
+          audioAlertService.playCriticalAlarm(`crit-bed-${p.bed_number}`);
+          store.setLastAckNotice(`🚨 Critical Alarm: Bed ${p.bed_number} (${p.patient_code}) acute sepsis risk ${(newRisk * 100).toFixed(0)}%!`);
+        }
+      }
     });
   };
 
@@ -125,6 +152,22 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-50 flex flex-col w-full border-b border-amber-500/20 bg-[#151311]/90 backdrop-blur-md">
+      {/* Real-time Global Clinical Alert Notification Toast */}
+      {lastAckNotice && (
+        <div className="bg-gradient-to-r from-amber-950/90 via-orange-950/90 to-amber-950/90 border-b border-amber-500/50 px-4 py-2 flex items-center justify-between text-xs font-mono text-amber-200 animate-fade-in shadow-lg">
+          <div className="flex items-center space-x-2.5">
+            <Bell className="w-4 h-4 text-amber-400 animate-bounce flex-shrink-0" />
+            <span className="font-semibold text-white">{lastAckNotice}</span>
+          </div>
+          <button
+            onClick={() => setLastAckNotice(null)}
+            className="text-stone-400 hover:text-white p-0.5 rounded cursor-pointer"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* Test Notice Toast */}
       {testNotice && (
         <div className="bg-amber-950/90 border-b border-amber-500/40 px-4 py-1.5 flex items-center justify-between text-xs font-mono text-amber-200">
@@ -387,6 +430,111 @@ export const Navbar: React.FC = () => {
             >
               {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5 text-red-400" />}
             </button>
+          </div>
+
+          {/* Real-time Notification Bell Popover */}
+          <div className="relative">
+            <button
+              onClick={() => setShowNotificationMenu(!showNotificationMenu)}
+              title="ICU Sepsis Notifications & Escalation Queue"
+              className="relative p-1.5 rounded-lg bg-[#1E1B18] border border-[#332E29] hover:border-amber-500/50 text-stone-300 hover:text-white transition flex items-center justify-center cursor-pointer"
+            >
+              <Bell className={`w-4 h-4 ${(unreadAlertCount > 0 || pendingEscalations.length > 0) ? 'text-amber-400 animate-bounce' : 'text-stone-400'}`} />
+              {(unreadAlertCount > 0 || pendingEscalations.length > 0) && (
+                <span className="absolute -top-1 -right-1 px-1.5 py-0.2 bg-red-600 text-white text-[9px] font-mono font-bold rounded-full animate-pulse shadow-sm shadow-red-900">
+                  {unreadAlertCount + pendingEscalations.length}
+                </span>
+              )}
+            </button>
+
+            {/* Notification Dropdown Panel */}
+            {showNotificationMenu && (
+              <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl border border-stone-800 bg-[#161412] shadow-2xl z-50 p-4 space-y-3 font-mono text-xs animate-fade-in">
+                <div className="flex items-center justify-between border-b border-stone-800 pb-2">
+                  <div className="flex items-center space-x-2">
+                    <Bell className="w-4 h-4 text-orange-400" />
+                    <span className="font-bold text-white font-display">ICU Clinical Notifications</span>
+                  </div>
+                  <button
+                    onClick={() => setShowNotificationMenu(false)}
+                    className="text-stone-400 hover:text-white p-1 rounded cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Nurse Escalations Section */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-[11px] text-stone-400 font-bold uppercase tracking-wider">
+                    <span>Nurse Escalations</span>
+                    <span className="text-amber-400">{pendingEscalations.length} Pending</span>
+                  </div>
+
+                  {pendingEscalations.length === 0 ? (
+                    <div className="p-2.5 rounded bg-stone-900/60 text-stone-400 text-[11px]">
+                      Zero pending nurse escalations.
+                    </div>
+                  ) : (
+                    pendingEscalations.slice(0, 3).map((esc) => (
+                      <div key={esc.id} className="p-2.5 rounded-lg bg-amber-950/20 border border-amber-500/40 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-white">Bed {esc.bed_number} ({esc.patient_code})</span>
+                          <span className="text-[10px] bg-amber-500 text-black px-1.5 py-0.2 rounded font-bold uppercase">
+                            {esc.severity}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-stone-300 leading-snug">
+                          {esc.notes}
+                        </p>
+                        <p className="text-[10px] text-stone-500">
+                          By {esc.nurse_name} • {esc.created_at}
+                        </p>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Active Alerts Section */}
+                <div className="space-y-2 pt-2 border-t border-stone-800">
+                  <div className="flex items-center justify-between text-[11px] text-stone-400 font-bold uppercase tracking-wider">
+                    <span>Active Telemetry Alarms</span>
+                    <span className="text-red-400">{alerts.filter(a => a.status === 'active').length} Active</span>
+                  </div>
+
+                  {alerts.filter(a => a.status === 'active').slice(0, 3).map((a) => (
+                    <div key={a.id} className="p-2 rounded-lg bg-red-950/20 border border-red-500/30 text-[11px] text-stone-300">
+                      <div className="flex items-center justify-between font-bold text-white">
+                        <span>Bed {a.bed_number}</span>
+                        <span className="text-red-400">{(a.risk_score * 100).toFixed(0)}% Risk</span>
+                      </div>
+                      <p className="text-[10px] text-stone-400 mt-0.5 truncate">{a.message}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Navigation Link */}
+                <div className="pt-2 border-t border-stone-800 flex justify-between items-center text-[11px]">
+                  <span className="text-stone-500">Role: {currentRole}</span>
+                  {currentRole === 'doctor' ? (
+                    <NavLink
+                      to="/doctor"
+                      onClick={() => setShowNotificationMenu(false)}
+                      className="text-orange-400 hover:text-orange-300 font-bold"
+                    >
+                      Open Doctor Queue &rarr;
+                    </NavLink>
+                  ) : (
+                    <NavLink
+                      to="/nurse"
+                      onClick={() => setShowNotificationMenu(false)}
+                      className="text-emerald-400 hover:text-emerald-300 font-bold"
+                    >
+                      Open Nurse Triage &rarr;
+                    </NavLink>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* User Profile & Un-Clipped Red Logout Button */}
