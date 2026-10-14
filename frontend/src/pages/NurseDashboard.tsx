@@ -12,7 +12,7 @@ import { Ward3D } from '../components/3d/Ward3D';
 export const NurseDashboard: React.FC = () => {
   const { 
     patients, alerts, escalations, addEscalation, currentUser,
-    is2DMode, setIs2DMode, setSelectedPatientId
+    is2DMode, setIs2DMode, setSelectedPatientId, selectedHospital
   } = useStore();
   const [checkedVitals, setCheckedVitals] = useState<Record<number, boolean>>({});
   const [handoverNote, setHandoverNote] = useState<string>('');
@@ -244,7 +244,7 @@ export const NurseDashboard: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
-          {patients.map((p) => {
+          {(selectedHospital === 'all' ? patients : patients.filter(p => p.hospital === selectedHospital)).map((p) => {
             const isChecked = !!checkedVitals[p.id];
             const isCritical = p.status === 'critical' || p.risk >= 0.70;
             const isCaution = p.status === 'caution' || (p.risk >= 0.40 && p.risk < 0.70);

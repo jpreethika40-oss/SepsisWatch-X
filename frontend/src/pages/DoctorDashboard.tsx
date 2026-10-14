@@ -4,7 +4,7 @@ import { useStore } from '../store/useStore';
 import { 
   Stethoscope, Activity, ShieldAlert, CheckCircle2, ChevronRight, 
   Sliders, Sparkles, UserCheck, Bot, FileText, AlertTriangle, Clock,
-  CheckSquare, Square, Key, Send, AlertCircle, HeartPulse, RefreshCw
+  CheckSquare, Square, Key, Send, AlertCircle, HeartPulse, RefreshCw, Building2
 } from 'lucide-react';
 import { AnatomyVitals3D } from '../components/3d/AnatomyVitals3D';
 
@@ -12,7 +12,7 @@ export const DoctorDashboard: React.FC = () => {
   const { 
     patients, alerts, escalations, batchAcknowledgeEscalations, 
     batchAcknowledgeAlerts, acknowledgeAlert, currentUser, setSelectedPatientId,
-    lastAckNotice
+    lastAckNotice, selectedHospital, setSelectedHospital
   } = useStore();
 
   // Multi-select state for batch acknowledgment
@@ -28,12 +28,29 @@ export const DoctorDashboard: React.FC = () => {
   // Focus patient selection
   const [focusPatientId, setFocusPatientId] = useState<number>(1);
 
-  const pendingEscalations = escalations.filter(e => e.status === 'pending');
-  const activeAlerts = alerts.filter(a => a.status === 'active');
-  const criticalPatients = patients.filter(p => p.status === 'critical' || p.risk >= 0.70);
-  const cautionPatients = patients.filter(p => p.status === 'caution' || (p.risk >= 0.40 && p.risk < 0.70));
+  // Hospital-filtered patient and alert subsets
+  const filteredPatients = selectedHospital === 'all'
+    ? patients
+    : patients.filter(p => p.hospital === selectedHospital);
 
-  const focusPatient = patients.find(p => p.id === focusPatientId) || patients[0];
+  const pendingEscalations = escalations.filter(e => {
+    if (e.status !== 'pending') return false;
+    if (selectedHospital === 'all') return true;
+    const pat = patients.find(p => p.bed_number === e.bed_number);
+    return pat ? pat.hospital === selectedHospital : true;
+  });
+
+  const activeAlerts = alerts.filter(a => {
+    if (a.status !== 'active') return false;
+    if (selectedHospital === 'all') return true;
+    const pat = patients.find(p => p.bed_number === a.bed_number);
+    return pat ? pat.hospital === selectedHospital : true;
+  });
+
+  const criticalPatients = filteredPatients.filter(p => p.status === 'critical' || p.risk >= 0.70);
+  const cautionPatients = filteredPatients.filter(p => p.status === 'caution' || (p.risk >= 0.40 && p.risk < 0.70));
+
+  const focusPatient = filteredPatients.find(p => p.id === focusPatientId) || filteredPatients[0] || patients[0];
 
   // Select / Deselect individual escalation
   const toggleEscalationSelection = (id: string) => {
@@ -132,13 +149,74 @@ export const DoctorDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Hospital Bay Switcher & Domain Context Banner */}
+      <div className="glass-panel p-3.5 rounded-xl border border-stone-800 bg-stone-900/60 flex flex-wrap items-center justify-between gap-3 text-xs font-mono shadow-md">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center space-x-1.5 text-stone-300 font-semibold pr-2 border-r border-stone-800">
+            <Building2 className="w-4 h-4 text-orange-400" />
+            <span>Surveillance Bay:</span>
+          </div>
+          <div className="flex items-center space-x-1 bg-stone-950 p-1 rounded-lg border border-stone-800">
+            <button
+              type="button"
+              onClick={() => setSelectedHospital('all')}
+              className={`px-3 py-1 rounded transition cursor-pointer ${
+                selectedHospital === 'all'
+                  ? 'bg-amber-500/25 text-amber-300 border border-amber-500/40 font-bold shadow-sm'
+                  : 'text-stone-400 hover:text-stone-200'
+              }`}
+            >
+              All Beds (12)
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedHospital('setA')}
+              className={`px-3 py-1 rounded transition flex items-center space-x-1.5 cursor-pointer ${
+                selectedHospital === 'setA'
+                  ? 'bg-orange-500/25 text-orange-300 border border-orange-500/40 font-bold shadow-sm'
+                  : 'text-stone-400 hover:text-stone-200'
+              }`}
+            >
+              <span className="w-2 h-2 rounded-full bg-orange-400" />
+              <span>Hospital A: Emory (Beds 1-6)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedHospital('setB')}
+              className={`px-3 py-1 rounded transition flex items-center space-x-1.5 cursor-pointer ${
+                selectedHospital === 'setB'
+                  ? 'bg-amber-500/25 text-amber-300 border border-amber-500/40 font-bold shadow-sm'
+                  : 'text-stone-400 hover:text-stone-200'
+              }`}
+            >
+              <span className="w-2 h-2 rounded-full bg-amber-400" />
+              <span>Hospital B: BIDMC (Beds 7-12)</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="text-[11px] text-stone-400 font-mono">
+          {selectedHospital === 'all' && (
+            <span>Combined Multi-Site ICU (12 Beds across Emory & BIDMC Bays)</span>
+          )}
+          {selectedHospital === 'setA' && (
+            <span className="text-orange-300">Emory Bay (Set A): Medical/Surgical ICU • 92% Lab Temporal Density</span>
+          )}
+          {selectedHospital === 'setB' && (
+            <span className="text-amber-300">BIDMC Bay (Set B): Trauma/Cardiac ICU • DANN Domain Adaptation Active</span>
+          )}
+        </div>
+      </div>
+
       {/* Top Census Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="glass-panel p-4 rounded-xl border border-stone-800">
-          <span className="text-[10px] text-stone-400 font-mono uppercase">ICU Bed Census</span>
-          <p className="text-2xl font-bold font-display text-white mt-1">{patients.length} Beds</p>
+          <span className="text-[10px] text-stone-400 font-mono uppercase">
+            {selectedHospital === 'all' ? 'Combined ICU Census' : selectedHospital === 'setA' ? 'Hospital A (Emory)' : 'Hospital B (BIDMC)'} Census
+          </span>
+          <p className="text-2xl font-bold font-display text-white mt-1">{filteredPatients.length} Beds</p>
           <p className="text-[11px] text-emerald-400 font-mono mt-0.5">
-            {Math.max(0, patients.length - cautionPatients.length - criticalPatients.length)} Normal • {cautionPatients.length} Caution • {criticalPatients.length} Critical
+            {Math.max(0, filteredPatients.length - cautionPatients.length - criticalPatients.length)} Normal • {cautionPatients.length} Caution • {criticalPatients.length} Critical
           </p>
         </div>
 

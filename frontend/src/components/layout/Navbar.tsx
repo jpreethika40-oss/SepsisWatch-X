@@ -300,31 +300,48 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* Hospital Bay Filter */}
-          <div className="hidden 2xl:flex items-center space-x-1 bg-[#1E1B18] p-1 rounded-lg border border-[#332E29] text-[11px] font-mono">
+          {/* Hospital Bay Filter: Emory (A) vs BIDMC (B) */}
+          <div className="flex items-center space-x-1 bg-[#1E1B18] p-1 rounded-lg border border-[#332E29] text-[11px] font-mono shadow-sm">
+            <span className="text-[10px] text-stone-500 uppercase px-1 font-semibold hidden md:inline">
+              Site:
+            </span>
             <button
+              type="button"
               onClick={() => setSelectedHospital('all')}
-              className={`px-2 py-0.5 rounded transition ${
-                selectedHospital === 'all' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'text-[#A09689] hover:text-[#F3EEE8]'
+              title="View all 12 ICU beds across both Emory and BIDMC bays"
+              className={`px-2 py-0.5 rounded transition font-medium ${
+                selectedHospital === 'all'
+                  ? 'bg-amber-500/25 text-amber-300 border border-amber-500/40 font-bold'
+                  : 'text-[#A09689] hover:text-[#F3EEE8]'
               }`}
             >
-              All Beds
+              All Bays (12)
             </button>
             <button
+              type="button"
               onClick={() => setSelectedHospital('setA')}
-              className={`px-2 py-0.5 rounded transition ${
-                selectedHospital === 'setA' ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30' : 'text-[#A09689] hover:text-[#F3EEE8]'
+              title="Hospital A: Emory University Hospital Bay (Beds 1-6, Medical/Surgical ICU)"
+              className={`px-2 py-0.5 rounded transition font-medium flex items-center space-x-1 ${
+                selectedHospital === 'setA'
+                  ? 'bg-orange-500/25 text-orange-300 border border-orange-500/40 font-bold'
+                  : 'text-[#A09689] hover:text-[#F3EEE8]'
               }`}
             >
-              Hospital A
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-400 inline-block" />
+              <span>Hosp A (Emory)</span>
             </button>
             <button
+              type="button"
               onClick={() => setSelectedHospital('setB')}
-              className={`px-2 py-0.5 rounded transition ${
-                selectedHospital === 'setB' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'text-[#A09689] hover:text-[#F3EEE8]'
+              title="Hospital B: Beth Israel Deaconess Medical Center Bay (Beds 7-12, Trauma/Cardiac ICU, Domain Adaptation Active)"
+              className={`px-2 py-0.5 rounded transition font-medium flex items-center space-x-1 ${
+                selectedHospital === 'setB'
+                  ? 'bg-amber-500/25 text-amber-300 border border-amber-500/40 font-bold'
+                  : 'text-[#A09689] hover:text-[#F3EEE8]'
               }`}
             >
-              Hospital B
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
+              <span>Hosp B (BIDMC)</span>
             </button>
           </div>
 

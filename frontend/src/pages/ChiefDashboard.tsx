@@ -356,6 +356,86 @@ export const ChiefDashboard: React.FC = () => {
           </table>
         </div>
 
+        {/* Multi-Site Hospital Comparison Card (Hospital A vs Hospital B) */}
+        <div className="glass-panel p-5 rounded-2xl border border-stone-800 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-800 pb-3">
+            <div>
+              <div className="flex items-center space-x-2">
+                <Building2 className="w-4 h-4 text-orange-400" />
+                <h3 className="text-sm font-bold text-white font-display">
+                  Multi-Site Cross-Hospital Governance: Hospital A (Emory) vs Hospital B (BIDMC)
+                </h3>
+              </div>
+              <p className="text-xs text-stone-400 font-mono mt-0.5">
+                Evaluates algorithmic transfer robustness and domain shift between disparate healthcare systems.
+              </p>
+            </div>
+            <span className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-500/30">
+              DANN Domain Adaptation Active
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
+            {/* Hospital A */}
+            <div className="p-4 rounded-xl bg-orange-950/15 border border-orange-500/30 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-orange-300 text-sm">Hospital A: Emory University Hospital</span>
+                <span className="text-[10px] bg-orange-900/60 text-orange-200 px-2 py-0.5 rounded">Set A (Beds 1–6)</span>
+              </div>
+              <p className="text-[11px] text-stone-300">
+                Primary model training domain. High arterial blood gas density and rapid lab turnarounds.
+              </p>
+              <div className="grid grid-cols-2 gap-2 text-[11px]">
+                <div className="bg-stone-900/80 p-2 rounded">
+                  <span className="text-stone-400 block text-[10px]">In-Hospital AUROC</span>
+                  <span className="text-sm font-bold text-emerald-400">0.864</span>
+                </div>
+                <div className="bg-stone-900/80 p-2 rounded">
+                  <span className="text-stone-400 block text-[10px]">Lab Missingness</span>
+                  <span className="text-sm font-bold text-stone-200">18.2%</span>
+                </div>
+                <div className="bg-stone-900/80 p-2 rounded">
+                  <span className="text-stone-400 block text-[10px]">SEP-1 Bundle Compliance</span>
+                  <span className="text-sm font-bold text-emerald-400">92.4%</span>
+                </div>
+                <div className="bg-stone-900/80 p-2 rounded">
+                  <span className="text-stone-400 block text-[10px]">False Alarm Rate</span>
+                  <span className="text-sm font-bold text-amber-400">10.8%</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Hospital B */}
+            <div className="p-4 rounded-xl bg-amber-950/15 border border-amber-500/30 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-amber-300 text-sm">Hospital B: Beth Israel Deaconess (BIDMC)</span>
+                <span className="text-[10px] bg-amber-900/60 text-amber-200 px-2 py-0.5 rounded">Set B (Beds 7–12)</span>
+              </div>
+              <p className="text-[11px] text-stone-300">
+                External target hospital. Higher surgical/trauma case mix with delayed lab sampling (~88% sparsity).
+              </p>
+              <div className="grid grid-cols-2 gap-2 text-[11px]">
+                <div className="bg-stone-900/80 p-2 rounded">
+                  <span className="text-stone-400 block text-[10px]">Cross-Site AUROC (with DANN)</span>
+                  <span className="text-sm font-bold text-emerald-400">0.854 <span className="text-[9px] text-stone-400">(-1.2% drop)</span></span>
+                </div>
+                <div className="bg-stone-900/80 p-2 rounded">
+                  <span className="text-stone-400 block text-[10px]">Baseline without DANN</span>
+                  <span className="text-sm font-bold text-red-400">0.702 <span className="text-[9px] text-red-300">(-18.7% drop)</span></span>
+                </div>
+                <div className="bg-stone-900/80 p-2 rounded">
+                  <span className="text-stone-400 block text-[10px]">SEP-1 Bundle Compliance</span>
+                  <span className="text-sm font-bold text-emerald-400">89.1%</span>
+                </div>
+                <div className="bg-stone-900/80 p-2 rounded">
+                  <span className="text-stone-400 block text-[10px]">Domain Shift PSI</span>
+                  <span className="text-sm font-bold text-emerald-400">0.042 (Stable)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Executive Takeaway Highlight Card */}
         <div className="p-4 rounded-xl bg-gradient-to-r from-amber-950/30 via-orange-950/20 to-stone-950/40 border border-amber-500/40 flex items-start space-x-3 text-xs font-mono">
           <Award className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
