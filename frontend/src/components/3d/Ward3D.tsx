@@ -229,7 +229,11 @@ const BedPod: React.FC<BedPodProps> = ({
   );
 };
 
-export const Ward3D: React.FC = () => {
+interface Ward3DProps {
+  force3D?: boolean;
+}
+
+export const Ward3D: React.FC<Ward3DProps> = ({ force3D = false }) => {
   const { 
     patients, selectedPatientId, setSelectedPatientId, 
     is2DMode, selectedHospital, currentRole 
@@ -254,8 +258,8 @@ export const Ward3D: React.FC = () => {
     navigate('/patient');
   };
 
-  // If user selected 2D Low-Power Mode:
-  if (is2DMode) {
+  // If user selected 2D Low-Power Mode and not forced to 3D:
+  if (is2DMode && !force3D) {
     return (
       <div className="w-full h-full bg-[#151311]/90 rounded-xl p-4 border border-amber-500/20 flex flex-col justify-between">
         <div className="flex justify-between items-center mb-3">

@@ -110,7 +110,7 @@ export const Navbar: React.FC = () => {
       )}
 
       {/* Main Command Bar */}
-      <div className="flex items-center justify-between px-4 py-2.5">
+      <div className="flex items-center justify-between px-3 py-2 gap-2 overflow-x-auto min-w-0">
         {/* Left: Branding & Ward Telemetry Status */}
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2.5">
@@ -216,23 +216,26 @@ export const Navbar: React.FC = () => {
         </div>
 
         {/* Right: View Toggles, Audio Controls & Profile */}
-        <div className="flex items-center space-x-2.5">
-          {/* Direct Quick Launchers for ML Studio and AI Assistant */}
-          <NavLink
-            to="/gradio-studio"
-            className={({ isActive }) =>
-              `hidden md:flex items-center space-x-1 px-2.5 py-1.5 rounded-lg border text-xs font-mono transition ${
-                isActive
-                  ? 'bg-orange-500/20 border-orange-500/50 text-orange-400 glow-ember'
-                  : 'bg-[#1E1B18]/60 border-[#332E29] text-[#A09689] hover:text-[#F3EEE8] hover:border-amber-500/30'
-              }`
-            }
-            title="Interactive ML Inference & Conformal Studio"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-orange-400" />
-            <span className="text-[11px]">ML Studio</span>
-          </NavLink>
+        <div className="flex items-center space-x-2 flex-shrink-0 ml-auto">
+          {/* ML Studio Launcher (Doctor only) */}
+          {currentRole === 'doctor' && (
+            <NavLink
+              to="/gradio-studio"
+              className={({ isActive }) =>
+                `hidden lg:flex items-center space-x-1 px-2.5 py-1.5 rounded-lg border text-xs font-mono transition ${
+                  isActive
+                    ? 'bg-orange-500/20 border-orange-500/50 text-orange-400 glow-ember'
+                    : 'bg-[#1E1B18]/60 border-[#332E29] text-[#A09689] hover:text-[#F3EEE8] hover:border-amber-500/30'
+                }`
+              }
+              title="Interactive ML Inference & Conformal Studio"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-orange-400" />
+              <span className="text-[11px]">ML Studio</span>
+            </NavLink>
+          )}
 
+          {/* AI Assistant Launcher */}
           <NavLink
             to="/assistant"
             className={({ isActive }) =>
@@ -248,8 +251,8 @@ export const Navbar: React.FC = () => {
             <span className="text-[11px]">AI Assistant</span>
           </NavLink>
 
-          {/* Active Role Indicator (Locked - must log out to switch role) */}
-          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg border text-xs font-mono bg-[#1E1B18] border-[#332E29]">
+          {/* Active Role Indicator (Locked) */}
+          <div className="hidden sm:flex items-center space-x-1.5 px-2.5 py-1 rounded-lg border text-xs font-mono bg-[#1E1B18] border-[#332E29]">
             {currentRole === 'doctor' && (
               <span className="flex items-center space-x-1 text-orange-400 font-semibold">
                 <Stethoscope className="w-3.5 h-3.5" />
@@ -298,18 +301,18 @@ export const Navbar: React.FC = () => {
             </button>
           </div>
 
-          {/* 2D / 3D Mode Toggle */}
+          {/* 2D / 3D Mode Toggle Button */}
           <button
             onClick={() => setIs2DMode(!is2DMode)}
             title={is2DMode ? "Switch to High-Fidelity 3D View" : "Switch to Low-Power 2D Mode"}
-            className={`flex items-center space-x-1 px-2 py-1.5 rounded-lg border text-xs font-mono transition ${
-              is2DMode
-                ? 'bg-amber-950/40 border-amber-500/40 text-amber-300'
-                : 'bg-orange-950/40 border-orange-500/40 text-orange-300'
+            className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-lg border text-xs font-mono font-bold transition ${
+              !is2DMode
+                ? 'bg-orange-500/30 border-orange-500/50 text-orange-300 glow-ember shadow-sm'
+                : 'bg-amber-950/40 border-amber-500/40 text-amber-300'
             }`}
           >
-            {is2DMode ? <Layers className="w-3.5 h-3.5" /> : <Box className="w-3.5 h-3.5" />}
-            <span className="hidden xl:inline">{is2DMode ? '2D' : '3D'}</span>
+            {is2DMode ? <Layers className="w-3.5 h-3.5 text-amber-400" /> : <Box className="w-3.5 h-3.5 text-orange-400 animate-pulse" />}
+            <span>{is2DMode ? '2D View' : '3D View'}</span>
           </button>
 
           {/* Audible Alert Suite */}
@@ -321,7 +324,7 @@ export const Navbar: React.FC = () => {
               className="flex items-center space-x-1 px-2 py-1 rounded text-[11px] font-mono text-stone-300 hover:text-amber-300 hover:bg-stone-800/60 transition"
             >
               <Volume1 className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden sm:inline">Test Sound</span>
+              <span className="hidden xl:inline">Sound</span>
             </button>
 
             {/* Mute/Unmute Toggle */}
@@ -340,33 +343,16 @@ export const Navbar: React.FC = () => {
             >
               {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5 text-red-400" />}
             </button>
-
-            {/* Volume Presets */}
-            <div className="hidden 2xl:flex items-center space-x-0.5 text-[10px] font-mono pl-1 border-l border-stone-800">
-              {[0.4, 0.7, 1.0].map((v) => (
-                <button
-                  key={v}
-                  onClick={() => handleVolumeChange(v)}
-                  className={`px-1 py-0.5 rounded transition ${
-                    currentVol === v ? 'bg-amber-500/30 text-amber-300 font-bold' : 'text-stone-500 hover:text-stone-300'
-                  }`}
-                  title={`Set volume to ${(v * 100).toFixed(0)}%`}
-                >
-                  {(v * 100).toFixed(0)}%
-                </button>
-              ))}
-            </div>
           </div>
 
-          {/* User Profile Badge (Click to open Auth / Role modal) */}
-          {/* User Profile & Explicit Log Out Button */}
-          <div className="flex items-center space-x-2.5 pl-2 border-l border-[#332E29]">
+          {/* User Profile & Un-Clipped Red Logout Button */}
+          <div className="flex items-center space-x-2 pl-2 border-l border-[#332E29] flex-shrink-0">
             <div className="w-7 h-7 rounded-full bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-xs font-bold text-orange-400">
-              {currentUser.full_name ? currentUser.full_name.slice(0, 2).toUpperCase() : 'SC'}
+              {currentUser.full_name ? currentUser.full_name.slice(0, 2).toUpperCase() : (currentRole === 'nurse' ? 'RN' : currentRole === 'doctor' ? 'DR' : 'CM')}
             </div>
-            <div className="hidden xl:block text-left">
-              <p className="text-xs font-medium text-[#F3EEE8] leading-tight truncate max-w-[130px]">
-                {currentUser.full_name || 'Dr. Connor'}
+            <div className="hidden 2xl:block text-left">
+              <p className="text-xs font-medium text-[#F3EEE8] leading-tight truncate max-w-[120px]">
+                {currentUser.full_name || (currentRole === 'nurse' ? 'RN Alex Reed' : 'Dr. Connor')}
               </p>
               <p className="text-[10px] text-orange-400 font-mono leading-tight uppercase">
                 {currentRole === 'doctor' ? 'Attending MD' : currentRole === 'nurse' ? 'Charge Nurse' : 'Chief Medical'}
@@ -378,9 +364,9 @@ export const Navbar: React.FC = () => {
                 window.location.href = '/';
               }}
               title="Logout from ICU Workspace to switch clinical role"
-              className="px-2.5 py-1 rounded-lg bg-red-950/70 border border-red-500/50 text-red-300 hover:bg-red-900/80 hover:text-white text-xs font-mono transition flex items-center space-x-1.5 shadow-sm cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 border border-red-400 text-white font-mono text-xs font-bold transition flex items-center space-x-1.5 shadow-md shadow-red-950/60 cursor-pointer flex-shrink-0"
             >
-              <LogOut className="w-3.5 h-3.5" />
+              <LogOut className="w-3.5 h-3.5 text-white" />
               <span>Logout</span>
             </button>
           </div>

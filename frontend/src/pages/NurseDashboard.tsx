@@ -5,11 +5,15 @@ import { Patient } from '../types';
 import { 
   HeartPulse, Activity, CheckSquare, Bell, Send, 
   CheckCircle2, AlertTriangle, Clock, Bot, Shield, ChevronRight,
-  Stethoscope, AlertCircle, X, ShieldAlert
+  Stethoscope, AlertCircle, X, ShieldAlert, Box, Layers
 } from 'lucide-react';
+import { Ward3D } from '../components/3d/Ward3D';
 
 export const NurseDashboard: React.FC = () => {
-  const { patients, alerts, escalations, addEscalation, currentUser } = useStore();
+  const { 
+    patients, alerts, escalations, addEscalation, currentUser,
+    is2DMode, setIs2DMode, setSelectedPatientId
+  } = useStore();
   const [checkedVitals, setCheckedVitals] = useState<Record<number, boolean>>({});
   const [handoverNote, setHandoverNote] = useState<string>('');
   const [handoverSuccess, setHandoverSuccess] = useState<string | null>(null);
@@ -135,21 +139,89 @@ export const NurseDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Bedside Monitoring Grid (12 Beds) */}
+      {/* Bedside Monitoring Section (Continuous 3D or 2D Telemetry) */}
       <div className="glass-panel p-5 rounded-xl border border-stone-800 space-y-4">
-        <div className="flex items-center justify-between border-b border-stone-800 pb-3">
-          <div className="flex items-center space-x-2">
-            <Activity className="w-4 h-4 text-emerald-400" />
-            <h2 className="text-sm font-bold text-white font-display">
-              12-Bed Continuous Bedside Telemetry & Triage Status
-            </h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-800 pb-3">
+          <div className="flex items-center space-x-2.5">
+            <Activity className="w-5 h-5 text-emerald-400 animate-pulse" />
+            <div>
+              <h2 className="text-sm font-bold text-white font-display">
+                12-Bed Continuous Bedside Telemetry & Triage Status
+              </h2>
+              <p className="text-[11px] text-stone-400 font-mono">
+                {is2DMode ? '2D Bedside Vitals Grid' : 'Live 3D Continuous ICU Ward Simulation'}
+              </p>
+            </div>
           </div>
-          <span className="text-xs font-mono text-stone-400">
-            {Object.values(checkedVitals).filter(Boolean).length} of 12 Bed Vitals Verified
-          </span>
+
+          <div className="flex items-center space-x-3">
+            {/* 2D / 3D Mode Toggle for Continuous Bedside Monitoring */}
+            <div className="flex items-center space-x-1 bg-[#1E1B18] p-1 rounded-lg border border-[#332E29]">
+              <button
+                type="button"
+                onClick={() => setIs2DMode(true)}
+                className={`px-3 py-1 rounded text-xs font-mono font-bold transition flex items-center space-x-1.5 ${
+                  is2DMode 
+                    ? 'bg-amber-500/30 text-amber-300 border border-amber-500/40 shadow-sm' 
+                    : 'text-stone-400 hover:text-stone-200'
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>2D Grid</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIs2DMode(false)}
+                className={`px-3 py-1 rounded text-xs font-mono font-bold transition flex items-center space-x-1.5 ${
+                  !is2DMode 
+                    ? 'bg-orange-500/30 text-orange-400 border border-orange-500/40 glow-ember font-bold text-white shadow-sm' 
+                    : 'text-stone-400 hover:text-stone-200'
+                }`}
+              >
+                <Box className="w-3.5 h-3.5 text-orange-400" />
+                <span>3D Continuous Ward</span>
+              </button>
+            </div>
+
+            <span className="text-xs font-mono text-stone-400 hidden md:inline">
+              {Object.values(checkedVitals).filter(Boolean).length} of 12 Bed Vitals Verified
+            </span>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
+        {/* View Switcher: 3D Continuous ICU Ward OR 2D Telemetry Grid */}
+        {!is2DMode ? (
+          <div className="space-y-3">
+            <div className="h-[560px] w-full rounded-xl overflow-hidden border border-amber-500/30 bg-[#0C0B0A] shadow-2xl relative">
+              <Ward3D force3D={true} />
+            </div>
+            {/* Quick Bedside Action Toolbar for 3D View */}
+            <div className="p-3 bg-[#1E1B18]/90 rounded-xl border border-stone-800 flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+              <span className="text-stone-400">
+                Continuous 3D Telemetry Active: Rotate and zoom with mouse. Click any 3D bed pod to inspect.
+              </span>
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => handleOpenEscalation(patients.find(p => p.bed_number === 3) || patients[2])}
+                  className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold transition flex items-center space-x-1.5 shadow-md shadow-red-950/40 cursor-pointer"
+                >
+                  <AlertCircle className="w-3.5 h-3.5" />
+                  <span>Escalate Bed 3 (Critical Alert) &rarr;</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleOpenEscalation(patients.find(p => p.bed_number === 7) || patients[6])}
+                  className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold transition flex items-center space-x-1.5 cursor-pointer"
+                >
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  <span>Escalate Bed 7 (Watch) &rarr;</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
           {patients.map((p) => {
             const isChecked = !!checkedVitals[p.id];
             const isCritical = p.status === 'critical' || p.risk >= 0.70;
@@ -258,7 +330,8 @@ export const NurseDashboard: React.FC = () => {
               </div>
             );
           })}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Lower Section: Nurse-to-Doctor Escalation Feed & Shift Handover */}

@@ -28,6 +28,20 @@ import { Assistant } from './pages/Assistant';
 
 import { useStore } from './store/useStore';
 
+const LogoutView: React.FC = () => {
+  const { logout } = useStore();
+  React.useEffect(() => {
+    logout();
+    window.location.href = '/';
+  }, [logout]);
+  return (
+    <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-3 font-mono text-xs text-amber-300">
+      <div className="w-8 h-8 rounded-full border-2 border-red-500 border-t-transparent animate-spin" />
+      <span>Terminating clinical session and returning to secure sign-in...</span>
+    </div>
+  );
+};
+
 export const App: React.FC = () => {
   const { isAuthenticated, currentRole } = useStore();
 
@@ -41,6 +55,9 @@ export const App: React.FC = () => {
     <BrowserRouter>
       <AppLayout>
         <Routes>
+          {/* Universal Logout Route */}
+          <Route path="/logout" element={<LogoutView />} />
+
           {/* Nurse-Specific Clinical Route Tree */}
           {currentRole === 'nurse' && (
             <>

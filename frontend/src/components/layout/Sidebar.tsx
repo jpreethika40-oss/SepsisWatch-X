@@ -4,7 +4,7 @@ import { useStore } from '../../store/useStore';
 import { 
   LayoutDashboard, UserCheck, Bell, Sliders, ShieldAlert,
   GitCompare, Radar, UploadCloud,
-  FileText, Info, Sparkles, Bot, Stethoscope, HeartPulse, Building2
+  FileText, Info, Sparkles, Bot, Stethoscope, HeartPulse, Building2, LogOut
 } from 'lucide-react';
 
 interface NavItem {
@@ -16,7 +16,7 @@ interface NavItem {
 }
 
 export const Sidebar: React.FC = () => {
-  const { unreadAlertCount, escalations, drift, currentRole } = useStore();
+  const { unreadAlertCount, escalations, drift, currentRole, logout } = useStore();
   const pendingEscalations = escalations.filter(e => e.status === 'pending').length;
 
   // Role-specific isolated navigation trees
@@ -205,8 +205,8 @@ export const Sidebar: React.FC = () => {
         ))}
       </div>
 
-      {/* Footer System Provenance Note */}
-      <div className="p-4 border-t border-[#332E29] text-[11px] font-mono text-[#A09689] space-y-1">
+      {/* Footer System Provenance Note & Persistent Logout Button */}
+      <div className="p-4 border-t border-[#332E29] text-[11px] font-mono text-[#A09689] space-y-2">
         <div className="flex items-center justify-between text-stone-400">
           <span>Active Role</span>
           <span className="capitalize text-amber-400 font-semibold">{currentRole.replace('_', ' ')}</span>
@@ -215,6 +215,16 @@ export const Sidebar: React.FC = () => {
           <span>Platform</span>
           <span>SepsisWatch-X v1.0</span>
         </div>
+        <button
+          onClick={() => {
+            logout();
+            window.location.href = '/';
+          }}
+          className="w-full mt-2 py-2 px-3 rounded-lg bg-red-950/90 hover:bg-red-900 border border-red-500/60 text-red-200 hover:text-white flex items-center justify-center space-x-2 text-xs font-mono font-bold transition shadow-sm cursor-pointer"
+        >
+          <LogOut className="w-4 h-4 text-red-400" />
+          <span>Logout / Switch Role</span>
+        </button>
       </div>
     </aside>
   );
