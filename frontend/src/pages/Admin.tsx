@@ -1,87 +1,45 @@
-import React, { useState } from 'react';
-import { FileText, Shield, Users, Server, CheckCircle2, Activity, Terminal } from 'lucide-react';
+import React from 'react';
+import { useStore } from '../store/useStore';
+import { FileText, Users, Server, CheckCircle2, ShieldCheck, Clock } from 'lucide-react';
 
 export const Admin: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'audit' | 'docs'>('audit');
-
-  const auditLogs = [
-    { id: 1, action: 'POLICY_UPDATE', user: 'admin@sepsiswatch.org', entity: 'PolicyConfig v1.0.0', ip: '127.0.0.1', time: '10 min ago' },
-    { id: 2, action: 'ALERT_ACKNOWLEDGE', user: 'clinician@sepsiswatch.org', entity: 'Alert #1 (Bed 3)', ip: '192.168.1.45', time: '22 min ago' },
-    { id: 3, action: 'SIMULATION_SPEED_CHANGE', user: 'admin@sepsiswatch.org', entity: 'Multiplier: 2x', ip: '127.0.0.1', time: '45 min ago' },
-    { id: 4, action: 'USER_LOGIN_SUCCESS', user: 'clinician@sepsiswatch.org', entity: 'JWT Session', ip: '192.168.1.45', time: '1 hour ago' },
-    { id: 5, action: 'MODEL_REGISTRY_PROMOTION', user: 'admin@sepsiswatch.org', entity: 'DANN Fusion -> PRODUCTION', ip: '127.0.0.1', time: '3 hours ago' },
-  ];
+  const { auditTrail, wsStatus, currentUser } = useStore();
 
   const usersList = [
-    { name: 'Dr. Sarah Connor', email: 'admin@sepsiswatch.org', role: 'admin', status: 'Active' },
-    { name: 'Dr. Marcus Wright', email: 'clinician@sepsiswatch.org', role: 'clinician', status: 'Active' },
-    { name: 'Nurse Alex Reed', email: 'viewer@sepsiswatch.org', role: 'viewer', status: 'Active' },
+    { name: 'Dr. Sarah Connor, MD', email: 'dr.connor@icu.org', role: 'Physician / Fellow', status: 'Active (Current User)' },
+    { name: 'Nurse Alex Reed, RN', email: 'alex.reed@icu.org', role: 'Lead Triage Nurse', status: 'Active' },
+    { name: 'Dr. Marcus Wright, CMO', email: 'marcus.wright@icu.org', role: 'Chief Medical Officer', status: 'Active' },
   ];
 
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="glass-panel p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">
+      <div className="glass-panel p-4 rounded-xl flex flex-wrap items-center justify-between gap-4 border border-amber-500/20 bg-[#141210]/90">
         <div>
           <div className="flex items-center space-x-2">
             <FileText className="w-5 h-5 text-orange-400" />
             <h2 className="text-base font-bold font-display text-slate-100">
-              System Administration, Security & API Workbench
+              Clinical Governance, Security & Audit Trail
             </h2>
           </div>
           <p className="text-xs text-slate-400 font-mono mt-0.5">
-            Cryptographic audit logging of all clinical decisions, role-based access control, and platform infrastructure health.
+            Immutable append-only record of all early-warning alerts, clinical acknowledgments, and platform operations.
           </p>
         </div>
 
-        <div className="flex items-center space-x-3">
-          {/* Tabs Switcher */}
-          <div className="flex items-center space-x-1 bg-slate-900/90 p-1 rounded-lg border border-slate-700/80 text-xs font-mono">
-            <button
-              onClick={() => setActiveTab('audit')}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded transition ${
-                activeTab === 'audit' ? 'bg-orange-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <FileText className="w-3.5 h-3.5" />
-              <span>Audit & Health</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('docs')}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded transition ${
-                activeTab === 'docs' ? 'bg-emerald-600 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Terminal className="w-3.5 h-3.5" />
-              <span>Interactive API Explorer</span>
-            </button>
-          </div>
-
-          <div className="hidden lg:flex items-center space-x-2 bg-emerald-950/60 border border-emerald-500/40 px-3 py-1.5 rounded-lg text-xs font-mono text-emerald-300">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            <span>ALL SYSTEMS OPERATIONAL</span>
-          </div>
+        <div className="flex items-center space-x-2 bg-emerald-950/60 border border-emerald-500/40 px-3 py-1.5 rounded-lg text-xs font-mono text-emerald-300">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+          <span>ALL AUDIT SUITES ACTIVE</span>
         </div>
       </div>
-
-      {activeTab === 'docs' ? (
-        <div className="rounded-xl overflow-hidden border border-amber-500/30 bg-white h-[760px]">
-          <iframe
-            src="/docs"
-            title="FastAPI Interactive Swagger Docs"
-            className="w-full h-full border-0 bg-white"
-          />
-        </div>
-      ) : (
-        <>
 
       {/* Users & Infrastructure Health */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* User Roles */}
-        <div className="lg:col-span-2 glass-panel p-5 rounded-xl space-y-3">
+        <div className="lg:col-span-2 glass-panel p-4 rounded-xl space-y-3 border border-amber-500/20 bg-[#141210]/90">
           <h3 className="text-xs font-mono uppercase tracking-wider text-slate-300 font-semibold border-b border-slate-800 pb-2 flex items-center space-x-2">
             <Users className="w-4 h-4 text-orange-400" />
-            <span>Authorized Clinical Accounts & Role-Based Permissions</span>
+            <span>Authorized Clinical Accounts & Active Roles</span>
           </h3>
 
           <div className="divide-y divide-slate-800/80">
@@ -92,8 +50,10 @@ export const Admin: React.FC = () => {
                   <p className="text-[11px] text-slate-400">{u.email}</p>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                    u.role === 'admin' ? 'bg-amber-950 text-amber-300 border border-amber-500/30' : 'bg-slate-800 text-slate-300'
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                    u.name.includes(currentUser.full_name) 
+                      ? 'bg-orange-500/20 text-orange-400 border border-orange-500/40' 
+                      : 'bg-slate-800 text-slate-300'
                   }`}>
                     {u.role}
                   </span>
@@ -105,65 +65,80 @@ export const Admin: React.FC = () => {
         </div>
 
         {/* Server & Database Health */}
-        <div className="glass-panel p-5 rounded-xl space-y-3">
+        <div className="glass-panel p-4 rounded-xl space-y-3 border border-amber-500/20 bg-[#141210]/90">
           <h3 className="text-xs font-mono uppercase tracking-wider text-slate-300 font-semibold border-b border-slate-800 pb-2 flex items-center space-x-2">
-            <Server className="w-4 h-4 text-[#B8B0A4]" />
-            <span>Platform Health Telemetry</span>
+            <Server className="w-4 h-4 text-amber-400" />
+            <span>Platform Telemetry Health</span>
           </h3>
 
           <div className="space-y-2 text-xs font-mono">
             <div className="flex justify-between p-2 rounded bg-slate-900/60 border border-slate-800">
               <span className="text-slate-400">FastAPI Engine:</span>
-              <span className="text-emerald-400 font-bold">Healthy (v0.110.0)</span>
+              <span className="text-emerald-400 font-bold">Operational (v1.0.0)</span>
             </div>
             <div className="flex justify-between p-2 rounded bg-slate-900/60 border border-slate-800">
-              <span className="text-slate-400">Database Engine:</span>
-              <span className="text-emerald-400 font-bold">SQLAlchemy 2.0 (Async)</span>
+              <span className="text-slate-400">PhysioNet Cohort:</span>
+              <span className="text-amber-300 font-bold">Set A & B Loaded (240 Pts)</span>
             </div>
             <div className="flex justify-between p-2 rounded bg-slate-900/60 border border-slate-800">
-              <span className="text-slate-400">Broker:</span>
-              <span className="text-orange-400 font-bold">In-Memory / Redis Fallback</span>
+              <span className="text-slate-400">ML Model Pipelines:</span>
+              <span className="text-emerald-400 font-bold">LGBM + GRU-D + DANN</span>
             </div>
             <div className="flex justify-between p-2 rounded bg-slate-900/60 border border-slate-800">
-              <span className="text-slate-400">WebSocket Connections:</span>
-              <span className="text-slate-200">1 Active Client</span>
+              <span className="text-slate-400">WebSocket Ward Stream:</span>
+              <span className={`font-bold ${wsStatus === 'connected' ? 'text-emerald-400' : 'text-red-400'}`}>
+                {wsStatus.toUpperCase()}
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Audit Log Table */}
-      <div className="glass-panel rounded-xl overflow-hidden">
-        <div className="p-3 border-b border-slate-800 bg-slate-950/40 flex justify-between items-center text-xs font-mono text-slate-400">
-          <span>Electronic Medical Record (EMR) Decision Audit Log</span>
-          <span>Immutable Append-Only Record</span>
+      {/* Clinical Acknowledgment Audit Log Table */}
+      <div className="glass-panel rounded-xl overflow-hidden border border-amber-500/20 bg-[#141210]/90">
+        <div className="p-3 border-b border-slate-800 bg-slate-950/60 flex justify-between items-center text-xs font-mono text-slate-300">
+          <span className="flex items-center space-x-1.5 font-bold">
+            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <span>Clinical Sepsis Alert Acknowledgment Log ({auditTrail.length} Recorded Events)</span>
+          </span>
+          <span className="text-slate-500 text-[11px]">Auto-saved to audit repository</span>
         </div>
 
         <table className="w-full text-xs font-mono text-left">
-          <thead className="bg-slate-900/80 text-slate-400 border-b border-slate-800">
+          <thead className="bg-slate-950/80 text-slate-400 border-b border-slate-800">
             <tr>
-              <th className="p-3">Action Type</th>
-              <th className="p-3">Clinical User</th>
-              <th className="p-3">Entity Impacted</th>
-              <th className="p-3">IP Address</th>
+              <th className="p-3">Audit ID</th>
+              <th className="p-3">Bed & Alert</th>
+              <th className="p-3">Clinician Sign-off</th>
+              <th className="p-3">Action Taken</th>
+              <th className="p-3">Clinical Rationale</th>
               <th className="p-3 text-right">Timestamp</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800/60">
-            {auditLogs.map((log) => (
-              <tr key={log.id} className="hover:bg-slate-800/30">
-                <td className="p-3 text-amber-300 font-bold">{log.action}</td>
-                <td className="p-3 text-slate-200">{log.user}</td>
-                <td className="p-3 text-slate-300">{log.entity}</td>
-                <td className="p-3 text-slate-400">{log.ip}</td>
-                <td className="p-3 text-right text-slate-500">{log.time}</td>
+            {auditTrail.map((entry) => (
+              <tr key={entry.id} className="hover:bg-amber-950/20 transition">
+                <td className="p-3 text-orange-400 font-bold">{entry.id}</td>
+                <td className="p-3 text-slate-200">
+                  <div className="flex items-center space-x-1.5">
+                    <span className="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-amber-300 font-bold">
+                      Bed {entry.bed_number}
+                    </span>
+                    <span className="text-slate-400 text-[10px]">{entry.patient_code}</span>
+                  </div>
+                </td>
+                <td className="p-3 text-slate-200 font-medium">{entry.clinician_name}</td>
+                <td className="p-3 text-emerald-300">{entry.action_taken}</td>
+                <td className="p-3 text-slate-400 text-[11px] max-w-xs truncate">{entry.notes}</td>
+                <td className="p-3 text-right text-slate-400 flex items-center justify-end space-x-1">
+                  <Clock className="w-3 h-3 text-slate-500" />
+                  <span>{entry.timestamp}</span>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-        </>
-      )}
     </div>
   );
 };

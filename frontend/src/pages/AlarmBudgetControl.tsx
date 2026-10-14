@@ -7,6 +7,7 @@ import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, 
   CartesianGrid, ReferenceDot 
 } from 'recharts';
+import { PolicyWave3D } from '../components/3d/PolicyWave3D';
 
 export const AlarmBudgetControl: React.FC = () => {
   const { policy, setPolicy } = useStore();
@@ -72,6 +73,16 @@ export const AlarmBudgetControl: React.FC = () => {
           <span>{savedSuccess ? 'Policy Deployed!' : 'Deploy Active Policy'}</span>
         </button>
       </div>
+
+      {/* 3D Spatial Alarm Filtration Tunnel */}
+      <PolicyWave3D
+        threshold={threshold}
+        persistence={persistence}
+        cooldown={cooldown}
+        cap={cap}
+        alarmsPerDay={currentAlarmsPerDay}
+        sensitivity={currentSensitivity}
+      />
 
       {/* Main Grid: Parameter Sliders vs Optimization Curve */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -197,7 +208,7 @@ export const AlarmBudgetControl: React.FC = () => {
               </div>
 
               <div className="bg-slate-900/80 p-3 rounded-lg border border-slate-800 text-center">
-                <span className="text-[10px] font-mono text-slate-400 uppercase">PhysioNet Utility</span>
+                <span className="text-[10px] font-mono text-slate-400 uppercase">Clinical Utility</span>
                 <p className="text-xl font-bold font-display text-orange-400">
                   {currentUtility.toFixed(3)}
                 </p>

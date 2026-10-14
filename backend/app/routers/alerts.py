@@ -16,13 +16,27 @@ from backend.app.core.security import get_current_user
 router = APIRouter(prefix="/api", tags=["Alerts & Triage Queue"])
 triage_service = WardTriageQueue(max_ward_alerts_per_hour=4)
 
-# In-memory tracking for acknowledgments, escalations, assignments
+# In-memory tracking for acknowledgments, escalations, assignments, and audit trail
 ALERTS_STORE: Dict[str, Dict[str, Any]] = {}
 TRIAGE_ASSIGNMENTS: Dict[str, Dict[str, Any]] = {}
+AUDIT_LOG_STORE: List[Dict[str, Any]] = [
+    {
+        "id": "AUD-001",
+        "alert_id": "ALT-3-3",
+        "bed_number": 3,
+        "patient_code": "p_A_00003",
+        "clinician_name": "Dr. Sarah Connor, MD",
+        "action_taken": "Initiated 30 mL/kg IV crystalloid bolus; broad-spectrum antibiotics ordered.",
+        "notes": "Hypotension (MAP 61) and elevated lactate concordant with sepsis-3 definition.",
+        "timestamp": "2026-10-13T14:45:00Z",
+        "status": "Acknowledged & Active Treatment"
+    }
+]
 
 
 class AcknowledgeRequest(BaseModel):
-    action_taken: str = "Bedside examination conducted; blood gas requested."
+    clinician_name: Optional[str] = "Dr. Sarah Connor, MD"
+    action_taken: str = "Bedside examination conducted; IV lines and perfusion checked."
     notes: Optional[str] = "Clinical signs concordant with systemic inflammatory response."
 
 
@@ -74,29 +88,62 @@ async def list_alerts():
 @router.post("/alerts/{alert_id}/acknowledge")
 async def acknowledge_alert(
     alert_id: str,
-    req: AcknowledgeRequest,
-    user: Dict[str, Any] = Depends(get_current_user)
+    req: AcknowledgeRequest = AcknowledgeRequest()
 ):
-    """Marks an active early warning alert as clinically acknowledged."""
+    """Marks an active early warning alert as clinically acknowledged and stores to audit trail."""
     parts = alert_id.split("-")
     bed_id = parts[1] if len(parts) >= 2 else "1"
 
     now_iso = datetime.now(timezone.utc).isoformat()
+    clinician = req.clinician_name or "Dr. Sarah Connor, MD"
+    
     ALERTS_STORE[bed_id] = {
         "acknowledged": True,
-        "acknowledged_by": user.get("name", "Dr. J. Preethika, MD"),
+        "acknowledged_by": clinician,
         "acknowledged_at": now_iso,
         "action_taken": req.action_taken,
         "notes": req.notes,
         "trust_score": 88.0
     }
 
-    return {
+    audit_entry = {
+        "id": f"AUD-{len(AUDIT_LOG_STORE) + 1:03d}",
         "alert_id": alert_id,
-        "status": "Acknowledged",
-        "acknowledged_by": user.get("name", "Dr. J. Preethika, MD"),
-        "timestamp": now_iso
+        "bed_number": int(bed_id) if bed_id.isdigit() else 3,
+        "patient_code": f"p_A_{int(bed_id):05d}" if bed_id.isdigit() else "p_A_00003",
+        "clinician_name": clinician,
+        "action_taken": req.action_taken,
+        "notes": req.notes,
+        "timestamp": now_iso,
+        "status": "Acknowledged"
     }
+    AUDIT_LOG_STORE.insert(0, audit_entry)
+
+    # Broadcast via WebSocket if simulator exists
+    try:
+        await simulator.broadcast({
+            "type": "alert_acknowledged",
+            "alert_id": alert_id,
+            "bed_id": bed_id,
+            "audit_entry": audit_entry
+        })
+    except Exception:
+        pass
+
+    return {
+        "status": "Acknowledged",
+        "alert_id": alert_id,
+        "bed_number": int(bed_id) if bed_id.isdigit() else 3,
+        "acknowledged_by": clinician,
+        "timestamp": now_iso,
+        "audit_entry": audit_entry
+    }
+
+
+@router.get("/alerts/audit")
+async def get_alerts_audit():
+    """Returns chronological clinical audit trail of all acknowledged sepsis alerts."""
+    return AUDIT_LOG_STORE
 
 
 @router.get("/alerts/stats")

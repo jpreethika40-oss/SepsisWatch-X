@@ -9,6 +9,9 @@ from pathlib import Path
 from contextlib import asynccontextmanager
 from typing import Dict, Any
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -19,7 +22,7 @@ from backend.app.routers import (
     patients, prediction, policy, drift, scoreboard, stream,
     auth, alerts, models_router, simulator_router,
     selfwatch_router, passport_router, incident_handover,
-    science, admin_reports
+    science, admin_reports, datasets, assistant
 )
 from backend.app.services.simulator import simulator
 from backend.app.gradio_app import build_gradio_app
@@ -67,6 +70,8 @@ app.include_router(science.router)
 app.include_router(admin_reports.router)
 app.include_router(scoreboard.router)
 app.include_router(stream.router)
+app.include_router(datasets.router)
+app.include_router(assistant.router)
 
 # 3. Mount Static Figures Directory for InsightsLab
 figures_dir = Path("results/figures")

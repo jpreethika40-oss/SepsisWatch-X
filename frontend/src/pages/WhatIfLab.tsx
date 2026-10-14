@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { Patient } from '../types';
-import { Sliders, RotateCcw, ArrowRight, Activity, Brain, ShieldAlert, Sparkles } from 'lucide-react';
+import { Sliders, RotateCcw, ArrowRight, Activity, Brain, ShieldAlert, Sparkles, Box } from 'lucide-react';
+import { DecisionManifold3D } from '../components/3d/DecisionManifold3D';
 
 export const WhatIfLab: React.FC = () => {
   const { patients, selectedPatientId } = useStore();
@@ -85,6 +86,9 @@ export const WhatIfLab: React.FC = () => {
           <span>Reset to Observed Baseline</span>
         </button>
       </div>
+
+      {/* 3D Decision Manifold */}
+      <DecisionManifold3D sbp={sbp} lactate={lactate} risk={finalRisk} threshold={0.45} />
 
       {/* Main Grid: Controls vs Risk Readout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

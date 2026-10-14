@@ -1,4 +1,5 @@
-export type UserRole = 'viewer' | 'clinician' | 'admin';
+export type UserRole = 'viewer' | 'clinician' | 'admin' | 'doctor' | 'nurse' | 'hospital_chief';
+export type ClinicalPersona = 'doctor' | 'nurse' | 'hospital_chief';
 
 export interface User {
   id: number;
@@ -23,6 +24,9 @@ export interface Patient {
   calibrated_prob: number;
   conformal_label: 'no_sepsis' | 'sepsis' | 'uncertain';
   status: 'normal' | 'caution' | 'critical';
+  diagnosis?: string;
+  active_treatments?: string;
+  vitals?: Record<string, number>;
 }
 
 export interface Observation {
@@ -75,6 +79,21 @@ export interface Alert {
   lead_time_hours?: number;
   message: string;
   created_at: string;
+  acknowledged_by?: string;
+  acknowledged_at?: string;
+  action_taken?: string;
+}
+
+export interface AuditEntry {
+  id: string;
+  alert_id: string;
+  bed_number: number;
+  patient_code: string;
+  clinician_name: string;
+  action_taken: string;
+  notes: string;
+  timestamp: string;
+  status: string;
 }
 
 export interface PolicyConfig {

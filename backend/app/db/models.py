@@ -458,3 +458,27 @@ class StressRun(Base):
     stressed_utility: Mapped[float] = mapped_column(Float, nullable=False)
     metrics_delta_json: Mapped[Dict[str, Any]] = mapped_column(JSON, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=False)
+
+
+# 27. UploadedDataset Table
+class UploadedDataset(Base):
+    __tablename__ = "uploaded_datasets"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    dataset_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    file_format: Mapped[str] = mapped_column(String(16), nullable=False) # psv, csv, tsv
+    file_path: Mapped[str] = mapped_column(String(512), nullable=False)
+    file_size_bytes: Mapped[int] = mapped_column(Integer, nullable=False)
+    delimiter: Mapped[str] = mapped_column(String(8), default="|", nullable=False)
+    patient_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    row_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    column_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    columns_json: Mapped[List[str]] = mapped_column(JSON, default=list, nullable=False)
+    recognized_columns_json: Mapped[List[str]] = mapped_column(JSON, default=list, nullable=False)
+    missing_columns_json: Mapped[List[str]] = mapped_column(JSON, default=list, nullable=False)
+    quality_stats_json: Mapped[Dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    has_labels: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    sepsis_prevalence: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    status: Mapped[str] = mapped_column(String(32), default="ready", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=False)
+

@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from './components/layout/AppLayout';
 
-// 14 Pages
+// Core Application Workspaces & Pages
 import { CommandCenter } from './pages/CommandCenter';
 import { PatientDetail } from './pages/PatientDetail';
 import { WhatIfLab } from './pages/WhatIfLab';
@@ -18,14 +18,39 @@ import { DataUpload } from './pages/DataUpload';
 import { Admin } from './pages/Admin';
 import { About } from './pages/About';
 import { GradioStudio } from './pages/GradioStudio';
-import { ApiExplorer } from './pages/ApiExplorer';
+import { LoginPage } from './pages/LoginPage';
+
+// Dedicated Role Workspaces & AI Assistant
+import { DoctorDashboard } from './pages/DoctorDashboard';
+import { NurseDashboard } from './pages/NurseDashboard';
+import { ChiefDashboard } from './pages/ChiefDashboard';
+import { Assistant } from './pages/Assistant';
+
+import { useStore } from './store/useStore';
 
 export const App: React.FC = () => {
+  const { isAuthenticated } = useStore();
+
+  if (!isAuthenticated) {
+    return <LoginPage />;
+  }
+
   return (
     <BrowserRouter>
       <AppLayout>
         <Routes>
+          {/* Main 3D Command Center */}
           <Route path="/" element={<CommandCenter />} />
+
+          {/* Role-Specific Workspaces */}
+          <Route path="/doctor" element={<DoctorDashboard />} />
+          <Route path="/nurse" element={<NurseDashboard />} />
+          <Route path="/chief" element={<ChiefDashboard />} />
+
+          {/* Clinical AI Assistant */}
+          <Route path="/assistant" element={<Assistant />} />
+
+          {/* Clinical Operations & Telemetry */}
           <Route path="/patient" element={<PatientDetail />} />
           <Route path="/what-if" element={<WhatIfLab />} />
           <Route path="/arena" element={<ModelArena />} />
@@ -39,8 +64,12 @@ export const App: React.FC = () => {
           <Route path="/experiments" element={<Experiments />} />
           <Route path="/upload" element={<DataUpload />} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="/api-explorer" element={<ApiExplorer />} />
           <Route path="/about" element={<About />} />
+
+          {/* Rubric Removal Redirects */}
+          <Route path="/rubric" element={<Navigate to="/" replace />} />
+          <Route path="/api-explorer" element={<Navigate to="/" replace />} />
+
           {/* Catch-all redirect to Home */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

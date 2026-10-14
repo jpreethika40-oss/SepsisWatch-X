@@ -90,7 +90,7 @@ export const BenchmarkErrorAnalysis: React.FC = () => {
           <div className="flex items-center space-x-2">
             <LineChart className="w-5 h-5 text-orange-400" />
             <h2 className="text-base font-bold font-display text-slate-100">
-              PhysioNet/CinC 2019 Literature Benchmark & Error Analysis
+              Multi-Center Literature Benchmark & Error Analysis
             </h2>
           </div>
           <p className="text-xs text-slate-400 font-mono mt-0.5">

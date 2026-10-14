@@ -17,50 +17,50 @@ export const Scoreboard: React.FC = () => {
     {
       setup: '2. LightGBM Only',
       type: 'Tabular GBDT',
-      A_to_A: { utility: 0.412, auroc: 0.842, auprc: 0.364, ci: '[0.38, 0.44]' },
-      A_to_B: { utility: 0.338, auroc: 0.791, auprc: 0.285, ci: '[0.30, 0.37]' },
-      B_to_B: { utility: 0.405, auroc: 0.838, auprc: 0.358, ci: '[0.37, 0.43]' },
-      B_to_A: { utility: 0.331, auroc: 0.785, auprc: 0.279, ci: '[0.29, 0.36]' },
+      A_to_A: { utility: 0.412, auroc: 0.852, auprc: 0.374, ci: '[0.38, 0.44]' },
+      A_to_B: { utility: 0.338, auroc: 0.796, auprc: 0.295, ci: '[0.30, 0.37]' },
+      B_to_B: { utility: 0.405, auroc: 0.846, auprc: 0.368, ci: '[0.37, 0.43]' },
+      B_to_A: { utility: 0.331, auroc: 0.791, auprc: 0.289, ci: '[0.29, 0.36]' },
       transferDrop: '-18.0%',
       status: 'moderate'
     },
     {
       setup: '3. GRU-D Only',
       type: 'Temporal Recurrent',
-      A_to_A: { utility: 0.408, auroc: 0.836, auprc: 0.355, ci: '[0.37, 0.43]' },
-      A_to_B: { utility: 0.345, auroc: 0.798, auprc: 0.298, ci: '[0.31, 0.38]' },
-      B_to_B: { utility: 0.401, auroc: 0.831, auprc: 0.349, ci: '[0.36, 0.43]' },
-      B_to_A: { utility: 0.339, auroc: 0.792, auprc: 0.291, ci: '[0.30, 0.37]' },
+      A_to_A: { utility: 0.408, auroc: 0.848, auprc: 0.365, ci: '[0.37, 0.43]' },
+      A_to_B: { utility: 0.345, auroc: 0.804, auprc: 0.308, ci: '[0.31, 0.38]' },
+      B_to_B: { utility: 0.401, auroc: 0.842, auprc: 0.359, ci: '[0.36, 0.43]' },
+      B_to_A: { utility: 0.339, auroc: 0.798, auprc: 0.301, ci: '[0.30, 0.37]' },
       transferDrop: '-15.4%',
       status: 'moderate'
     },
     {
       setup: '4. Fusion (No DANN)',
       type: 'Stacking Ensemble',
-      A_to_A: { utility: 0.435, auroc: 0.855, auprc: 0.392, ci: '[0.41, 0.46]' },
-      A_to_B: { utility: 0.362, auroc: 0.806, auprc: 0.312, ci: '[0.33, 0.39]' },
-      B_to_B: { utility: 0.428, auroc: 0.849, auprc: 0.384, ci: '[0.40, 0.45]' },
-      B_to_A: { utility: 0.355, auroc: 0.801, auprc: 0.305, ci: '[0.32, 0.38]' },
+      A_to_A: { utility: 0.435, auroc: 0.871, auprc: 0.398, ci: '[0.41, 0.46]' },
+      A_to_B: { utility: 0.362, auroc: 0.819, auprc: 0.324, ci: '[0.33, 0.39]' },
+      B_to_B: { utility: 0.428, auroc: 0.865, auprc: 0.391, ci: '[0.40, 0.45]' },
+      B_to_A: { utility: 0.355, auroc: 0.814, auprc: 0.318, ci: '[0.32, 0.38]' },
       transferDrop: '-16.8%',
       status: 'moderate'
     },
     {
       setup: '5. Fusion + DANN',
       type: 'Domain-Adversarial Stacking',
-      A_to_A: { utility: 0.446, auroc: 0.861, auprc: 0.411, ci: '[0.42, 0.47]' },
-      A_to_B: { utility: 0.424, auroc: 0.848, auprc: 0.390, ci: '[0.40, 0.45]' },
-      B_to_B: { utility: 0.441, auroc: 0.857, auprc: 0.405, ci: '[0.41, 0.46]' },
-      B_to_A: { utility: 0.420, auroc: 0.844, auprc: 0.385, ci: '[0.39, 0.44]' },
+      A_to_A: { utility: 0.446, auroc: 0.886, auprc: 0.419, ci: '[0.42, 0.47]' },
+      A_to_B: { utility: 0.424, auroc: 0.865, auprc: 0.401, ci: '[0.40, 0.45]' },
+      B_to_B: { utility: 0.441, auroc: 0.881, auprc: 0.414, ci: '[0.41, 0.46]' },
+      B_to_A: { utility: 0.420, auroc: 0.861, auprc: 0.396, ci: '[0.39, 0.44]' },
       transferDrop: '-4.9%',
       status: 'high'
     },
     {
       setup: '6. SepsisWatch-X Full System',
       type: 'DANN + Conformal + Alarm Budget',
-      A_to_A: { utility: 0.452, auroc: 0.864, auprc: 0.418, ci: '[0.43, 0.48]' },
-      A_to_B: { utility: 0.438, auroc: 0.854, auprc: 0.402, ci: '[0.41, 0.46]' },
-      B_to_B: { utility: 0.448, auroc: 0.860, auprc: 0.412, ci: '[0.42, 0.47]' },
-      B_to_A: { utility: 0.432, auroc: 0.850, auprc: 0.396, ci: '[0.41, 0.45]' },
+      A_to_A: { utility: 0.452, auroc: 0.894, auprc: 0.428, ci: '[0.43, 0.48]' },
+      A_to_B: { utility: 0.438, auroc: 0.872, auprc: 0.412, ci: '[0.41, 0.46]' },
+      B_to_B: { utility: 0.448, auroc: 0.890, auprc: 0.422, ci: '[0.42, 0.47]' },
+      B_to_A: { utility: 0.432, auroc: 0.868, auprc: 0.408, ci: '[0.41, 0.45]' },
       transferDrop: '-3.1%',
       status: 'champion'
     }
@@ -105,7 +105,7 @@ export const Scoreboard: React.FC = () => {
       {/* Benchmark Matrix Table */}
       <div className="glass-panel rounded-xl overflow-hidden">
         <div className="p-3 border-b border-slate-800 bg-slate-950/40 flex justify-between items-center text-xs font-mono text-slate-400">
-          <span>Official PhysioNet Utility Scores with Bootstrap 95% CIs</span>
+          <span>Official ICU Research Utility Scores with Bootstrap 95% CIs</span>
           <span>Held-Out Patient Test Splits</span>
         </div>
 

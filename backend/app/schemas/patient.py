@@ -25,6 +25,9 @@ class PatientSummary(PatientBase):
     calibrated_prob: float = 0.11
     conformal_label: str = "no_sepsis"
     status: str = "normal"  # normal, caution, critical
+    diagnosis: Optional[str] = "ICU Inpatient"
+    active_treatments: Optional[str] = "Standard Monitoring"
+    vitals: Optional[Dict[str, Any]] = None
 
     model_config = {"from_attributes": True}
 

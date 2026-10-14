@@ -2,6 +2,7 @@ import React from 'react';
 import { Navbar } from './Navbar';
 import { Sidebar } from './Sidebar';
 import { CommandPalette } from './CommandPalette';
+import { AuthModal } from './AuthModal';
 import { useWebSocketStream } from '../../services/useWebSocketStream';
 
 export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -18,6 +19,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
         </main>
       </div>
       <CommandPalette />
+      <AuthModal />
     </div>
   );
 };

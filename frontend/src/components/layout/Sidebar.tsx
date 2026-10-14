@@ -2,9 +2,9 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useStore } from '../../store/useStore';
 import { 
-  LayoutDashboard, UserCheck, Bell, Sliders, Swords, ShieldAlert,
-  GitCompare, Radar, FlaskConical, LineChart, Cpu, UploadCloud,
-  FileText, Info, Sparkles, Terminal
+  LayoutDashboard, UserCheck, Bell, Sliders, ShieldAlert,
+  GitCompare, Radar, UploadCloud,
+  FileText, Info, Sparkles, Bot, Stethoscope, HeartPulse, Building2
 } from 'lucide-react';
 
 interface NavItem {
@@ -16,14 +16,23 @@ interface NavItem {
 }
 
 export const Sidebar: React.FC = () => {
-  const { unreadAlertCount, drift } = useStore();
+  const { unreadAlertCount, drift, currentRole } = useStore();
+
+  // Role-specific quick launch item
+  const roleWorkspaceItem: NavItem = 
+    currentRole === 'doctor'
+      ? { name: 'Doctor Workspace', path: '/doctor', icon: Stethoscope, badge: 'ATTENDING', badgeColor: 'bg-orange-950 text-orange-400 border border-orange-500/30' }
+      : currentRole === 'nurse'
+      ? { name: 'Nurse Bedside', path: '/nurse', icon: HeartPulse, badge: 'CHARGE RN', badgeColor: 'bg-emerald-950 text-emerald-400 border border-emerald-500/30' }
+      : { name: 'Chief Dashboard', path: '/chief', icon: Building2, badge: 'CHIEF', badgeColor: 'bg-amber-950 text-amber-400 border border-amber-500/30' };
 
   const sections: { title: string; items: NavItem[] }[] = [
     {
-      title: 'Clinical Operations',
+      title: 'Active Workspace',
       items: [
-        { name: 'Command Center', path: '/', icon: LayoutDashboard },
-        { name: 'Patient Detail', path: '/patient', icon: UserCheck },
+        roleWorkspaceItem,
+        { name: '3D Command Center', path: '/', icon: LayoutDashboard },
+        { name: 'Patient Detail (EHR)', path: '/patient', icon: UserCheck },
         { 
           name: 'Alert Center', 
           path: '/alerts', 
@@ -31,13 +40,20 @@ export const Sidebar: React.FC = () => {
           badge: unreadAlertCount > 0 ? unreadAlertCount : undefined,
           badgeColor: 'bg-red-500 text-white animate-pulse'
         },
-        { name: 'What-If Lab', path: '/what-if', icon: Sliders },
       ]
     },
     {
-      title: 'ML Intelligence',
+      title: 'Clinical AI & Simulation',
       items: [
-        { name: 'Model Arena', path: '/arena', icon: Swords },
+        { 
+          name: 'AI Clinical Assistant', 
+          path: '/assistant', 
+          icon: Bot,
+          badge: 'ONLINE',
+          badgeColor: 'bg-amber-950 text-amber-300 border border-amber-500/40 glow-ember'
+        },
+        { name: 'What-If Prediction Lab', path: '/what-if', icon: Sliders },
+        { name: 'Explainable AI (SHAP)', path: '/insights', icon: Sparkles },
         { 
           name: 'Gradio ML Studio', 
           path: '/gradio-studio', 
@@ -45,38 +61,23 @@ export const Sidebar: React.FC = () => {
           badge: 'STUDIO', 
           badgeColor: 'bg-orange-500/20 text-orange-400 border border-orange-500/30' 
         },
-        { name: 'Alarm Budget', path: '/policy', icon: ShieldAlert },
-        { name: 'Scoreboard', path: '/scoreboard', icon: GitCompare },
+      ]
+    },
+    {
+      title: 'ICU Telemetry & Safety',
+      items: [
         { 
-          name: 'Drift Monitor', 
+          name: 'Drift Monitor (3D)', 
           path: '/drift', 
           icon: Radar,
           badge: drift.overall_status.toUpperCase(),
           badgeColor: drift.overall_status === 'green' ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/30' : 'bg-red-950 text-red-400 border border-red-500/30'
         },
-      ]
-    },
-    {
-      title: 'Science & Evidence',
-      items: [
-        { name: 'Insights Lab', path: '/insights', icon: FlaskConical },
-        { name: 'Benchmark & Errors', path: '/benchmark', icon: LineChart },
-        { name: 'Experiments', path: '/experiments', icon: Cpu },
-        { name: 'Data Upload', path: '/upload', icon: UploadCloud },
-      ]
-    },
-    {
-      title: 'Governance & APIs',
-      items: [
-        { name: 'Admin & Audit', path: '/admin', icon: FileText },
-        { 
-          name: 'Interactive API Docs', 
-          path: '/api-explorer', 
-          icon: Terminal, 
-          badge: 'SWAGGER', 
-          badgeColor: 'bg-emerald-950 text-emerald-400 border border-emerald-500/30' 
-        },
-        { name: 'About / Limits', path: '/about', icon: Info },
+        { name: 'Alarm Policy Simulator', path: '/policy', icon: ShieldAlert },
+        { name: 'Model Arena & Metrics', path: '/scoreboard', icon: GitCompare },
+        { name: 'Dataset Upload Studio', path: '/upload', icon: UploadCloud },
+        { name: 'Admin & Audit Trail', path: '/admin', icon: FileText },
+        { name: 'Clinical Governance', path: '/about', icon: Info },
       ]
     }
   ];
@@ -108,8 +109,8 @@ export const Sidebar: React.FC = () => {
                       <Icon className="w-4 h-4 flex-shrink-0" />
                       <span>{item.name}</span>
                     </div>
-                    {item.badge !== undefined && (
-                      <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${item.badgeColor || 'bg-[#1E1B18] text-[#F3EEE8]'}`}>
+                    {item.badge && (
+                      <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${item.badgeColor || 'bg-[#332E29] text-[#A09689]'}`}>
                         {item.badge}
                       </span>
                     )}
@@ -121,21 +122,15 @@ export const Sidebar: React.FC = () => {
         ))}
       </div>
 
-      {/* Footer System Status */}
-      <div className="p-3 border-t border-[#332E29] bg-[#0C0B0A]/60">
-        <div className="bg-[#151311]/80 rounded-lg p-2.5 border border-[#332E29] text-[11px] space-y-1">
-          <div className="flex justify-between text-[#A09689] font-mono">
-            <span>Stack:</span>
-            <span className="text-orange-400 font-bold">LightGBM + GRU-D + DANN</span>
-          </div>
-          <div className="flex justify-between text-[#A09689] font-mono">
-            <span>Coverage:</span>
-            <span className="text-emerald-400">90% Split Conformal</span>
-          </div>
-          <div className="flex justify-between text-[#A09689] font-mono">
-            <span>Utility Score:</span>
-            <span className="text-amber-300 font-bold">0.452 (CinC)</span>
-          </div>
+      {/* Footer System Provenance Note */}
+      <div className="p-4 border-t border-[#332E29] text-[11px] font-mono text-[#A09689] space-y-1">
+        <div className="flex items-center justify-between text-stone-400">
+          <span>Active Role</span>
+          <span className="capitalize text-amber-400 font-semibold">{currentRole.replace('_', ' ')}</span>
+        </div>
+        <div className="flex items-center justify-between text-stone-500">
+          <span>Platform</span>
+          <span>SepsisWatch-X v1.0</span>
         </div>
       </div>
     </aside>

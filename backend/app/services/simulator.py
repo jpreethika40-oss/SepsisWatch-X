@@ -30,6 +30,7 @@ class WardSimulator:
         self.is_running = False
         self.sim_speed = 1.0  # seconds per tick
         self.current_tick = 1
+        self.operational_mode = "replay"  # 'live', 'replay', 'simulation'
         self.active_websockets: Set[WebSocket] = set()
         self.beds_state: List[Dict[str, Any]] = []
         self.patients_data: Dict[str, pd.DataFrame] = {}
@@ -64,11 +65,79 @@ class WardSimulator:
         patients = loader.load_all_patients()
         pids = list(patients.keys())
 
+        # Rich clinical diagnoses and active interventions for all 12 ICU beds
+        diagnoses = [
+            ("Post-op Coronary Artery Bypass Graft (CABG)", "Aspirin, Metoprolol, Incentive Spirometry"),
+            ("Acute Exacerbation of Severe COPD", "DuoNeb q4h, Methylprednisolone 60mg, 2L NC"),
+            ("Septic Shock / Severe Lobar Pneumosepsis", "Norepinephrine 0.20 mcg/kg/min, Vancomycin + Cefepime, 30 mL/kg Bolus"),
+            ("Traumatic Brain Injury / Subdural Hematoma", "Hypertonic Saline 3%, Keppra 750mg, Continuous ICP Line"),
+            ("Acute Necrotizing Pancreatitis", "Aggressive Ringer's Lactate, Pantoprazole IV, NPO"),
+            ("Decompensated Heart Failure (NYHA Class IV)", "Furosemide 40mg IV BID, Enalaprilat, Fluid Restriction 1.5L"),
+            ("Complicated Urosepsis & Hydronephrosis", "Ceftriaxone 2g IV, IVF 125 mL/hr, Foley Catheter"),
+            ("Diabetic Ketoacidosis (DKA) with Acute Kidney Injury", "Regular Insulin Drip 0.1 u/kg/hr, D5 1/2NS + 20 mEq KCl"),
+            ("Post-Exploratory Laparotomy (Perforated Viscus)", "Morphine PCA, Zosyn 3.375g q6h, NG Tube Low Wall Suction"),
+            ("Acute Ischemic Stroke / Status Post Thrombectomy", "Aspirin 325mg, Atorvastatin 80mg, Continuous Neuro Checks q1h"),
+            ("Community-Acquired Bilateral Pneumonia", "Azithromycin + Ceftriaxone, High-Flow Nasal Cannula"),
+            ("Acute Hepatorenal Syndrome with Refractory Ascites", "Albumin 25g IV, Octreotide 50mcg SC, Midodrine 10mg TID")
+        ]
+
         self.beds_state = []
         for i in range(12):
             pid = pids[i % len(pids)] if pids else f"p_A_{i+1:05d}"
             df = patients.get(pid, None)
             hosp = "setA" if i % 2 == 0 else "setB"
+            diag, treat = diagnoses[i % len(diagnoses)]
+
+            # Bed 3 is the designated septic shock alert patient
+            # Bed 7 is the borderline caution patient
+            if i + 1 == 3:
+                r_score = 0.88
+                cal_p = 0.84
+                c_label = "sepsis"
+                p_low = 0.76
+                p_up = 0.92
+                is_al = True
+                stat = "critical"
+                sev = "critical"
+                hr = 124.0
+                sbp = 82.0
+                map_val = 61.0
+                resp = 28.0
+                temp = 38.8
+                lactate = 3.8
+                wbc = 18.2
+            elif i + 1 == 7:
+                r_score = 0.58
+                cal_p = 0.55
+                c_label = "uncertain"
+                p_low = 0.44
+                p_up = 0.66
+                is_al = True
+                stat = "caution"
+                sev = "moderate"
+                hr = 98.0
+                sbp = 105.0
+                map_val = 72.0
+                resp = 22.0
+                temp = 38.1
+                lactate = 2.4
+                wbc = 12.8
+            else:
+                r_score = round(0.12 + (i * 0.02), 2)
+                cal_p = round(r_score * 0.95, 2)
+                c_label = "no_sepsis"
+                p_low = max(0.02, r_score - 0.08)
+                p_up = min(0.35, r_score + 0.08)
+                is_al = False
+                stat = "normal"
+                sev = "low"
+                hr = 72.0 + (i * 2)
+                sbp = 122.0 - (i * 1.5)
+                map_val = 86.0 - (i * 1.0)
+                resp = 16.0
+                temp = 36.9
+                lactate = 1.1
+                wbc = 7.4
 
             self.beds_state.append({
                 "bed_id": i + 1,
@@ -77,25 +146,29 @@ class WardSimulator:
                 "hospital": hosp,
                 "age": 55 + (i * 3) % 30,
                 "gender": i % 2,
-                "current_hour": 1,
-                "risk_score": 0.12,
-                "calibrated_prob": 0.11,
-                "conformal_label": "no_sepsis",
-                "p_lower": 0.05,
-                "p_upper": 0.18,
-                "is_alert": False,
-                "status": "normal",
-                "severity": "low",
+                "current_hour": 4,
+                "risk_score": r_score,
+                "calibrated_prob": cal_p,
+                "conformal_label": c_label,
+                "p_lower": round(p_low, 3),
+                "p_upper": round(p_up, 3),
+                "is_alert": is_al,
+                "status": stat,
+                "severity": sev,
+                "diagnosis": diag,
+                "active_treatments": treat,
                 "vitals": {
-                    "HR": 72.0 + (i * 2),
-                    "SBP": 120.0 - (i * 1.5),
-                    "MAP": 85.0 - (i * 1.0),
-                    "Resp": 16.0,
-                    "Temp": 37.0,
-                    "O2Sat": 98.0
+                    "HR": float(hr),
+                    "SBP": float(sbp),
+                    "MAP": float(map_val),
+                    "Resp": float(resp),
+                    "Temp": float(temp),
+                    "O2Sat": 93.0 if i + 1 == 3 else 96.0 if i + 1 == 7 else 98.0,
+                    "Lactate": float(lactate),
+                    "WBC": float(wbc)
                 },
                 "df": df,
-                "alarms_count": 0
+                "alarms_count": 1 if is_al else 0
             })
 
     async def connect(self, websocket: WebSocket):
@@ -205,7 +278,9 @@ class WardSimulator:
                 "MAP": round(float(map_val), 1),
                 "Resp": round(float(resp), 1),
                 "Temp": round(float(temp), 1),
-                "O2Sat": 97.0
+                "O2Sat": 93.0 if bed_idx == 3 else 96.0 if bed_idx == 7 else 98.0,
+                "Lactate": round(float(lactate), 1),
+                "WBC": round(float(18.2 if bed_idx == 3 else 12.8 if bed_idx == 7 else 7.4), 1)
             }
 
             updated_beds.append(bed)
@@ -231,6 +306,8 @@ class WardSimulator:
                 "status": b["status"],
                 "is_alert": b["is_alert"],
                 "severity": b["severity"],
+                "diagnosis": b.get("diagnosis", "ICU Inpatient"),
+                "active_treatments": b.get("active_treatments", "Standard Monitoring"),
                 "vitals": b["vitals"]
             }
             for b in self.beds_state

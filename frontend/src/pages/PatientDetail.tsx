@@ -7,8 +7,9 @@ import {
 } from 'recharts';
 import { 
   FileDown, Clock, ShieldCheck, Activity, HelpCircle, 
-  ChevronRight, Brain, AlertTriangle, Layers 
+  ChevronRight, Brain, AlertTriangle, Layers, Box 
 } from 'lucide-react';
+import { AnatomyVitals3D } from '../components/3d/AnatomyVitals3D';
 
 export const PatientDetail: React.FC = () => {
   const { patients, selectedPatientId, setSelectedPatientId } = useStore();
@@ -85,8 +86,172 @@ export const PatientDetail: React.FC = () => {
   const activeExplanations = explainMethod === 'shap' ? shapFeatures : igFeatures;
 
   const handleExportPdf = () => {
-    alert(`Generating IEEE clinical patient summary report for Patient ${currentPatient.patient_code} (Bed ${currentPatient.bed_number})... Download will commence.`);
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      // Fallback: download as HTML file
+      const blob = new Blob([generateReportHtml()], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `SepsisWatch_Patient_${currentPatient.patient_code}_Bed${currentPatient.bed_number}_Report.html`;
+      a.click();
+      return;
+    }
+
+    printWindow.document.write(generateReportHtml());
+    printWindow.document.close();
   };
+
+  const generateReportHtml = () => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Clinical Sepsis Report - Bed ${currentPatient.bed_number} (${currentPatient.patient_code})</title>
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #1e293b; padding: 40px; margin: 0; }
+        .header { border-bottom: 3px solid #ea580c; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .title { font-size: 20px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; }
+        .sub { font-size: 12px; color: #64748b; margin-top: 4px; font-family: monospace; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 12px; font-family: monospace; text-transform: uppercase; }
+        .critical { background: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+        .caution { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+        .stable { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+        .panel { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; font-size: 13px; }
+        .panel h4 { margin: 0 0 10px 0; font-size: 12px; text-transform: uppercase; color: #64748b; font-family: monospace; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        th, td { border: 1px solid #e2e8f0; padding: 8px 10px; text-align: left; }
+        th { background: #f1f5f9; color: #475569; font-family: monospace; }
+        .risk-box { background: ${currentPatient.risk >= 0.7 ? '#fff1f2' : currentPatient.risk >= 0.4 ? '#fffbeb' : '#f0fdf4'}; border: 2px solid ${currentPatient.risk >= 0.7 ? '#f43f5e' : currentPatient.risk >= 0.4 ? '#f59e0b' : '#22c55e'}; border-radius: 8px; padding: 16px; margin-bottom: 24px; text-align: center; }
+        .risk-val { font-size: 32px; font-weight: 900; color: ${currentPatient.risk >= 0.7 ? '#e11d48' : currentPatient.risk >= 0.4 ? '#d97706' : '#16a34a'}; }
+        .signatures { margin-top: 40px; padding-top: 20px; border-top: 2px solid #cbd5e1; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; font-size: 12px; }
+        .sig-line { border-bottom: 1px solid #94a3b8; height: 35px; margin-bottom: 6px; }
+        .print-btn { background: #ea580c; color: white; border: none; padding: 10px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; margin-bottom: 20px; }
+        @media print { .no-print { display: none; } body { padding: 15px; } }
+      </style>
+    </head>
+    <body>
+      <div class="no-print">
+        <button class="print-btn" onclick="window.print()">Print or Save as PDF</button>
+      </div>
+      <div class="header">
+        <div>
+          <div class="title">Clinical Sepsis Early-Warning & Patient EHR Summary Report</div>
+          <div class="sub">HOSPITAL ICU ADMISSION TELEMETRY • GENERATED ON ${new Date().toLocaleString()}</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="badge ${currentPatient.status === 'critical' ? 'critical' : currentPatient.status === 'caution' ? 'caution' : 'stable'}">
+            ${currentPatient.status.toUpperCase()} SEPSIS ALERT
+          </div>
+          <div class="sub" style="margin-top: 4px;">BED ${currentPatient.bed_number} • ${currentPatient.hospital === 'setA' ? 'Hospital A (Emory)' : 'Hospital B (BIDMC)'}</div>
+        </div>
+      </div>
+
+      <div class="risk-box">
+        <div style="font-size: 12px; font-family: monospace; text-transform: uppercase; color: #64748b;">Calibrated Sepsis Risk Score (Split Conformal 90% Guarantee)</div>
+        <div class="risk-val">${(currentPatient.risk * 100).toFixed(1)}%</div>
+        <div style="font-size: 12px; color: #475569; margin-top: 4px;">Conformal Prediction Set: <strong>${currentPatient.conformal_label.toUpperCase()}</strong> • Finite-Sample Coverage: 90% Guaranteed</div>
+      </div>
+
+      <div class="grid">
+        <div class="panel">
+          <h4>Patient Demographics & Admission Profile</h4>
+          <div><strong>Patient ID:</strong> ${currentPatient.patient_code}</div>
+          <div style="margin-top: 4px;"><strong>Age / Sex:</strong> ${currentPatient.age} years old • ${currentPatient.gender === 1 ? 'Male' : 'Female'}</div>
+          <div style="margin-top: 4px;"><strong>ICU Stay:</strong> ${currentPatient.current_hour} Hours Monitored</div>
+          <div style="margin-top: 4px;"><strong>Care Unit:</strong> ICU Pod ${currentPatient.unit1 === 1 ? 'Medical ICU (MICU)' : 'Surgical ICU (SICU)'}</div>
+        </div>
+
+        <div class="panel">
+          <h4>Clinical Diagnosis & Active Physician Orders</h4>
+          <div><strong>Primary Diagnosis:</strong> ${currentPatient.diagnosis || 'Intensive Care Hemodynamic Monitoring'}</div>
+          <div style="margin-top: 6px;"><strong>Active Orders:</strong> <span style="color: #b45309;">${currentPatient.active_treatments || 'Supportive ICU Care'}</span></div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom: 24px;">
+        <h4>Current Physiological Biomarkers (ICU Hour ${selectedHour})</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Biomarker</th>
+              <th>Observed Value</th>
+              <th>Reference Clinical Range</th>
+              <th>Acuity Interpretation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Heart Rate (HR)</td>
+              <td><strong>${activePoint.hr} bpm</strong></td>
+              <td>60 - 100 bpm</td>
+              <td style="color: ${activePoint.hr > 100 ? '#b91c1c' : '#166534'}">${activePoint.hr > 100 ? 'Tachycardia Alert' : 'Normal Sinus'}</td>
+            </tr>
+            <tr>
+              <td>Mean Arterial Pressure (MAP)</td>
+              <td><strong>${activePoint.map} mmHg</strong></td>
+              <td>65 - 100 mmHg</td>
+              <td style="color: ${activePoint.map < 65 ? '#b91c1c' : '#166534'}">${activePoint.map < 65 ? 'Hypotension / Hypoperfusion' : 'Adequate Perfusion'}</td>
+            </tr>
+            <tr>
+              <td>Serum Lactate</td>
+              <td><strong>${activePoint.lactate} mmol/L</strong></td>
+              <td>0.5 - 2.0 mmol/L</td>
+              <td style="color: ${activePoint.lactate > 2.0 ? '#b91c1c' : '#166534'}">${activePoint.lactate > 2.0 ? 'Elevated (Anaerobic Glycolysis)' : 'Normal Clearance'}</td>
+            </tr>
+            <tr>
+              <td>Core Body Temperature</td>
+              <td><strong>${activePoint.temp} °C</strong></td>
+              <td>36.5 - 37.5 °C</td>
+              <td>${activePoint.temp > 38.0 ? 'Febrile Response (SIRS)' : 'Normothermic'}</td>
+            </tr>
+            <tr>
+              <td>White Blood Cell Count (WBC)</td>
+              <td><strong>${activePoint.wbc} k/µL</strong></td>
+              <td>4.5 - 11.0 k/µL</td>
+              <td>${activePoint.wbc > 12.0 ? 'Leukocytosis' : 'Normal Count'}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel" style="margin-bottom: 24px;">
+        <h4>Explainable AI Biomarker Attributions (SHAP & Integrated Gradients)</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Driving Biomarker</th>
+              <th>Attribution Weight</th>
+              <th>Clinical Mechanism</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${activeExplanations.map(exp => `
+              <tr>
+                <td><strong>${exp.name}</strong></td>
+                <td style="color: #b91c1c; font-family: monospace;"><strong>${exp.value}</strong></td>
+                <td>${exp.english}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="signatures">
+        <div>
+          <div class="sig-line"></div>
+          <div><strong>Attending Critical Care Physician Sign-off</strong></div>
+          <div style="color: #64748b; font-size: 11px;">Dr. Sarah Connor, MD / Dr. Marcus Wright, CMO</div>
+        </div>
+        <div>
+          <div class="sig-line"></div>
+          <div><strong>Lead ICU Triage Nurse Verification</strong></div>
+          <div style="color: #64748b; font-size: 11px;">Nurse Alex Reed, RN • Sepsis Response Verified</div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
 
   return (
     <div className="space-y-4">
@@ -110,6 +275,9 @@ export const PatientDetail: React.FC = () => {
             </div>
             <p className="text-xs text-slate-400 font-mono mt-0.5">
               Demographics: {currentPatient.age}yo • {currentPatient.gender === 1 ? 'Male' : 'Female'} • ICU Stay: {currentPatient.current_hour}h
+            </p>
+            <p className="text-xs text-amber-300 font-mono mt-0.5">
+              Diagnosis: <strong className="text-slate-100">{currentPatient.diagnosis || 'Severe Lobar Pneumonia / Sepsis Surveillance'}</strong> • Orders: {currentPatient.active_treatments || 'IV Crystalloid bolus, Levophed drip, Blood cultures'}
             </p>
           </div>
         </div>
@@ -137,6 +305,9 @@ export const PatientDetail: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* 3D Spatial Anatomy & Vitals Perfusion */}
+      <AnatomyVitals3D patient={currentPatient} />
 
       {/* Main Timeline & Conformal Uncertainty Band */}
       <div className="glass-panel p-4 rounded-xl space-y-3">

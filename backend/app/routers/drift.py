@@ -12,6 +12,7 @@ drift_monitor = DriftMonitor()
 
 
 @router.get("", response_model=DriftReportSchema)
+@router.get("/report", response_model=DriftReportSchema)
 async def get_drift_report():
     """Returns continuous Population Stability Index (PSI) and KS test statistics."""
     # Build report based on shift status

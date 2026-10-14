@@ -1,36 +1,88 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useStore } from '../../store/useStore';
 import { 
-  Play, Pause, RotateCcw, FastForward, Volume2, VolumeX, 
-  Layers, Box, AlertTriangle, Activity, Search, Zap,
-  Sparkles, Terminal
+  Play, Pause, RotateCcw, FastForward, Volume2, VolumeX, Volume1,
+  Layers, Box, Activity, Zap, Bot,
+  Sparkles, Stethoscope, HeartPulse, Building2, LogOut, Check
 } from 'lucide-react';
+import { audioAlertService } from '../../services/audioAlertService';
 
 export const Navbar: React.FC = () => {
   const { 
-    isSyntheticData, isSimRunning, setSimRunning, simSpeed, setSimSpeed, 
+    isSimRunning, setSimRunning, simSpeed, setSimSpeed, 
     currentSimHour, setCurrentSimHour, is2DMode, setIs2DMode, 
-    soundEnabled, setSoundEnabled, wsStatus, setCommandPaletteOpen,
-    driftInjected, setDriftInjected
+    soundEnabled, setSoundEnabled, wsStatus,
+    driftInjected, setDriftInjected,
+    currentRole, setCurrentRole,
+    selectedHospital, setSelectedHospital,
+    currentUser, setIsAuthModalOpen, logout
   } = useStore();
 
-  const toggleSimulation = () => setSimRunning(!isSimRunning);
+  const [testNotice, setTestNotice] = useState<string | null>(null);
+  const [currentVol, setCurrentVol] = useState<number>(audioAlertService.getVolume());
+
+  const toggleSimulation = async () => {
+    const next = !isSimRunning;
+    setSimRunning(next);
+    try {
+      await fetch('/api/sim/control', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_running: next, speed: simSpeed })
+      });
+    } catch (e) {
+      console.warn('[Navbar] Sim control call handled with local state:', e);
+    }
+  };
+
+  const handleStepForward = async () => {
+    try {
+      const res = await fetch('/api/sim/tick', { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.tick) setCurrentSimHour(data.tick);
+      }
+    } catch {
+      setCurrentSimHour(currentSimHour + 1);
+    }
+  };
+
+  const handleReset = async () => {
+    try {
+      const res = await fetch('/api/sim/reset', { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.tick) setCurrentSimHour(data.tick);
+        setSimRunning(false);
+      }
+    } catch {
+      setCurrentSimHour(1);
+      setSimRunning(false);
+    }
+  };
+
+  const handleTestSound = async () => {
+    const result = await audioAlertService.playTestSound();
+    setTestNotice(result.message);
+    setTimeout(() => setTestNotice(null), 3000);
+  };
+
+  const handleVolumeChange = (vol: number) => {
+    audioAlertService.setVolume(vol);
+    setCurrentVol(vol);
+  };
 
   return (
     <header className="sticky top-0 z-50 flex flex-col w-full border-b border-amber-500/20 bg-[#151311]/90 backdrop-blur-md">
-      {/* 1. Mandatory Persistent Banner when Synthetic Data is in use */}
-      {isSyntheticData && (
-        <div className="bg-amber-950/80 border-b border-amber-500/30 px-4 py-1.5 flex items-center justify-between text-xs text-amber-200">
+      {/* Test Notice Toast */}
+      {testNotice && (
+        <div className="bg-amber-950/90 border-b border-amber-500/40 px-4 py-1.5 flex items-center justify-between text-xs font-mono text-amber-200">
           <div className="flex items-center space-x-2">
-            <AlertTriangle className="w-4 h-4 text-amber-400 animate-pulse flex-shrink-0" />
-            <span className="font-medium tracking-wide">
-              SYNTHETIC DATASET ACTIVE — PhysioNet 2019 Coupled Dynamics (Hospital A & B). For offline testing & evaluation only.
-            </span>
+            <Check className="w-3.5 h-3.5 text-amber-400" />
+            <span>{testNotice}</span>
           </div>
-          <span className="hidden md:inline bg-amber-900/60 text-amber-300 px-2 py-0.5 rounded text-[10px] font-mono border border-amber-500/20">
-            Benchmark Evaluation: Synthetic Telemetry Active
-          </span>
+          <span className="text-[10px] text-amber-400/80">Web Audio API Active</span>
         </div>
       )}
 
@@ -48,11 +100,11 @@ export const Navbar: React.FC = () => {
                   SepsisWatch<span className="text-orange-500">-X</span>
                 </h1>
                 <span className="bg-amber-950/80 text-amber-300 text-[10px] font-mono px-1.5 py-0.5 rounded border border-amber-500/30">
-                  v1.0.0
+                  Dual-Hospital ICU
                 </span>
               </div>
               <p className="text-[11px] text-[#A09689] font-mono">
-                ICU Ward Early-Warning • 12 Beds Active
+                Intelligent Early-Warning • 12 Active Beds
               </p>
             </div>
           </div>
@@ -93,7 +145,7 @@ export const Navbar: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setCurrentSimHour(currentSimHour + 1)}
+            onClick={handleStepForward}
             title="Step 1 hour forward"
             className="p-1.5 text-[#F3EEE8] hover:text-orange-400 hover:bg-[#332E29] rounded transition"
           >
@@ -101,8 +153,8 @@ export const Navbar: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setCurrentSimHour(1)}
-            title="Reset simulation hour"
+            onClick={handleReset}
+            title="Reset simulation to Hour 1"
             className="p-1.5 text-[#F3EEE8] hover:text-orange-400 hover:bg-[#332E29] rounded transition"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -140,9 +192,9 @@ export const Navbar: React.FC = () => {
           </button>
         </div>
 
-        {/* Right: View Toggles & Profile */}
+        {/* Right: View Toggles, Audio Controls & Profile */}
         <div className="flex items-center space-x-2.5">
-          {/* Direct Quick Launchers for ML Studio and API Docs */}
+          {/* Direct Quick Launchers for ML Studio and AI Assistant */}
           <NavLink
             to="/gradio-studio"
             className={({ isActive }) =>
@@ -159,66 +211,169 @@ export const Navbar: React.FC = () => {
           </NavLink>
 
           <NavLink
-            to="/api-explorer"
+            to="/assistant"
             className={({ isActive }) =>
               `hidden md:flex items-center space-x-1 px-2.5 py-1.5 rounded-lg border text-xs font-mono transition ${
                 isActive
-                  ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-400'
+                  ? 'bg-amber-500/20 border-amber-500/50 text-amber-300 glow-ember'
                   : 'bg-[#1E1B18]/60 border-[#332E29] text-[#A09689] hover:text-[#F3EEE8] hover:border-amber-500/30'
               }`
             }
-            title="Interactive FastAPI Swagger Explorer"
+            title="SepsisWatch-X Clinical AI Assistant"
           >
-            <Terminal className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="text-[11px]">API Docs</span>
+            <Bot className="w-3.5 h-3.5 text-amber-400" />
+            <span className="text-[11px]">AI Assistant</span>
           </NavLink>
 
-          {/* Command Palette Trigger */}
-          <button
-            onClick={() => setCommandPaletteOpen(true)}
-            className="hidden sm:flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg bg-[#1E1B18]/60 border border-[#332E29] text-xs text-[#A09689] hover:text-[#F3EEE8] hover:border-amber-500/30 transition"
-          >
-            <Search className="w-3.5 h-3.5" />
-            <span className="text-[11px]">Command (Ctrl+K)</span>
-          </button>
+          {/* Clinical Persona Role Switcher */}
+          <div className="hidden lg:flex items-center space-x-1 bg-[#1E1B18] p-1 rounded-lg border border-[#332E29] text-xs font-mono">
+            <button
+              onClick={() => setCurrentRole('doctor')}
+              title="Switch to Doctor (Physician) Diagnostic View"
+              className={`px-2 py-1 rounded transition flex items-center space-x-1 ${
+                currentRole === 'doctor' ? 'bg-orange-500 text-[#0C0B0A] font-bold glow-ember' : 'text-[#A09689] hover:text-[#F3EEE8]'
+              }`}
+            >
+              <Stethoscope className="w-3.5 h-3.5" />
+              <span>Doctor</span>
+            </button>
+            <button
+              onClick={() => setCurrentRole('nurse')}
+              title="Switch to Nurse Bedside Triage View"
+              className={`px-2 py-1 rounded transition flex items-center space-x-1 ${
+                currentRole === 'nurse' ? 'bg-emerald-500 text-[#0C0B0A] font-bold' : 'text-[#A09689] hover:text-[#F3EEE8]'
+              }`}
+            >
+              <HeartPulse className="w-3.5 h-3.5" />
+              <span>Nurse</span>
+            </button>
+            <button
+              onClick={() => setCurrentRole('hospital_chief')}
+              title="Switch to Hospital Chief Executive & Ward Governance View"
+              className={`px-2 py-1 rounded transition flex items-center space-x-1 ${
+                currentRole === 'hospital_chief' ? 'bg-amber-400 text-[#0C0B0A] font-bold' : 'text-[#A09689] hover:text-[#F3EEE8]'
+              }`}
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              <span>Chief</span>
+            </button>
+          </div>
 
-          {/* 2D / 3D Mode Toggle (Low-power fallback) */}
+          {/* Hospital Bay Filter */}
+          <div className="hidden 2xl:flex items-center space-x-1 bg-[#1E1B18] p-1 rounded-lg border border-[#332E29] text-[11px] font-mono">
+            <button
+              onClick={() => setSelectedHospital('all')}
+              className={`px-2 py-0.5 rounded transition ${
+                selectedHospital === 'all' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'text-[#A09689] hover:text-[#F3EEE8]'
+              }`}
+            >
+              All Beds
+            </button>
+            <button
+              onClick={() => setSelectedHospital('setA')}
+              className={`px-2 py-0.5 rounded transition ${
+                selectedHospital === 'setA' ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30' : 'text-[#A09689] hover:text-[#F3EEE8]'
+              }`}
+            >
+              Hospital A
+            </button>
+            <button
+              onClick={() => setSelectedHospital('setB')}
+              className={`px-2 py-0.5 rounded transition ${
+                selectedHospital === 'setB' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'text-[#A09689] hover:text-[#F3EEE8]'
+              }`}
+            >
+              Hospital B
+            </button>
+          </div>
+
+          {/* 2D / 3D Mode Toggle */}
           <button
             onClick={() => setIs2DMode(!is2DMode)}
             title={is2DMode ? "Switch to High-Fidelity 3D View" : "Switch to Low-Power 2D Mode"}
-            className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-lg border text-xs font-mono transition ${
+            className={`flex items-center space-x-1 px-2 py-1.5 rounded-lg border text-xs font-mono transition ${
               is2DMode
                 ? 'bg-amber-950/40 border-amber-500/40 text-amber-300'
                 : 'bg-orange-950/40 border-orange-500/40 text-orange-300'
             }`}
           >
             {is2DMode ? <Layers className="w-3.5 h-3.5" /> : <Box className="w-3.5 h-3.5" />}
-            <span className="hidden md:inline">{is2DMode ? '2D Mode' : '3D Mode'}</span>
+            <span className="hidden xl:inline">{is2DMode ? '2D' : '3D'}</span>
           </button>
 
-          {/* Sound Alert Toggle */}
-          <button
-            onClick={() => setSoundEnabled(!soundEnabled)}
-            title={soundEnabled ? "Mute audio alarms" : "Enable clinical audio alarms"}
-            className={`p-2 rounded-lg border text-xs transition ${
-              soundEnabled
-                ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
-                : 'bg-[#151311] border-[#332E29] text-[#A09689] hover:text-[#F3EEE8]'
-            }`}
-          >
-            {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-          </button>
+          {/* Audible Alert Suite */}
+          <div className="flex items-center space-x-1 bg-[#1E1B18] p-1 rounded-lg border border-[#332E29]">
+            {/* Test Sound Button */}
+            <button
+              onClick={handleTestSound}
+              title="Test clinical warning & alarm sound synthesis"
+              className="flex items-center space-x-1 px-2 py-1 rounded text-[11px] font-mono text-stone-300 hover:text-amber-300 hover:bg-stone-800/60 transition"
+            >
+              <Volume1 className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden sm:inline">Test Sound</span>
+            </button>
 
-          {/* User Badge */}
-          <div className="flex items-center space-x-2 pl-2 border-l border-[#332E29]">
-            <div className="w-7 h-7 rounded-full bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-xs font-bold text-orange-400">
-              SC
-            </div>
-            <div className="hidden xl:block text-left">
-              <p className="text-xs font-medium text-[#F3EEE8] leading-tight">Dr. Connor</p>
-              <p className="text-[10px] text-orange-400 font-mono leading-tight">Admin / Chief</p>
+            {/* Mute/Unmute Toggle */}
+            <button
+              onClick={() => {
+                const next = !soundEnabled;
+                setSoundEnabled(next);
+                audioAlertService.setEnabled(next);
+              }}
+              title={soundEnabled ? "Mute clinical audio alarms" : "Unmute and activate clinical audio alarms"}
+              className={`p-1.5 rounded text-xs transition ${
+                soundEnabled
+                  ? 'bg-emerald-950/80 text-emerald-300'
+                  : 'text-stone-400 hover:text-stone-200'
+              }`}
+            >
+              {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5 text-red-400" />}
+            </button>
+
+            {/* Volume Presets */}
+            <div className="hidden 2xl:flex items-center space-x-0.5 text-[10px] font-mono pl-1 border-l border-stone-800">
+              {[0.4, 0.7, 1.0].map((v) => (
+                <button
+                  key={v}
+                  onClick={() => handleVolumeChange(v)}
+                  className={`px-1 py-0.5 rounded transition ${
+                    currentVol === v ? 'bg-amber-500/30 text-amber-300 font-bold' : 'text-stone-500 hover:text-stone-300'
+                  }`}
+                  title={`Set volume to ${(v * 100).toFixed(0)}%`}
+                >
+                  {(v * 100).toFixed(0)}%
+                </button>
+              ))}
             </div>
           </div>
+
+          {/* User Profile Badge (Click to open Auth / Role modal) */}
+          <button
+            onClick={() => setIsAuthModalOpen(true)}
+            title="Click to sign in or switch active clinical persona"
+            className="flex items-center space-x-2 pl-2 border-l border-[#332E29] hover:opacity-80 transition cursor-pointer"
+          >
+            <div className="w-7 h-7 rounded-full bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-xs font-bold text-orange-400">
+              {currentUser.full_name ? currentUser.full_name.slice(0, 2).toUpperCase() : 'SC'}
+            </div>
+            <div className="hidden xl:block text-left">
+              <p className="text-xs font-medium text-[#F3EEE8] leading-tight truncate max-w-[120px]">
+                {currentUser.full_name || 'Dr. Connor'}
+              </p>
+              <p className="text-[10px] text-orange-400 font-mono leading-tight">
+                {currentRole === 'doctor' ? 'Attending MD' : currentRole === 'nurse' ? 'Charge Nurse' : 'Hospital Chief'}
+              </p>
+            </div>
+          </button>
+
+          {/* Log Out Button */}
+          <button
+            onClick={logout}
+            title="Sign out of clinical session"
+            className="p-1.5 rounded-lg border border-[#332E29] bg-[#1E1B18]/60 text-stone-400 hover:text-red-400 hover:border-red-500/40 transition"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     </header>

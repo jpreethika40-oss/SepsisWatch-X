@@ -41,6 +41,9 @@ async def list_patients():
             calibrated_prob=s["calibrated_prob"],
             conformal_label=s["conformal_label"],
             status=s["status"],
+            diagnosis=s.get("diagnosis", "ICU Inpatient"),
+            active_treatments=s.get("active_treatments", "Standard Monitoring"),
+            vitals=s.get("vitals", {}),
             is_active=True
         )
         for s in snapshot

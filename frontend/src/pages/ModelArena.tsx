@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { Patient } from '../types';
-import { Swords, Building2, Cpu, Zap, CheckCircle2, AlertTriangle, ShieldCheck, Sparkles, RefreshCw } from 'lucide-react';
+import { Swords, Building2, Cpu, Zap, CheckCircle2, AlertTriangle, ShieldCheck, Sparkles, RefreshCw, Box } from 'lucide-react';
+import { ModelArena3D } from '../components/3d/ModelArena3D';
 
 export const ModelArena: React.FC = () => {
   const { patients, selectedPatientId } = useStore();
@@ -169,8 +170,11 @@ export const ModelArena: React.FC = () => {
             </span>
           </div>
 
-      {/* Model Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* 3D Multi-Model Spatial Arena */}
+          <ModelArena3D />
+
+          {/* Model Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {models.map((m) => (
           <div
             key={m.id}
