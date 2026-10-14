@@ -1,3 +1,14 @@
+---
+title: SepsisWatch-X ICU Early Warning
+emoji: 🏥
+colorFrom: red
+colorTo: gray
+sdk: docker
+app_port: 7860
+pinned: false
+license: apache-2.0
+---
+
 # SepsisWatch-X: Cross-Hospital, Explainable, Uncertainty-Aware ICU Sepsis Early-Warning System
 
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
