@@ -7,9 +7,18 @@
 
 set -e
 
-echo "--> [1/5] Updating packages and installing Docker & Git..."
+echo "--> [1/5] Updating packages, configuring swap & installing Docker..."
 sudo apt-get update -y
 sudo apt-get install -y docker.io git curl
+
+# Allocate 2GB swap if not present (prevents OOM during PyTorch & Node build on t2.micro/t3.micro)
+if [ ! -f /swapfile ]; then
+    echo "--> Configuring 2GB swap memory..."
+    sudo fallocate -l 2G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=2048
+    sudo chmod 600 /swapfile
+    sudo mkswap /swapfile
+    sudo swapon /swapfile
+fi
 
 echo "--> [2/5] Enabling and starting Docker daemon..."
 sudo systemctl start docker
