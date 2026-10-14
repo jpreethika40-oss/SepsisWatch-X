@@ -55,17 +55,44 @@ export const Navbar: React.FC = () => {
       let newRisk = p.risk;
       const newVitals = { ...(p.vitals || {}) };
 
-      if (p.bed_number === 3) {
-        newRisk = Math.min(0.96, Math.max(0.70, p.risk + (Math.random() * 0.04 - 0.01)));
-        newVitals.HR = Math.min(138, Math.max(105, (newVitals.HR || 112) + (Math.random() * 4 - 1.5)));
-        newVitals.MAP = Math.max(52, Math.min(64, (newVitals.MAP || 58) - (Math.random() * 3 - 1)));
-      } else if (p.bed_number === 7) {
-        newRisk = Math.min(0.65, Math.max(0.45, p.risk + (Math.random() * 0.03 - 0.015)));
-        newVitals.HR = Math.min(108, Math.max(88, (newVitals.HR || 94) + (Math.random() * 3 - 1.5)));
-        newVitals.MAP = Math.min(74, Math.max(62, (newVitals.MAP || 67) + (Math.random() * 3 - 2)));
+      // Dynamic Markov transition: any bed can stochastically deteriorate or stabilize
+      if (p.risk >= 0.70) {
+        // High risk / septic bed: resuscitation may take effect or vitals stay critical
+        const isRecovering = Math.random() < 0.35;
+        if (isRecovering) {
+          newRisk = Math.max(0.40, p.risk - (0.04 + Math.random() * 0.05));
+          newVitals.HR = Math.max(85, (newVitals.HR || 115) - (3 + Math.random() * 4));
+          newVitals.MAP = Math.min(75, (newVitals.MAP || 58) + (2 + Math.random() * 4));
+        } else {
+          newRisk = Math.min(0.96, p.risk + (Math.random() * 0.02 - 0.01));
+          newVitals.HR = Math.min(142, Math.max(105, (newVitals.HR || 115) + (Math.random() * 4 - 2)));
+          newVitals.MAP = Math.max(50, Math.min(65, (newVitals.MAP || 58) - (Math.random() * 2 - 1)));
+        }
+      } else if (p.risk >= 0.40) {
+        // Moderate / caution bed: may escalate into severe sepsis (40%) or settle down (60%)
+        if (Math.random() < 0.40) {
+          newRisk = Math.min(0.88, p.risk + (0.06 + Math.random() * 0.06));
+          newVitals.HR = Math.min(130, (newVitals.HR || 98) + (4 + Math.random() * 4));
+          newVitals.MAP = Math.max(54, (newVitals.MAP || 66) - (3 + Math.random() * 3));
+        } else {
+          newRisk = Math.max(0.20, p.risk - (0.03 + Math.random() * 0.04));
+          newVitals.HR = Math.max(78, (newVitals.HR || 98) - (2 + Math.random() * 3));
+          newVitals.MAP = Math.min(78, (newVitals.MAP || 66) + (2 + Math.random() * 3));
+        }
       } else {
-        newRisk = Math.min(0.32, Math.max(0.06, p.risk + (Math.random() * 0.02 - 0.01)));
+        // Stable bed: small chance (~7%) of starting acute decompensation, otherwise stable walk
+        if (Math.random() < 0.07) {
+          newRisk = Math.min(0.62, p.risk + (0.15 + Math.random() * 0.10));
+          newVitals.HR = (newVitals.HR || 76) + (10 + Math.random() * 8);
+          newVitals.MAP = (newVitals.MAP || 82) - (8 + Math.random() * 6);
+          newVitals.Lactate = Number(((newVitals.Lactate || 1.1) + 0.8).toFixed(1));
+        } else {
+          newRisk = Math.min(0.35, Math.max(0.06, p.risk + (Math.random() * 0.03 - 0.015)));
+          newVitals.HR = Math.min(92, Math.max(62, (newVitals.HR || 76) + (Math.random() * 3 - 1.5)));
+          newVitals.MAP = Math.min(95, Math.max(72, (newVitals.MAP || 82) + (Math.random() * 3 - 1.5)));
+        }
       }
+
       const conf = newRisk >= 0.70 ? 'sepsis' : newRisk >= 0.40 ? 'uncertain' : 'no_sepsis';
       store.updatePatientRisk(p.id, Number(newRisk.toFixed(2)), nextHour, conf, newVitals);
     });

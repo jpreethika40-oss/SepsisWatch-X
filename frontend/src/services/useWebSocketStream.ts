@@ -32,41 +32,102 @@ export const useWebSocketStream = () => {
         const nextHour = store.currentSimHour + 1;
         setCurrentSimHour(nextHour);
 
-        store.patients.forEach((p) => {
-          let newRisk = p.risk;
-          const newVitals = { ...(p.vitals || {}) };
+        // Track last alert hour per patient to enforce genuine cooldown
+        const lastAlertHours: Record<number, number> = (window as any).__lastAlertHours || {};
+        (window as any).__lastAlertHours = lastAlertHours;
 
-          if (p.bed_number === 3) {
-            newRisk = Math.min(0.96, Math.max(0.70, p.risk + (Math.random() * 0.04 - 0.01)));
-            newVitals.HR = Math.min(138, Math.max(105, (newVitals.HR || 112) + (Math.random() * 4 - 1.5)));
-            newVitals.MAP = Math.max(52, Math.min(64, (newVitals.MAP || 58) - (Math.random() * 3 - 1)));
-            newVitals.Lactate = Math.min(5.6, Math.max(2.8, (newVitals.Lactate || 3.4) + (Math.random() * 0.2 - 0.05)));
-          } else if (p.bed_number === 7) {
-            newRisk = Math.min(0.65, Math.max(0.45, p.risk + (Math.random() * 0.03 - 0.015)));
-            newVitals.HR = Math.min(108, Math.max(88, (newVitals.HR || 94) + (Math.random() * 3 - 1.5)));
-            newVitals.MAP = Math.min(74, Math.max(62, (newVitals.MAP || 67) + (Math.random() * 3 - 2)));
-          } else {
-            newRisk = Math.min(0.32, Math.max(0.06, p.risk + (Math.random() * 0.02 - 0.01)));
-            newVitals.HR = Math.min(95, Math.max(65, (newVitals.HR || 75) + (Math.random() * 2 - 1)));
-            newVitals.MAP = Math.min(95, Math.max(72, (newVitals.MAP || 82) + (Math.random() * 2 - 1)));
+        store.patients.forEach((p) => {
+          const newVitals = { ...(p.vitals || {}) };
+          
+          // Stochastic state tracking on window/patient
+          const trajKey = `__traj_${p.id}`;
+          let traj = (window as any)[trajKey] || { state: 'stable', ticks: 0 };
+
+          traj.ticks += 1;
+
+          if (traj.state === 'stable') {
+            // Stochastically trigger deterioration (~6% chance per hour)
+            if (Math.random() < 0.06 && traj.ticks > 3) {
+              traj = { state: 'deteriorating', ticks: 0 };
+            } else {
+              // Natural slight baseline drift
+              newVitals.HR = Math.min(95, Math.max(62, (newVitals.HR || 74) + (Math.random() * 2 - 1)));
+              newVitals.SBP = Math.min(136, Math.max(108, (newVitals.SBP || 120) + (Math.random() * 3 - 1.5)));
+              newVitals.MAP = Math.round((newVitals.SBP * 2 + 75) / 3);
+              newVitals.Resp = Math.min(20, Math.max(12, (newVitals.Resp || 16) + (Math.random() * 1.5 - 0.75)));
+              newVitals.Temp = Number(Math.min(37.4, Math.max(36.5, (newVitals.Temp || 36.8) + (Math.random() * 0.2 - 0.1))).toFixed(1));
+              newVitals.Lactate = Number(Math.min(1.8, Math.max(0.7, (newVitals.Lactate || 1.1) + (Math.random() * 0.1 - 0.05))).toFixed(1));
+              newVitals.WBC = Number(Math.min(10.5, Math.max(5.5, (newVitals.WBC || 7.5) + (Math.random() * 0.2 - 0.1))).toFixed(1));
+            }
+          } else if (traj.state === 'deteriorating') {
+            // Sepsis progression
+            newVitals.HR = Math.min(142, Math.max(75, (newVitals.HR || 74) + (Math.random() * 4 + 2)));
+            newVitals.SBP = Math.max(70, Math.min(125, (newVitals.SBP || 120) - (Math.random() * 4 + 2)));
+            newVitals.MAP = Math.round((newVitals.SBP * 2 + 50) / 3);
+            newVitals.Resp = Math.min(34, Math.max(16, (newVitals.Resp || 16) + (Math.random() * 2 + 0.5)));
+            newVitals.Temp = Number(Math.min(39.5, Math.max(37.0, (newVitals.Temp || 36.8) + 0.25)).toFixed(1));
+            newVitals.Lactate = Number(Math.min(5.4, Math.max(1.2, (newVitals.Lactate || 1.1) + (Math.random() * 0.4 + 0.2))).toFixed(1));
+            newVitals.WBC = Number(Math.min(22.0, Math.max(9.0, (newVitals.WBC || 7.5) + 1.0)).toFixed(1));
+            newVitals.O2Sat = Math.max(88, Math.min(97, (newVitals.O2Sat || 98) - 1));
+
+            if (traj.ticks >= 5) {
+              traj = { state: 'recovering', ticks: 0 };
+            }
+          } else if (traj.state === 'recovering') {
+            // Treatment response
+            newVitals.HR = Math.max(68, (newVitals.HR || 110) - (Math.random() * 4 + 2));
+            newVitals.SBP = Math.min(125, (newVitals.SBP || 85) + (Math.random() * 4 + 2));
+            newVitals.MAP = Math.round((newVitals.SBP * 2 + 65) / 3);
+            newVitals.Resp = Math.max(14, (newVitals.Resp || 24) - (Math.random() * 1.5 + 0.5));
+            newVitals.Temp = Number(Math.max(36.8, (newVitals.Temp || 38.5) - 0.2).toFixed(1));
+            newVitals.Lactate = Number(Math.max(0.9, (newVitals.Lactate || 3.0) - 0.4).toFixed(1));
+            newVitals.WBC = Number(Math.max(6.5, (newVitals.WBC || 15.0) - 0.8).toFixed(1));
+            newVitals.O2Sat = Math.min(99, (newVitals.O2Sat || 92) + 1);
+
+            if (traj.ticks >= 5 || ((newVitals.MAP || 75) >= 72 && (newVitals.Lactate || 1.1) <= 1.8)) {
+              traj = { state: 'stable', ticks: 0 };
+            }
           }
 
-          const conf = newRisk >= 0.70 ? 'sepsis' : newRisk >= 0.40 ? 'uncertain' : 'no_sepsis';
-          updatePatientRisk(p.id, Number(newRisk.toFixed(2)), nextHour, conf, newVitals);
+          (window as any)[trajKey] = traj;
 
-          if (newRisk >= 0.40) {
+          // Dynamic multivariate risk calculation
+          const shockIndex = (newVitals.HR || 75) / Math.max(newVitals.SBP || 120, 40);
+          let newRisk = (
+            0.06 +
+            (shockIndex - 0.70) * 0.42 +
+            Math.max(0, (newVitals.Lactate || 1.1) - 1.0) * 0.14 +
+            ((newVitals.Temp || 37) > 38.2 || (newVitals.Temp || 37) < 36.0 ? 0.12 : 0) +
+            ((newVitals.Resp || 16) > 22 ? 0.10 : 0) +
+            ((newVitals.MAP || 80) < 65 ? 0.18 : 0) +
+            ((newVitals.WBC || 8) > 12 ? 0.08 : 0)
+          );
+          newRisk = Math.min(0.98, Math.max(0.02, Number(newRisk.toFixed(2))));
+
+          const conf = newRisk >= 0.70 ? 'sepsis' : newRisk >= 0.45 ? 'uncertain' : 'no_sepsis';
+          updatePatientRisk(p.id, newRisk, nextHour, conf, newVitals);
+
+          // Genuine Alert Gating with Cooldown
+          const lastAlert = lastAlertHours[p.id] || -99;
+          const cooldownPassed = (nextHour - lastAlert) >= 6; // 6-hour policy cooldown
+
+          if (newRisk >= 0.45 && cooldownPassed) {
+            lastAlertHours[p.id] = nextHour;
+            const isCrit = newRisk >= 0.70;
             const fingerprint = `crit-${p.id}-${nextHour}`;
             if (!triggeredAlertsRef.current.has(fingerprint)) {
               triggeredAlertsRef.current.add(fingerprint);
-              audioAlertService.playCriticalAlarm(fingerprint);
+              if (isCrit) {
+                audioAlertService.playCriticalAlarm(fingerprint);
+              }
               addAlert({
                 id: Date.now() + p.id,
                 patient_id: p.id,
                 patient_code: p.patient_code,
                 bed_number: p.bed_number,
                 hour: nextHour,
-                severity: 'critical',
-                risk_score: Number(newRisk.toFixed(2)),
+                severity: isCrit ? 'critical' : 'moderate',
+                risk_score: newRisk,
                 status: 'active',
                 lead_time_hours: 5.2,
                 message: `Bed ${p.bed_number} (${p.patient_code}) acute sepsis risk elevation to ${(newRisk * 100).toFixed(0)}%. Conformal status: ${conf.toUpperCase()}.`,

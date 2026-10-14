@@ -89,15 +89,13 @@ const DIAGNOSES = [
 ];
 
 const INITIAL_PATIENTS: Patient[] = Array.from({ length: 12 }, (_, i) => {
-  const isCritical = i === 2; // Bed 3
-  const isCaution = i === 6;  // Bed 7
-  const risk = isCritical ? 0.88 : isCaution ? 0.58 : Number((0.12 + (i * 0.02)).toFixed(2));
+  const baseRisk = Number((0.10 + ((i * 2) % 10) * 0.01).toFixed(2));
 
   return {
     id: i + 1,
     patient_code: `p_${i % 2 === 0 ? 'A' : 'B'}_${(i + 1).toString().padStart(5, '0')}`,
     hospital: i % 2 === 0 ? 'setA' : 'setB',
-    age: 50 + (i * 3) % 35,
+    age: 48 + ((i * 4) % 36),
     gender: i % 2,
     unit1: i % 2 === 0 ? 1 : 0,
     unit2: i % 2 === 0 ? 0 : 1,
@@ -105,94 +103,40 @@ const INITIAL_PATIENTS: Patient[] = Array.from({ length: 12 }, (_, i) => {
     is_active: true,
     bed_number: i + 1,
     current_hour: 4,
-    risk: risk,
-    calibrated_prob: isCritical ? 0.84 : isCaution ? 0.55 : Number((risk * 0.95).toFixed(2)),
-    conformal_label: isCritical ? 'sepsis' : isCaution ? 'uncertain' : 'no_sepsis',
-    status: isCritical ? 'critical' : isCaution ? 'caution' : 'normal',
+    risk: baseRisk,
+    calibrated_prob: Number((baseRisk * 0.95).toFixed(2)),
+    conformal_label: 'no_sepsis',
+    status: 'normal',
     diagnosis: DIAGNOSES[i].diag,
     active_treatments: DIAGNOSES[i].treat,
     vitals: {
-      HR: isCritical ? 124 : isCaution ? 98 : 72 + (i * 2),
-      SBP: isCritical ? 82 : isCaution ? 105 : 122 - Math.round(i * 1.5),
-      MAP: isCritical ? 61 : isCaution ? 72 : 86 - i,
-      Resp: isCritical ? 28 : isCaution ? 22 : 16,
-      Temp: isCritical ? 38.8 : isCaution ? 38.1 : 36.9,
-      Lactate: isCritical ? 3.8 : isCaution ? 2.4 : 1.1,
-      WBC: isCritical ? 18.2 : isCaution ? 12.8 : 7.4,
-      O2Sat: isCritical ? 93 : isCaution ? 96 : 98,
+      HR: 70 + ((i * 3) % 15),
+      SBP: 116 + ((i * 4) % 16),
+      MAP: 82 + ((i * 2) % 8),
+      Resp: 15 + (i % 3),
+      Temp: Number((36.7 + (i % 3) * 0.2).toFixed(1)),
+      Lactate: Number((0.9 + (i % 3) * 0.2).toFixed(1)),
+      WBC: Number((6.8 + (i % 4) * 0.5).toFixed(1)),
+      O2Sat: 98 - (i % 3),
     }
   };
 });
 
-const INITIAL_ALERTS: Alert[] = [
-  {
-    id: 1,
-    patient_id: 3,
-    patient_code: 'p_A_00003',
-    bed_number: 3,
-    hour: 4,
-    severity: 'critical',
-    risk_score: 0.88,
-    status: 'active',
-    lead_time_hours: 5.2,
-    message: 'Persistent Tachycardia (HR 124) + MAP Drop (61 mmHg) + Lactate 3.8 mmol/L. Conformal Uncertainty: Low (Sepsis label 90% finite-sample confidence).',
-    created_at: '10 min ago'
-  },
-  {
-    id: 2,
-    patient_id: 7,
-    patient_code: 'p_A_00007',
-    bed_number: 7,
-    hour: 4,
-    severity: 'moderate',
-    risk_score: 0.58,
-    status: 'active',
-    lead_time_hours: 4.5,
-    message: 'Borderline Tachypnea (Resp 22) + Fever (38.1°C) + Lactate 2.4 mmol/L. Conformal prediction: UNCERTAIN set [No-Sepsis, Sepsis].',
-    created_at: '24 min ago'
-  }
-];
+const INITIAL_ALERTS: Alert[] = [];
 
-const INITIAL_ESCALATIONS: EscalationEntry[] = [
-  {
-    id: "ESC-001",
-    bed_number: 3,
-    patient_code: "p_A_00003",
-    patient_id: 3,
-    severity: "critical",
-    risk_score: 0.88,
-    nurse_name: "RN Alex Reed, BSN",
-    notes: "Hypotension (MAP 61 mmHg), SpO2 93%, tachycardia (HR 124). Suspected septic shock.",
-    vitals_snapshot: { HR: 124, MAP: 61, Resp: 28, Temp: 38.8, Lactate: 3.8 },
-    status: "pending",
-    created_at: "5 min ago"
-  },
-  {
-    id: "ESC-002",
-    bed_number: 7,
-    patient_code: "p_A_00007",
-    patient_id: 7,
-    severity: "moderate",
-    risk_score: 0.58,
-    nurse_name: "RN Elena Rostova, BSN",
-    notes: "Borderline fever 38.1°C, resp rate 22, lactate elevated to 2.4. Bedside assessment requested.",
-    vitals_snapshot: { HR: 98, MAP: 72, Resp: 22, Temp: 38.1, Lactate: 2.4 },
-    status: "pending",
-    created_at: "18 min ago"
-  }
-];
+const INITIAL_ESCALATIONS: EscalationEntry[] = [];
 
 const INITIAL_AUDIT_LOG: AuditEntry[] = [
   {
     id: 'AUD-001',
-    alert_id: 'ALT-3-3',
-    bed_number: 3,
-    patient_code: 'p_A_00003',
+    alert_id: 'ALT-INITIAL',
+    bed_number: 1,
+    patient_code: 'p_A_00001',
     clinician_name: 'Dr. Sarah Connor, MD',
-    action_taken: 'Initiated 30 mL/kg IV crystalloid bolus; broad-spectrum antibiotics ordered.',
-    notes: 'Severe hypotension (MAP 61) and elevated lactate concordant with Sepsis-3 definition.',
-    timestamp: '2026-10-13 14:45 UTC',
-    status: 'Acknowledged & Managed'
+    action_taken: 'ICU Shift Handover Complete: All beds calibrated under Split Conformal Prediction.',
+    notes: 'Baseline ward telemetry established; automated early warning active.',
+    timestamp: 'Shift Start',
+    status: 'System Baseline'
   }
 ];
 
@@ -205,9 +149,9 @@ const INITIAL_USER: User = {
 
 export const useStore = create<AppState>((set, get) => ({
   patients: INITIAL_PATIENTS,
-  selectedPatientId: 3, // Default to Bed 3 (the critical alert patient)
+  selectedPatientId: 1,
   alerts: INITIAL_ALERTS,
-  unreadAlertCount: 2,
+  unreadAlertCount: 0,
   auditTrail: INITIAL_AUDIT_LOG,
   lastAckNotice: null,
   setLastAckNotice: (lastAckNotice) => set({ lastAckNotice }),

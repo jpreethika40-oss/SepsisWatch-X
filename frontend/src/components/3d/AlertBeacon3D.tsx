@@ -158,7 +158,17 @@ export const AlertBeacon3D: React.FC<AlertBeacon3DProps> = ({ alerts, onSelectBe
           <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
           <span>
             Critical Monitoring Bay:{' '}
-            <strong className="text-white">Bed 3 (p_A_00003) & Bed 7 (p_A_00007)</strong>
+            {(() => {
+              const active = alerts.filter((a) => a.status === 'active');
+              if (active.length === 0) {
+                return <strong className="text-emerald-400 font-bold">All 12 Beds Compensated & Stable (0 Alarms)</strong>;
+              }
+              return (
+                <strong className="text-red-400 font-bold">
+                  {active.map((a) => `Bed ${a.bed_number} (${a.severity.toUpperCase()})`).join(', ')}
+                </strong>
+              );
+            })()}
           </span>
         </div>
         <span className="text-[10px] text-stone-400">

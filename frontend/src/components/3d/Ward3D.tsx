@@ -396,25 +396,36 @@ export const Ward3D: React.FC<Ward3DProps> = ({ force3D = false }) => {
       </Canvas>
 
       {/* Floating Clinical Legend / HUD */}
-      <div className="absolute top-3 left-3 bg-[#151311]/85 backdrop-blur-md px-3 py-1.5 rounded-lg border border-[#332E29] text-xs font-mono flex flex-wrap items-center gap-3">
-        <div className="flex items-center space-x-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-          <span className="text-[#A09689]">Stable (10)</span>
-        </div>
-        <div className="flex items-center space-x-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-          <span className="text-[#A09689]">Watch (Bed 7)</span>
-        </div>
-        <div className="flex items-center space-x-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
-          <span className="text-red-400 font-bold">Critical Alert (Bed 3)</span>
-        </div>
-        <div className="flex items-center space-x-1.5 border-l border-[#332E29] pl-2">
-          <span className="text-amber-300">
-            {currentRole === 'doctor' ? 'Doctor View Active' : currentRole === 'nurse' ? 'Nurse Triage Active' : 'Chief Governance Active'}
-          </span>
-        </div>
-      </div>
+      {(() => {
+        const criticalBeds = patients.filter((p) => p.status === 'critical' || p.risk >= 0.70);
+        const cautionBeds = patients.filter((p) => p.status === 'caution' || (p.risk >= 0.40 && p.risk < 0.70));
+        const stableCount = patients.length - criticalBeds.length - cautionBeds.length;
+        return (
+          <div className="absolute top-3 left-3 bg-[#151311]/85 backdrop-blur-md px-3 py-1.5 rounded-lg border border-[#332E29] text-xs font-mono flex flex-wrap items-center gap-3">
+            <div className="flex items-center space-x-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+              <span className="text-[#A09689]">Stable ({stableCount})</span>
+            </div>
+            <div className="flex items-center space-x-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+              <span className="text-[#A09689]">
+                Watch ({cautionBeds.length > 0 ? `Bed ${cautionBeds.map(b => b.bed_number).join(', ')}` : '0'})
+              </span>
+            </div>
+            <div className="flex items-center space-x-1.5">
+              <span className={`w-2.5 h-2.5 rounded-full bg-red-500 ${criticalBeds.length > 0 ? 'animate-pulse' : ''}`} />
+              <span className={criticalBeds.length > 0 ? "text-red-400 font-bold" : "text-[#A09689]"}>
+                Critical ({criticalBeds.length > 0 ? `Bed ${criticalBeds.map(b => b.bed_number).join(', ')}` : '0'})
+              </span>
+            </div>
+            <div className="flex items-center space-x-1.5 border-l border-[#332E29] pl-2">
+              <span className="text-amber-300">
+                {currentRole === 'doctor' ? 'Doctor View Active' : currentRole === 'nurse' ? 'Nurse Triage Active' : 'Chief Governance Active'}
+              </span>
+            </div>
+          </div>
+        );
+      })()}
 
       <div className="absolute bottom-3 right-3 bg-[#151311]/85 px-3 py-1 rounded text-[11px] font-mono text-[#A09689] border border-[#332E29]">
         Click bed to focus • Double-click to open 24h EHR Timeline

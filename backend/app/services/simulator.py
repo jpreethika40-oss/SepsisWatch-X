@@ -88,63 +88,29 @@ class WardSimulator:
             hosp = "setA" if i % 2 == 0 else "setB"
             diag, treat = diagnoses[i % len(diagnoses)]
 
-            # Bed 3 is the designated septic shock alert patient
-            # Bed 7 is the borderline caution patient
-            if i + 1 == 3:
-                r_score = 0.88
-                cal_p = 0.84
-                c_label = "sepsis"
-                p_low = 0.76
-                p_up = 0.92
-                is_al = True
-                stat = "critical"
-                sev = "critical"
-                hr = 124.0
-                sbp = 82.0
-                map_val = 61.0
-                resp = 28.0
-                temp = 38.8
-                lactate = 3.8
-                wbc = 18.2
-            elif i + 1 == 7:
-                r_score = 0.58
-                cal_p = 0.55
-                c_label = "uncertain"
-                p_low = 0.44
-                p_up = 0.66
-                is_al = True
-                stat = "caution"
-                sev = "moderate"
-                hr = 98.0
-                sbp = 105.0
-                map_val = 72.0
-                resp = 22.0
-                temp = 38.1
-                lactate = 2.4
-                wbc = 12.8
-            else:
-                r_score = round(0.12 + (i * 0.02), 2)
-                cal_p = round(r_score * 0.95, 2)
-                c_label = "no_sepsis"
-                p_low = max(0.02, r_score - 0.08)
-                p_up = min(0.35, r_score + 0.08)
-                is_al = False
-                stat = "normal"
-                sev = "low"
-                hr = 72.0 + (i * 2)
-                sbp = 122.0 - (i * 1.5)
-                map_val = 86.0 - (i * 1.0)
-                resp = 16.0
-                temp = 36.9
-                lactate = 1.1
-                wbc = 7.4
+            # Initialize realistic individualized baseline vitals for all 12 beds
+            hr = 70.0 + (i * 2.5) % 18
+            sbp = 118.0 + ((i * 3.5) % 16) - 8
+            map_val = (sbp * 2 + 75.0) / 3.0
+            resp = 15.0 + (i % 4)
+            temp = 36.8 + (i % 3) * 0.2
+            lactate = 1.0 + (i % 3) * 0.2
+            wbc = 7.0 + (i % 4) * 0.8
+            r_score = round(0.10 + (i * 0.02) % 0.18, 2)
+            cal_p = round(r_score * 0.95, 2)
+            c_label = "no_sepsis"
+            p_low = max(0.02, r_score - 0.08)
+            p_up = min(0.35, r_score + 0.08)
+            is_al = False
+            stat = "normal"
+            sev = "low"
 
             self.beds_state.append({
                 "bed_id": i + 1,
                 "patient_id": i + 1,
                 "patient_code": pid,
                 "hospital": hosp,
-                "age": 55 + (i * 3) % 30,
+                "age": 52 + (i * 4) % 32,
                 "gender": i % 2,
                 "current_hour": 4,
                 "risk_score": r_score,
@@ -157,18 +123,21 @@ class WardSimulator:
                 "severity": sev,
                 "diagnosis": diag,
                 "active_treatments": treat,
+                "trajectory_state": "stable",
+                "phase_ticks": 0,
                 "vitals": {
                     "HR": float(hr),
                     "SBP": float(sbp),
                     "MAP": float(map_val),
                     "Resp": float(resp),
                     "Temp": float(temp),
-                    "O2Sat": 93.0 if i + 1 == 3 else 96.0 if i + 1 == 7 else 98.0,
+                    "O2Sat": 98.0 - (i % 3),
                     "Lactate": float(lactate),
                     "WBC": float(wbc)
                 },
                 "df": df,
-                "alarms_count": 1 if is_al else 0
+                "alarms_count": 0,
+                "last_alert_hour": -99
             })
 
     async def connect(self, websocket: WebSocket):
@@ -198,49 +167,81 @@ class WardSimulator:
             self.disconnect(ws)
 
     def advance_tick(self) -> List[Dict[str, Any]]:
-        """Advances simulation by 1 hour for all 12 beds."""
+        """Advances simulation by 1 hour for all 12 beds with dynamic Markov physiological transitions."""
         self.current_tick += 1
         updated_beds = []
 
         for bed in self.beds_state:
-            hour = (bed["current_hour"] % 40) + 1
+            hour = (bed["current_hour"] % 48) + 1
             bed["current_hour"] = hour
+            bed["phase_ticks"] = bed.get("phase_ticks", 0) + 1
 
-            # Synthetic physiological progression:
-            # Bed 3 deteriorates into septic shock around hour 12
-            # Bed 7 shows borderline inflammatory spike
-            # Other beds stay largely stable
-            bed_idx = bed["bed_id"]
+            v = bed["vitals"]
+            traj = bed.get("trajectory_state", "stable")
+            ticks = bed["phase_ticks"]
 
-            if bed_idx == 3 and hour >= 10:
-                hr = min(145.0, 85.0 + (hour - 10) * 6.5)
-                sbp = max(75.0, 115.0 - (hour - 10) * 4.5)
-                map_val = (sbp * 2 + 50) / 3.0
-                resp = min(32.0, 18.0 + (hour - 10) * 1.5)
-                temp = min(39.4, 37.2 + (hour - 10) * 0.25)
-                lactate = min(4.8, 1.2 + (hour - 10) * 0.45)
-                raw_risk = min(0.94, 0.45 + (hour - 10) * 0.08)
-            elif bed_idx == 7 and 8 <= hour <= 18:
-                hr = 98.0 + np.random.randn() * 3.0
-                sbp = 105.0 + np.random.randn() * 4.0
-                map_val = 72.0
-                resp = 22.0
-                temp = 38.1
-                lactate = 2.4
-                raw_risk = 0.58 + np.random.randn() * 0.04
-            else:
-                hr = 72.0 + np.sin(hour / 4.0) * 8.0 + np.random.randn() * 2.0
-                sbp = 120.0 + np.cos(hour / 4.0) * 6.0
-                map_val = (sbp * 2 + 75) / 3.0
-                resp = 16.0 + np.random.randn() * 1.0
-                temp = 36.8 + np.random.randn() * 0.2
-                lactate = 1.1
-                raw_risk = 0.12 + (hour * 0.005) + np.random.randn() * 0.02
+            # Markov State Transitions: Any bed can randomly experience acute sepsis onset
+            if traj == "stable":
+                # Stochastically trigger acute deterioration on any bed (~8% probability per hour)
+                if np.random.rand() < 0.08 and ticks > 3:
+                    bed["trajectory_state"] = "deteriorating"
+                    bed["phase_ticks"] = 0
+                else:
+                    # Normal random walk around baseline
+                    v["HR"] = float(np.clip(v["HR"] + np.random.randn() * 1.5, 60.0, 95.0))
+                    v["SBP"] = float(np.clip(v["SBP"] + np.random.randn() * 2.0, 105.0, 138.0))
+                    v["MAP"] = float((v["SBP"] * 2 + 75.0) / 3.0)
+                    v["Resp"] = float(np.clip(v["Resp"] + np.random.randn() * 0.8, 12.0, 20.0))
+                    v["Temp"] = float(np.clip(v["Temp"] + np.random.randn() * 0.1, 36.5, 37.4))
+                    v["Lactate"] = float(np.clip(v["Lactate"] + np.random.randn() * 0.05, 0.7, 1.8))
+                    v["WBC"] = float(np.clip(v["WBC"] + np.random.randn() * 0.2, 5.0, 10.5))
 
-            raw_risk = float(np.clip(raw_risk, 0.01, 0.99))
-            cal_risk = float(np.clip(raw_risk * 0.96, 0.01, 0.98))
+            elif traj == "deteriorating":
+                # Progressive physiological decompensation
+                v["HR"] = float(np.clip(v["HR"] + np.random.uniform(3.0, 7.0), 75.0, 142.0))
+                v["SBP"] = float(np.clip(v["SBP"] - np.random.uniform(2.5, 6.0), 70.0, 125.0))
+                v["MAP"] = float((v["SBP"] * 2 + 50.0) / 3.0)
+                v["Resp"] = float(np.clip(v["Resp"] + np.random.uniform(1.0, 2.5), 16.0, 34.0))
+                v["Temp"] = float(np.clip(v["Temp"] + np.random.uniform(0.15, 0.35), 37.2, 39.5))
+                v["Lactate"] = float(np.clip(v["Lactate"] + np.random.uniform(0.25, 0.65), 1.2, 5.4))
+                v["WBC"] = float(np.clip(v["WBC"] + np.random.uniform(0.6, 1.8), 9.0, 22.0))
+                v["O2Sat"] = float(np.clip(v.get("O2Sat", 98.0) - np.random.uniform(0.5, 1.2), 88.0, 97.0))
 
-            # Conformal bounds
+                # After 4-6 hours of deterioration, clinician intervention / resuscitation begins
+                if ticks >= 5:
+                    bed["trajectory_state"] = "recovering"
+                    bed["phase_ticks"] = 0
+
+            elif traj == "recovering":
+                # Resuscitation response: fluid bolus and antibiotics taking effect
+                v["HR"] = float(np.clip(v["HR"] - np.random.uniform(3.0, 6.0), 68.0, 120.0))
+                v["SBP"] = float(np.clip(v["SBP"] + np.random.uniform(3.0, 6.0), 85.0, 125.0))
+                v["MAP"] = float((v["SBP"] * 2 + 65.0) / 3.0)
+                v["Resp"] = float(np.clip(v["Resp"] - np.random.uniform(0.8, 1.8), 14.0, 24.0))
+                v["Temp"] = float(np.clip(v["Temp"] - np.random.uniform(0.15, 0.30), 36.8, 38.5))
+                v["Lactate"] = float(np.clip(v["Lactate"] - np.random.uniform(0.3, 0.7), 0.9, 4.0))
+                v["WBC"] = float(np.clip(v["WBC"] - np.random.uniform(0.5, 1.2), 6.5, 16.0))
+                v["O2Sat"] = float(np.clip(v.get("O2Sat", 93.0) + np.random.uniform(0.5, 1.2), 92.0, 99.0))
+
+                if ticks >= 5 or (v["MAP"] >= 70.0 and v["Lactate"] <= 1.8):
+                    bed["trajectory_state"] = "stable"
+                    bed["phase_ticks"] = 0
+
+            # Dynamic multivariate risk estimation
+            shock_index = v["HR"] / max(v["SBP"], 40.0)
+            raw_risk = (
+                0.06 +
+                (shock_index - 0.70) * 0.42 +
+                max(0.0, v["Lactate"] - 1.0) * 0.14 +
+                (v["Temp"] > 38.2 or v["Temp"] < 36.0) * 0.12 +
+                (v["Resp"] > 22.0) * 0.10 +
+                (v["MAP"] < 65.0) * 0.18 +
+                (v["WBC"] > 12.0) * 0.08
+            )
+            raw_risk = float(np.clip(raw_risk, 0.02, 0.98))
+            cal_risk = float(np.clip(raw_risk * 0.96, 0.02, 0.96))
+
+            # Conformal bounds (90% finite-sample coverage)
             q_hat = getattr(self.conformal, "q_hat", 0.08) if self.conformal else 0.08
             p_low = max(0.0, cal_risk - q_hat)
             p_up = min(1.0, cal_risk + q_hat)
@@ -248,21 +249,25 @@ class WardSimulator:
             if cal_risk >= 0.70:
                 conformal_label = "sepsis"
                 status = "critical"
-            elif cal_risk >= 0.45 or (p_up - p_low > 0.15 and cal_risk > 0.40):
+            elif cal_risk >= 0.45 or (p_up - p_low > 0.15 and cal_risk >= 0.40):
                 conformal_label = "uncertain"
                 status = "caution"
             else:
                 conformal_label = "no_sepsis"
                 status = "normal"
 
-            # Alarm budget policy decision
+            # Genuine Alert budget gating (No alarm fatigue / spamming)
             is_alert = False
             severity = "low"
-            if cal_risk >= self.policy_controller.tau and bed["alarms_count"] < self.policy_controller.max_alarms:
+            last_alert = bed.get("last_alert_hour", -99)
+            cooldown_passed = (hour - last_alert) >= self.policy_controller.cooldown
+
+            if cal_risk >= self.policy_controller.tau and cooldown_passed:
                 if status in ("critical", "caution"):
                     is_alert = True
-                    bed["alarms_count"] += 1
-                    severity = "critical" if cal_risk >= 0.75 else "high" if cal_risk >= 0.60 else "moderate"
+                    bed["alarms_count"] = bed.get("alarms_count", 0) + 1
+                    bed["last_alert_hour"] = hour
+                    severity = "critical" if cal_risk >= 0.70 else "moderate"
 
             bed["risk_score"] = round(raw_risk, 4)
             bed["calibrated_prob"] = round(cal_risk, 4)
@@ -273,19 +278,16 @@ class WardSimulator:
             bed["is_alert"] = is_alert
             bed["severity"] = severity
             bed["vitals"] = {
-                "HR": round(float(hr), 1),
-                "SBP": round(float(sbp), 1),
-                "MAP": round(float(map_val), 1),
-                "Resp": round(float(resp), 1),
-                "Temp": round(float(temp), 1),
-                "O2Sat": 93.0 if bed_idx == 3 else 96.0 if bed_idx == 7 else 98.0,
-                "Lactate": round(float(lactate), 1),
-                "WBC": round(float(18.2 if bed_idx == 3 else 12.8 if bed_idx == 7 else 7.4), 1)
+                "HR": round(float(v["HR"]), 1),
+                "SBP": round(float(v["SBP"]), 1),
+                "MAP": round(float(v["MAP"]), 1),
+                "Resp": round(float(v["Resp"]), 1),
+                "Temp": round(float(v["Temp"]), 1),
+                "O2Sat": round(float(v.get("O2Sat", 98.0)), 1),
+                "Lactate": round(float(v["Lactate"]), 1),
+                "WBC": round(float(v["WBC"]), 1)
             }
-
-            updated_beds.append(bed)
-
-        return updated_beds
+        return self.get_ward_snapshot()
 
     def get_ward_snapshot(self) -> List[Dict[str, Any]]:
         """Returns clean serialization of current ward state."""

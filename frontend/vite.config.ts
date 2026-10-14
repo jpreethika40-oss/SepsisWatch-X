@@ -22,6 +22,14 @@ export default defineConfig({
         target: 'ws://localhost:8000',
         ws: true,
       },
+      '/figures': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
+      '/gradio': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
     },
   },
   build: {

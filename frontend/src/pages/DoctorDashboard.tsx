@@ -26,14 +26,14 @@ export const DoctorDashboard: React.FC = () => {
   const [ackNotice, setAckNotice] = useState<string | null>(null);
 
   // Focus patient selection
-  const [focusPatientId, setFocusPatientId] = useState<number>(3); // Default to Bed 3 (Septic Shock)
+  const [focusPatientId, setFocusPatientId] = useState<number>(1);
 
   const pendingEscalations = escalations.filter(e => e.status === 'pending');
   const activeAlerts = alerts.filter(a => a.status === 'active');
   const criticalPatients = patients.filter(p => p.status === 'critical' || p.risk >= 0.70);
   const cautionPatients = patients.filter(p => p.status === 'caution' || (p.risk >= 0.40 && p.risk < 0.70));
 
-  const focusPatient = patients.find(p => p.id === focusPatientId) || patients[2] || patients[0];
+  const focusPatient = patients.find(p => p.id === focusPatientId) || patients[0];
 
   // Select / Deselect individual escalation
   const toggleEscalationSelection = (id: string) => {
@@ -136,14 +136,18 @@ export const DoctorDashboard: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="glass-panel p-4 rounded-xl border border-stone-800">
           <span className="text-[10px] text-stone-400 font-mono uppercase">ICU Bed Census</span>
-          <p className="text-2xl font-bold font-display text-white mt-1">12 Beds</p>
-          <p className="text-[11px] text-emerald-400 font-mono mt-0.5">10 Normal • 1 Caution • 1 Critical</p>
+          <p className="text-2xl font-bold font-display text-white mt-1">{patients.length} Beds</p>
+          <p className="text-[11px] text-emerald-400 font-mono mt-0.5">
+            {Math.max(0, patients.length - cautionPatients.length - criticalPatients.length)} Normal • {cautionPatients.length} Caution • {criticalPatients.length} Critical
+          </p>
         </div>
 
         <div className="glass-panel p-4 rounded-xl border border-red-500/30 bg-red-950/10">
           <span className="text-[10px] text-red-300 font-mono uppercase">Critical Sepsis Patients</span>
-          <p className="text-2xl font-bold font-display text-red-400 mt-1">{criticalPatients.length} Bed</p>
-          <p className="text-[11px] text-red-300/80 font-mono mt-0.5">Bed 03 (Septic Shock / High Lactate)</p>
+          <p className="text-2xl font-bold font-display text-red-400 mt-1">{criticalPatients.length} Bed{criticalPatients.length !== 1 ? 's' : ''}</p>
+          <p className="text-[11px] text-red-300/80 font-mono mt-0.5">
+            {criticalPatients.length > 0 ? criticalPatients.map(p => `Bed ${p.bed_number.toString().padStart(2, '0')}`).join(', ') : 'All active beds stable'}
+          </p>
         </div>
 
         <div className="glass-panel p-4 rounded-xl border border-amber-500/30 bg-amber-950/10">
@@ -412,65 +416,100 @@ export const DoctorDashboard: React.FC = () => {
           </div>
 
           <div className="space-y-3 font-mono text-xs">
-            <div>
-              <div className="flex justify-between text-[11px] mb-1">
-                <span className="text-stone-300">Serum Lactate Elevation (3.8 mmol/L)</span>
-                <span className="text-red-400 font-bold">+0.32 SHAP</span>
-              </div>
-              <div className="w-full bg-stone-900 h-2 rounded-full overflow-hidden">
-                <div className="bg-red-500 h-full rounded-full" style={{ width: '85%' }}></div>
-              </div>
-            </div>
+            {(() => {
+              const lac = focusPatient.vitals?.Lactate ?? 1.1;
+              const map = focusPatient.vitals?.MAP ?? 82;
+              const hr = focusPatient.vitals?.HR ?? 72;
+              const sbp = focusPatient.vitals?.SBP ?? 120;
+              const resp = focusPatient.vitals?.Resp ?? 16;
+              const si = (hr / Math.max(sbp, 40)).toFixed(2);
+              const isCrit = focusPatient.risk >= 0.70;
+              const isCaut = focusPatient.risk >= 0.45;
 
-            <div>
-              <div className="flex justify-between text-[11px] mb-1">
-                <span className="text-stone-300">Mean Arterial Pressure Drop (61 mmHg)</span>
-                <span className="text-red-400 font-bold">+0.28 SHAP</span>
-              </div>
-              <div className="w-full bg-stone-900 h-2 rounded-full overflow-hidden">
-                <div className="bg-red-500 h-full rounded-full" style={{ width: '74%' }}></div>
-              </div>
-            </div>
+              return (
+                <>
+                  <div>
+                    <div className="flex justify-between text-[11px] mb-1">
+                      <span className="text-stone-300">Serum Lactate ({lac} mmol/L)</span>
+                      <span className={`${lac > 2.0 ? 'text-red-400' : 'text-emerald-400'} font-bold`}>
+                        {lac > 2.0 ? `+${(0.12 * (lac - 1.0)).toFixed(2)} SHAP` : '-0.08 SHAP'}
+                      </span>
+                    </div>
+                    <div className="w-full bg-stone-900 h-2 rounded-full overflow-hidden">
+                      <div 
+                        className={`${lac > 2.0 ? 'bg-red-500' : 'bg-emerald-500'} h-full rounded-full transition-all`} 
+                        style={{ width: `${Math.min(100, Math.max(15, (lac / 5.0) * 100))}%` }}
+                      ></div>
+                    </div>
+                  </div>
 
-            <div>
-              <div className="flex justify-between text-[11px] mb-1">
-                <span className="text-stone-300">Shock Index (HR 124 / SBP 82 = 1.51)</span>
-                <span className="text-red-400 font-bold">+0.21 SHAP</span>
-              </div>
-              <div className="w-full bg-stone-900 h-2 rounded-full overflow-hidden">
-                <div className="bg-orange-500 h-full rounded-full" style={{ width: '60%' }}></div>
-              </div>
-            </div>
+                  <div>
+                    <div className="flex justify-between text-[11px] mb-1">
+                      <span className="text-stone-300">Mean Arterial Pressure ({map} mmHg)</span>
+                      <span className={`${map < 65 ? 'text-red-400' : 'text-emerald-400'} font-bold`}>
+                        {map < 65 ? `+${(0.20 + (65 - map) * 0.01).toFixed(2)} SHAP` : '-0.12 SHAP'}
+                      </span>
+                    </div>
+                    <div className="w-full bg-stone-900 h-2 rounded-full overflow-hidden">
+                      <div 
+                        className={`${map < 65 ? 'bg-red-500' : 'bg-emerald-500'} h-full rounded-full transition-all`} 
+                        style={{ width: `${Math.min(100, Math.max(15, map < 65 ? 85 : 25))}%` }}
+                      ></div>
+                    </div>
+                  </div>
 
-            <div>
-              <div className="flex justify-between text-[11px] mb-1">
-                <span className="text-stone-300">Tachypnea & Respiratory Rate (28 /min)</span>
-                <span className="text-amber-400 font-bold">+0.14 SHAP</span>
-              </div>
-              <div className="w-full bg-stone-900 h-2 rounded-full overflow-hidden">
-                <div className="bg-amber-500 h-full rounded-full" style={{ width: '42%' }}></div>
-              </div>
-            </div>
+                  <div>
+                    <div className="flex justify-between text-[11px] mb-1">
+                      <span className="text-stone-300">Shock Index (HR {hr} / SBP {sbp} = {si})</span>
+                      <span className={`${parseFloat(si) >= 0.90 ? 'text-red-400' : 'text-emerald-400'} font-bold`}>
+                        {parseFloat(si) >= 0.90 ? `+${((parseFloat(si) - 0.7) * 0.35).toFixed(2)} SHAP` : '-0.06 SHAP'}
+                      </span>
+                    </div>
+                    <div className="w-full bg-stone-900 h-2 rounded-full overflow-hidden">
+                      <div 
+                        className={`${parseFloat(si) >= 0.90 ? 'bg-red-500' : 'bg-emerald-500'} h-full rounded-full transition-all`} 
+                        style={{ width: `${Math.min(100, Math.max(15, (parseFloat(si) / 1.5) * 80))}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-[11px] mb-1">
+                      <span className="text-stone-300">Respiratory Rate ({resp} /min)</span>
+                      <span className={`${resp > 22 ? 'text-amber-400' : 'text-emerald-400'} font-bold`}>
+                        {resp > 22 ? `+${((resp - 20) * 0.02).toFixed(2)} SHAP` : '-0.05 SHAP'}
+                      </span>
+                    </div>
+                    <div className="w-full bg-stone-900 h-2 rounded-full overflow-hidden">
+                      <div 
+                        className={`${resp > 22 ? 'bg-amber-500' : 'bg-emerald-500'} h-full rounded-full transition-all`} 
+                        style={{ width: `${Math.min(100, Math.max(15, (resp / 35) * 100))}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
           </div>
 
           {/* Sepsis-3 Diagnostic Checklist */}
           <div className="p-3.5 rounded-xl bg-stone-900/60 border border-stone-800 space-y-2 mt-4 text-xs font-mono">
             <h4 className="font-bold text-white flex items-center space-x-1.5">
               <ShieldAlert className="w-3.5 h-3.5 text-orange-400" />
-              <span>Sepsis-3 Consensus Criteria Status:</span>
+              <span>Sepsis-3 Consensus Criteria Status (Bed {focusPatient.bed_number}):</span>
             </h4>
             <div className="space-y-1 text-stone-300 text-[11px]">
-              <div className="flex items-center space-x-1.5 text-red-400">
-                <span>✕</span>
-                <span>SOFA Score Acute Change &ge; 2 points: <strong>Met (+4)</strong></span>
+              <div className={`flex items-center space-x-1.5 ${focusPatient.risk >= 0.70 ? 'text-red-400' : focusPatient.risk >= 0.45 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                <span>{focusPatient.risk >= 0.45 ? '✕' : '✓'}</span>
+                <span>SOFA Score Acute Change &ge; 2 points: <strong>{focusPatient.risk >= 0.70 ? 'Met (+4)' : focusPatient.risk >= 0.45 ? 'Borderline (+1)' : 'Baseline Stable (0)'}</strong></span>
               </div>
-              <div className="flex items-center space-x-1.5 text-red-400">
-                <span>✕</span>
-                <span>Refractory Hypotension requiring vasopressors: <strong>Met</strong></span>
+              <div className={`flex items-center space-x-1.5 ${(focusPatient.vitals?.MAP ?? 80) < 65 ? 'text-red-400' : 'text-emerald-400'}`}>
+                <span>{(focusPatient.vitals?.MAP ?? 80) < 65 ? '✕' : '✓'}</span>
+                <span>Hypotension (MAP &lt; 65 mmHg): <strong>{(focusPatient.vitals?.MAP ?? 80) < 65 ? `Met (${focusPatient.vitals?.MAP} mmHg)` : `Normal (${focusPatient.vitals?.MAP ?? 82} mmHg)`}</strong></span>
               </div>
-              <div className="flex items-center space-x-1.5 text-red-400">
-                <span>✕</span>
-                <span>Serum Lactate &gt; 2.0 mmol/L despite fluid challenge: <strong>Met (3.8)</strong></span>
+              <div className={`flex items-center space-x-1.5 ${(focusPatient.vitals?.Lactate ?? 1.1) > 2.0 ? 'text-red-400' : 'text-emerald-400'}`}>
+                <span>{(focusPatient.vitals?.Lactate ?? 1.1) > 2.0 ? '✕' : '✓'}</span>
+                <span>Serum Lactate &gt; 2.0 mmol/L: <strong>{(focusPatient.vitals?.Lactate ?? 1.1) > 2.0 ? `Met (${focusPatient.vitals?.Lactate} mmol/L)` : `Normal (${focusPatient.vitals?.Lactate ?? 1.1} mmol/L)`}</strong></span>
               </div>
             </div>
           </div>

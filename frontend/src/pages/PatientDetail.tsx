@@ -41,7 +41,7 @@ export const PatientDetail: React.FC = () => {
     const h = i + 1;
     // Deterioration dynamics around onset hour 12
     const onsetHour = 12;
-    const isSepticPatient = currentPatient.id === 3 || currentPatient.risk >= 0.7;
+    const isSepticPatient = currentPatient.risk >= 0.45 || currentPatient.status === 'critical' || currentPatient.status === 'caution';
     const progress = isSepticPatient && h >= 6 ? Math.min(1.0, (h - 6) / 8) : 0.05;
 
     const baseRisk = 0.12 + progress * 0.76;

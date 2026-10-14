@@ -13,43 +13,9 @@ from backend.app.services.simulator import simulator
 
 router = APIRouter(prefix="/api/escalations", tags=["Nurse-to-Doctor Escalation"])
 
-# In-memory escalation queue
-ESCALATIONS_STORE: List[Dict[str, Any]] = [
-    {
-        "id": "ESC-001",
-        "bed_number": 3,
-        "patient_code": "p_A_00003",
-        "patient_id": 3,
-        "severity": "critical",
-        "risk_score": 0.88,
-        "nurse_name": "RN Alex Reed, BSN",
-        "notes": "Hypotension (MAP 61 mmHg), SpO2 93%, tachycardia (HR 124). Suspected septic shock.",
-        "vitals_snapshot": {"HR": 124, "MAP": 61, "Resp": 28, "Temp": 38.8, "Lactate": 3.8},
-        "status": "pending",  # 'pending', 'acknowledged'
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "acknowledged_by": None,
-        "acknowledged_at": None,
-        "doctor_orders": None,
-        "signature_pin": None
-    },
-    {
-        "id": "ESC-002",
-        "bed_number": 7,
-        "patient_code": "p_A_00007",
-        "patient_id": 7,
-        "severity": "moderate",
-        "risk_score": 0.58,
-        "nurse_name": "RN Elena Rostova, BSN",
-        "notes": "Borderline fever 38.1°C, resp rate 22, lactate elevated to 2.4. Bedside assessment requested.",
-        "vitals_snapshot": {"HR": 98, "MAP": 72, "Resp": 22, "Temp": 38.1, "Lactate": 2.4},
-        "status": "pending",
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "acknowledged_by": None,
-        "acknowledged_at": None,
-        "doctor_orders": None,
-        "signature_pin": None
-    }
-]
+# In-memory escalation queue (populated dynamically when bedside nurses escalate critical patients)
+ESCALATIONS_STORE: List[Dict[str, Any]] = []
+
 
 
 class CreateEscalationRequest(BaseModel):

@@ -56,11 +56,25 @@ async def set_speed(req: SpeedRequest):
     return {"status": "Speed Updated", "sim_speed": simulator.sim_speed}
 
 
+@router.post("/simulator/step")
+@router.post("/sim/tick")
+async def step_sim():
+    """Advances simulation by 1 hour for all 12 beds."""
+    updated = simulator.advance_tick()
+    # Broadcast snapshot to any connected websockets
+    snapshot = simulator.get_ward_snapshot()
+    await simulator.broadcast({"type": "snapshot", "data": snapshot})
+    return {"status": "ok", "tick": simulator.current_tick, "beds": updated}
+
+
 @router.post("/simulator/reset")
+@router.post("/sim/reset")
 async def reset_sim():
     """Resets all 12 beds to baseline hour 1 state."""
     simulator.current_tick = 1
     simulator._init_models_and_beds()
+    snapshot = simulator.get_ward_snapshot()
+    await simulator.broadcast({"type": "snapshot", "data": snapshot})
     return {"status": "Simulator Reset to Baseline", "current_tick": 1}
 
 

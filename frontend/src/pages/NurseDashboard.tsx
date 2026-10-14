@@ -201,22 +201,44 @@ export const NurseDashboard: React.FC = () => {
                 Continuous 3D Telemetry Active: Rotate and zoom with mouse. Click any 3D bed pod to inspect.
               </span>
               <div className="flex items-center space-x-2">
-                <button
-                  type="button"
-                  onClick={() => handleOpenEscalation(patients.find(p => p.bed_number === 3) || patients[2])}
-                  className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold transition flex items-center space-x-1.5 shadow-md shadow-red-950/40 cursor-pointer"
-                >
-                  <AlertCircle className="w-3.5 h-3.5" />
-                  <span>Escalate Bed 3 (Critical Alert) &rarr;</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleOpenEscalation(patients.find(p => p.bed_number === 7) || patients[6])}
-                  className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold transition flex items-center space-x-1.5 cursor-pointer"
-                >
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  <span>Escalate Bed 7 (Watch) &rarr;</span>
-                </button>
+                {(() => {
+                  const sorted = [...patients].sort((a, b) => b.risk - a.risk);
+                  const p1 = sorted[0];
+                  const p2 = sorted[1];
+                  return (
+                    <>
+                      {p1 && p1.risk >= 0.40 ? (
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEscalation(p1)}
+                          className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold transition flex items-center space-x-1.5 shadow-md shadow-red-950/40 cursor-pointer"
+                        >
+                          <AlertCircle className="w-3.5 h-3.5" />
+                          <span>Escalate Bed {p1.bed_number} ({p1.risk >= 0.70 ? 'Critical' : 'Caution'} {Math.round(p1.risk * 100)}%) &rarr;</span>
+                        </button>
+                      ) : null}
+                      {p2 && p2.risk >= 0.35 ? (
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEscalation(p2)}
+                          className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold transition flex items-center space-x-1.5 cursor-pointer"
+                        >
+                          <AlertTriangle className="w-3.5 h-3.5" />
+                          <span>Escalate Bed {p2.bed_number} (Watch {Math.round(p2.risk * 100)}%) &rarr;</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEscalation(p1 || patients[0])}
+                          className="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 font-semibold transition flex items-center space-x-1.5 cursor-pointer border border-stone-700"
+                        >
+                          <Activity className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>All Beds Stable • Bedside Triage &rarr;</span>
+                        </button>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             </div>
           </div>
