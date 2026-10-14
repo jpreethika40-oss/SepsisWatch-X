@@ -7,7 +7,10 @@ Roles: 'viewer', 'clinician', 'admin'.
 import hashlib
 from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, Optional
-import jwt
+try:
+    import jwt
+except ImportError:
+    from jose import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
